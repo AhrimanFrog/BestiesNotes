@@ -11,6 +11,11 @@ class SchedulePage extends StatefulWidget {
 class _SchedulePageState extends State<SchedulePage> {
   @override
   Widget build(BuildContext context) {
-    return WhiteBox(child: SafeArea(child: Text("Schedule will be here")));
+    return WhiteBox(
+      child: SafeArea(child: Table(children: [
+        
+      ],
+    )),
+    );
   }
 }
