@@ -1,16 +1,14 @@
+import 'package:besties_notes/widgets/white_box.dart';
 import 'package:flutter/material.dart';
-
-import 'pages/schedule_page.dart';
-import 'pages/students_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,7 +33,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          body: const TabBarView(children: [SchedulePage(), StudentsPage()]),
+          body: const TabBarView(children: [WhiteBox(), WhiteBox()]),
         ),
       ),
     );
