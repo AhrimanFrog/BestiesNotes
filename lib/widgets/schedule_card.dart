@@ -1,3 +1,6 @@
+import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/widgets/lesson_card.dart';
+import 'package:besties_notes/widgets/day_title.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleCard extends StatelessWidget {
@@ -5,33 +8,21 @@ class ScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
         children: [
-          // Date header
-          const Text(
-            'MON',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          DayTitle(weekDay: "MON", date: "29 sep"),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              children: [
+                LessonCard(lesson: Lesson.demoActive()),
+                SizedBox(height: 14),
+                LessonCard(lesson: Lesson.demoNonActive()),
+              ],
+            ),
           ),
-          const Text(
-            'Sep 29',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 16),
-          const SizedBox(height: 12),
         ],
       ),
     );

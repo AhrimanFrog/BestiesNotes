@@ -1,3 +1,4 @@
+import 'rate.dart';
 import 'group.dart';
 import 'teachable.dart';
 
@@ -10,4 +11,12 @@ class Student extends Teachable {
     super.iconPath,
     this.group,
   });
+
+  Student.demo()
+      : group = null,
+        super(
+          name: "Denis Skvorzov",
+          pricing: Rate(rate: 420, period: .daily),
+          iconPath: null,
+        );
 }
