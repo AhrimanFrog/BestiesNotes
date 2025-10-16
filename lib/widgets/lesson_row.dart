@@ -1,5 +1,5 @@
 import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/data/lesson.dart';
+import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:flutter/material.dart';
 

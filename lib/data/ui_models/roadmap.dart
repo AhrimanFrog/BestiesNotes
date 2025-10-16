@@ -15,9 +15,9 @@ class Roadmap {
 }
 
 class RoadmapNode {
-  String title;
-  bool paid;
-  bool homeworkDone;
+  final String title;
+  final bool paid;
+  final bool homeworkDone;
 
-  RoadmapNode(this.title, {required this.paid, required this.homeworkDone});
+  const RoadmapNode(this.title, {required this.paid, required this.homeworkDone});
 }

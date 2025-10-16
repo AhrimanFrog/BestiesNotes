@@ -1,4 +1,4 @@
-import 'package:besties_notes/data/lesson.dart';
+import 'package:besties_notes/data/ui_models/lesson.dart';
 
 class ScheduleViewModel {
   List<Lesson> lessons = [];
