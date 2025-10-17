@@ -17,7 +17,7 @@ class DayTitle extends StatelessWidget {
       children: [
         Text(
           weekDay,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: AppColors.mainText,
@@ -26,7 +26,7 @@ class DayTitle extends StatelessWidget {
         SizedBox(height: 4),
         Text(
           date,
-          style: TextStyle(color: AppColors.secondaryText, fontSize: 14),
+          style: const TextStyle(color: AppColors.secondaryText, fontSize: 14),
         ),
       ],
     );

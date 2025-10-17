@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         child: Scaffold(
           bottomNavigationBar: Container(
             color: Theme.of(context).colorScheme.surface,
-            child: TabBar(
+            child: const TabBar(
               padding: EdgeInsets.only(bottom: 20),
               dividerHeight: 0,
               indicator: BoxDecoration(),

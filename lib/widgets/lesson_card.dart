@@ -63,7 +63,7 @@ class LessonCard extends StatelessWidget {
                   children: [
                     Text(
                       lesson.subject.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                         color: AppColors.mainText,
@@ -71,7 +71,7 @@ class LessonCard extends StatelessWidget {
                     ),
                     Text(
                       lesson.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.secondaryText,
                         fontSize: 13,
                       ),
