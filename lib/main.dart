@@ -1,5 +1,4 @@
 import 'package:besties_notes/views/schedule_view/schedule_view.dart';
-import 'package:besties_notes/widgets/white_box.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +34,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          body: const TabBarView(children: [SchedulePage(), WhiteBox()]),
+          body: const TabBarView(children: [SchedulePage(), SchedulePage()]),
         ),
       ),
     );

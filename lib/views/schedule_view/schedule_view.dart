@@ -10,6 +10,6 @@ class SchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WhiteBox(child: SafeArea(child: ScheduleCard()));
+    return SafeArea(child: ScheduleCard());
   }
 }
