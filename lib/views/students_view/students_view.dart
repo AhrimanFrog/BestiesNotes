@@ -1,3 +1,4 @@
+import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 
 class StudentsPage extends StatelessWidget {
@@ -5,6 +6,10 @@ class StudentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Students will be here");
+    return GradientBackground(
+      child: SafeArea(
+        child: Text("Students will be here"),
+      ),
+    );
   }
 }

@@ -10,6 +10,8 @@ class SchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: ScheduleCard());
+    return GradientBackground(
+      child: SafeArea(child: ScheduleCard()),
+    );
   }
 }
