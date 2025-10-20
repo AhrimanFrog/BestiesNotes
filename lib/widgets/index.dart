@@ -1,5 +1,11 @@
 export 'lesson_card.dart';
 export 'schedule_card.dart';
 export 'initials_circle.dart';
-export 'day_title.dart';
+export 'texts/day_title.dart';
 export 'gradient_background.dart';
+export 'texts/tag.dart';
+export 'rows/person_row.dart';
+export 'small_icon_button.dart';
+export 'rows/time_row.dart';
+export 'rows/note_row.dart';
+export 'rows/modal_header_row.dart';

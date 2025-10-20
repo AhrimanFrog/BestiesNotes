@@ -29,4 +29,6 @@ class Lesson<T extends Teachable> {
   bool get isNow =>
       DateTime.now().isAfter(start) &&
       DateTime.now().isBefore(start.add(duration));
+
+  DateTime get end => start.add(duration);
 }
