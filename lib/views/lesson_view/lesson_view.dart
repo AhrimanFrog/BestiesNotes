@@ -16,22 +16,20 @@ class LessonView extends StatelessWidget {
         color: AppColors.softWarmPink,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Expanded(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            ModalHeaderRow(
-              title: lesson.name,
-              icon: Icons.business_center_outlined,
-            ),
-            const SizedBox(height: 28),
-            PersonRow(subject: lesson.subject),
-            const SizedBox(height: 28),
-            TimeRow(start: lesson.start, end: lesson.end),
-            const SizedBox(height: 28),
-            NoteRow(note: "Smothing important"),
-          ],
-        ),
+      child: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          ModalHeaderRow(
+            title: lesson.name,
+            icon: Icons.business_center_outlined,
+          ),
+          const SizedBox(height: 28),
+          PersonRow(subject: lesson.subject),
+          const SizedBox(height: 28),
+          TimeRow(start: lesson.start, end: lesson.end),
+          const SizedBox(height: 28),
+          NoteRow(note: "Something important"),
+        ],
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:besties_notes/data/ui_models/index.dart';
 
-
 class Lesson<T extends Teachable> {
   final String name;
   final T subject;
@@ -15,16 +14,16 @@ class Lesson<T extends Teachable> {
   });
 
   Lesson.demoActive()
-  : name = "Present simple"
-  , subject = Student.demo() as T
-  , start = DateTime.now()
-  , duration = Duration(minutes: 70);
+    : name = "Present simple",
+      subject = Student.demo() as T,
+      start = DateTime.now(),
+      duration = Duration(minutes: 70);
 
-    Lesson.demoNonActive()
-  : name = "Present simple"
-  , subject = Student.demo() as T
-  , start = DateTime.now().add(Duration(minutes: 70))
-  , duration = Duration(minutes: 60);
+  Lesson.demoNonActive()
+    : name = "Present huimple",
+      subject = Student.demo() as T,
+      start = DateTime.now().add(Duration(days: 2, minutes: 70)),
+      duration = Duration(minutes: 60);
 
   bool get isNow =>
       DateTime.now().isAfter(start) &&

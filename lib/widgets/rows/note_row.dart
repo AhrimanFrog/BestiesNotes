@@ -10,6 +10,7 @@ class NoteRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       spacing: 12,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           spacing: 12,

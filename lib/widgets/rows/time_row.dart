@@ -25,25 +25,15 @@ class TimeRow extends StatelessWidget {
             const Icon(Icons.access_time, size: 22),
           ],
         ),
-        ArrowedText(
-          origin: start.toHoursAndMinsFormat(),
-          destination: end.toHoursAndMinsFormat(),
-          isMain: true,
-        ),
         Row(
           children: [
             ArrowedText(
-              origin: '09 Oct 2024',
-              destination: '09 Oct 2024',
-              isMain: false,
+              origin: start.toHoursAndMinsFormat(),
+              destination: end.toHoursAndMinsFormat(),
+              isMain: true,
             ),
             const Spacer(),
             Icon(Icons.repeat, size: 18, color: Colors.grey.shade600),
-            const SizedBox(width: 6),
-            Text(
-              'Repeat',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
           ],
         ),
       ],

@@ -21,8 +21,15 @@ class MyApp extends StatelessWidget {
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () => {},
+            ),
+            actions: [IconButton(icon: Icon(Icons.add), onPressed: () => {})],
+          ),
           bottomNavigationBar: Container(
-            color: Theme.of(context).colorScheme.surface,
+            color: Colors.white,
             child: const TabBar(
               padding: EdgeInsets.only(bottom: 20),
               dividerHeight: 0,
