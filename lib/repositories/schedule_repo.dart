@@ -10,19 +10,21 @@ class ScheduleRepo<T extends DataProvider> {
 
   Future<List<Lesson<Student>>> getLessonsForAWeek() async {
     final dbLessons = await dataProvider.getLessonsForWeek();
-    final List<Lesson<Student>> lessonsForWeek = [];
-    dbLessons.forEach((key, value) {
-      final notes = value.map((n) => n.content).toList();
-      final lesson = Lesson(
-        name: key.name,
-        subject: Student.demo(),
-        start: key.start,
-        duration: Duration(minutes: key.durationInMinutes),
-        notes: notes
-        );
-        lessonsForWeek.add(lesson);
-    });
-    return lessonsForWeek;
+    return dbLessons.map((details) {
+      final students = details.students.values.map(
+        (s) => Student(
+          name: s.name,
+          pricing: Rate(rate: s.pricing, period: s.period),
+        ),
+      );
+      return Lesson(
+        name: details.lesson.name,
+        subjects: students.toList(),
+        start: details.lesson.start,
+        duration: Duration(minutes: details.lesson.durationInMinutes),
+        notes: details.notes.values.map((n) => n.content).toList(),
+      );
+    }).toList();
   }
 }
 

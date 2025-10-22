@@ -24,7 +24,7 @@ class LessonView extends StatelessWidget {
             icon: Icons.business_center_outlined,
           ),
           const SizedBox(height: 28),
-          PersonRow(subject: lesson.subject),
+          PersonRow(subject: lesson.subjects.first),
           const SizedBox(height: 28),
           TimeRow(start: lesson.start, end: lesson.end),
           const SizedBox(height: 28),

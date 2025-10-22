@@ -9,15 +9,13 @@ class ScheduleViewModel extends AsyncNotifier<List<Lesson>> {
   late final ScheduleRepo scheduleRepo;
 
   @override
-  FutureOr<List<Lesson<Teachable>>> build() {
+  Future<List<Lesson<Teachable>>> build() {
     scheduleRepo = ref.read(scheduleRepoProvider);
     return scheduleRepo.getLessonsForAWeek();
   }
 
-  Map<DateTime, List<Lesson>> groupedLessons() {
+  Map<DateTime, List<Lesson>> groupeLessons(List<Lesson> lessons) {
     final Map<DateTime, List<Lesson>> grouped = {};
-    var lessons = state.value ?? [];
-
     for (final lesson in lessons) {
       final date = DateTime(
         lesson.start.year,

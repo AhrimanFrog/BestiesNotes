@@ -2,6 +2,7 @@ import 'package:besties_notes/data/ui_models/rate.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
+import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,22 +30,25 @@ class DbProvider extends DataProvider {
   AppDatabase get database => _db;
 
   @override
-  Future<Map<DbLesson, List<DbLessonNote>>> getLessonsForWeek() async {
+  Future<List<DbLessonDetails>> getLessonsForWeek() async {
     final queryRes = await _getLessonsWithNotesForWeek();
 
-    final Map<DbLesson, List<DbLessonNote>> lessonsForWeek = {};
+    final Map<int, DbLessonDetails> lessonDetails = {};
 
     for (final row in queryRes) {
       final lesson = row.readTable(_db.dbLessons);
       final note = row.readTableOrNull(_db.dbLessonNotes);
+      final student = row.readTableOrNull(_db.dbStudents);
 
-      final notes = lessonsForWeek.putIfAbsent(lesson, () => <DbLessonNote>[]);
-      if (note != null) {
-        notes.add(note);
-      }
+      final details = lessonDetails.putIfAbsent(
+        lesson.id,
+        () => DbLessonDetails(lesson: lesson),
+      );
+
+      if (note != null) details.notes[note.id] = note;
+      if (student != null) details.students[student.id] = student;
     }
-
-    return lessonsForWeek;
+    return lessonDetails.values.toList();
   }
 
   Future<List<TypedResult>> _getLessonsWithNotesForWeek() {
@@ -56,6 +60,14 @@ class DbProvider extends DataProvider {
       leftOuterJoin(
         _db.dbLessonNotes,
         _db.dbLessonNotes.lessonId.equalsExp(_db.dbLessons.id),
+      ),
+      leftOuterJoin(
+        _db.dbStudentsLessons,
+        _db.dbStudentsLessons.lessonId.equalsExp(_db.dbLessons.id),
+      ),
+      leftOuterJoin(
+        _db.dbStudents,
+        _db.dbStudents.id.equalsExp(_db.dbStudentsLessons.studentId),
       ),
     ])..where(_db.dbLessons.start.isBetweenValues(startOfToday, endOfTheWeek));
 

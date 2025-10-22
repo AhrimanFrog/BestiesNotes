@@ -1,7 +1,7 @@
-import 'db_provider.dart';
+import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 
 abstract class DataProvider {
-  Future<Map<DbLesson, List<DbLessonNote>>> getLessonsForWeek() async {
+  Future<List<DbLessonDetails>> getLessonsForWeek() async {
     throw UnimplementedError();
-  } 
+  }
 }

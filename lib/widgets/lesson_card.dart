@@ -65,7 +65,7 @@ class LessonCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InitialsCircle(
-                    initials: lesson.subject.initials,
+                    initials: lesson.subjects.first.initials,
                     circleColor: cardAccentColor,
                   ),
                   const SizedBox(width: 12),
@@ -73,7 +73,7 @@ class LessonCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        lesson.subject.name,
+                        "${lesson.subjects.first.initials} & ${lesson.subjects.length - 1} more",
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,

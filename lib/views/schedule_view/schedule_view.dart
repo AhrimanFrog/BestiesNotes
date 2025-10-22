@@ -13,8 +13,8 @@ class SchedulePage extends ConsumerWidget {
     final viewModel = ref.watch(scheduleViewModelProvider.notifier);
 
     return asyncLessons.when(
-      data: (_) {
-        final grouped = viewModel.groupedLessons();
+      data: (lessons) {
+        final grouped = viewModel.groupeLessons(lessons);
         final sorted = grouped.keys.toList()..sort();
         return GradientBackground(
           child: ListView(
