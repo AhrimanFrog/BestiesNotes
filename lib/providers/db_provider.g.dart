@@ -3,11 +3,12 @@
 part of 'db_provider.dart';
 
 // ignore_for_file: type=lint
-class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
+class $DbLessonsTable extends DbLessons
+    with TableInfo<$DbLessonsTable, DbLesson> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $LessonsTable(this.attachedDatabase, [this._alias]);
+  $DbLessonsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -56,10 +57,10 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'lessons';
+  static const String $name = 'db_lessons';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Lesson> instance, {
+    Insertable<DbLesson> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -100,9 +101,9 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Lesson map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbLesson map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Lesson(
+    return DbLesson(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -123,17 +124,17 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
   }
 
   @override
-  $LessonsTable createAlias(String alias) {
-    return $LessonsTable(attachedDatabase, alias);
+  $DbLessonsTable createAlias(String alias) {
+    return $DbLessonsTable(attachedDatabase, alias);
   }
 }
 
-class Lesson extends DataClass implements Insertable<Lesson> {
+class DbLesson extends DataClass implements Insertable<DbLesson> {
   final int id;
   final String name;
   final DateTime start;
   final int durationInMinutes;
-  const Lesson({
+  const DbLesson({
     required this.id,
     required this.name,
     required this.start,
@@ -149,8 +150,8 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     return map;
   }
 
-  LessonsCompanion toCompanion(bool nullToAbsent) {
-    return LessonsCompanion(
+  DbLessonsCompanion toCompanion(bool nullToAbsent) {
+    return DbLessonsCompanion(
       id: Value(id),
       name: Value(name),
       start: Value(start),
@@ -158,12 +159,12 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     );
   }
 
-  factory Lesson.fromJson(
+  factory DbLesson.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Lesson(
+    return DbLesson(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       start: serializer.fromJson<DateTime>(json['start']),
@@ -181,19 +182,19 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     };
   }
 
-  Lesson copyWith({
+  DbLesson copyWith({
     int? id,
     String? name,
     DateTime? start,
     int? durationInMinutes,
-  }) => Lesson(
+  }) => DbLesson(
     id: id ?? this.id,
     name: name ?? this.name,
     start: start ?? this.start,
     durationInMinutes: durationInMinutes ?? this.durationInMinutes,
   );
-  Lesson copyWithCompanion(LessonsCompanion data) {
-    return Lesson(
+  DbLesson copyWithCompanion(DbLessonsCompanion data) {
+    return DbLesson(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       start: data.start.present ? data.start.value : this.start,
@@ -205,7 +206,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
 
   @override
   String toString() {
-    return (StringBuffer('Lesson(')
+    return (StringBuffer('DbLesson(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('start: $start, ')
@@ -219,25 +220,25 @@ class Lesson extends DataClass implements Insertable<Lesson> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Lesson &&
+      (other is DbLesson &&
           other.id == this.id &&
           other.name == this.name &&
           other.start == this.start &&
           other.durationInMinutes == this.durationInMinutes);
 }
 
-class LessonsCompanion extends UpdateCompanion<Lesson> {
+class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
   final Value<int> id;
   final Value<String> name;
   final Value<DateTime> start;
   final Value<int> durationInMinutes;
-  const LessonsCompanion({
+  const DbLessonsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.start = const Value.absent(),
     this.durationInMinutes = const Value.absent(),
   });
-  LessonsCompanion.insert({
+  DbLessonsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required DateTime start,
@@ -245,7 +246,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
   }) : name = Value(name),
        start = Value(start),
        durationInMinutes = Value(durationInMinutes);
-  static Insertable<Lesson> custom({
+  static Insertable<DbLesson> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<DateTime>? start,
@@ -259,13 +260,13 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     });
   }
 
-  LessonsCompanion copyWith({
+  DbLessonsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
     Value<DateTime>? start,
     Value<int>? durationInMinutes,
   }) {
-    return LessonsCompanion(
+    return DbLessonsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       start: start ?? this.start,
@@ -293,7 +294,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
 
   @override
   String toString() {
-    return (StringBuffer('LessonsCompanion(')
+    return (StringBuffer('DbLessonsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('start: $start, ')
@@ -303,11 +304,12 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
   }
 }
 
-class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
+class $DbStudentsTable extends DbStudents
+    with TableInfo<$DbStudentsTable, DbStudent> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $StudentsTable(this.attachedDatabase, [this._alias]);
+  $DbStudentsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -349,17 +351,28 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<RatePeriod>($StudentsTable.$converterperiod);
+      ).withConverter<RatePeriod>($DbStudentsTable.$converterperiod);
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, pricing, period];
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, pricing, period, groupId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'students';
+  static const String $name = 'db_students';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Student> instance, {
+    Insertable<DbStudent> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -383,15 +396,21 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
     } else if (isInserting) {
       context.missing(_pricingMeta);
     }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Student map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbStudent map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Student(
+    return DbStudent(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -404,34 +423,40 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
         DriftSqlType.double,
         data['${effectivePrefix}pricing'],
       )!,
-      period: $StudentsTable.$converterperiod.fromSql(
+      period: $DbStudentsTable.$converterperiod.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}period'],
         )!,
       ),
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      ),
     );
   }
 
   @override
-  $StudentsTable createAlias(String alias) {
-    return $StudentsTable(attachedDatabase, alias);
+  $DbStudentsTable createAlias(String alias) {
+    return $DbStudentsTable(attachedDatabase, alias);
   }
 
   static JsonTypeConverter2<RatePeriod, String, String> $converterperiod =
       const EnumNameConverter<RatePeriod>(RatePeriod.values);
 }
 
-class Student extends DataClass implements Insertable<Student> {
+class DbStudent extends DataClass implements Insertable<DbStudent> {
   final int id;
   final String name;
   final double pricing;
   final RatePeriod period;
-  const Student({
+  final int? groupId;
+  const DbStudent({
     required this.id,
     required this.name,
     required this.pricing,
     required this.period,
+    this.groupId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -441,33 +466,40 @@ class Student extends DataClass implements Insertable<Student> {
     map['pricing'] = Variable<double>(pricing);
     {
       map['period'] = Variable<String>(
-        $StudentsTable.$converterperiod.toSql(period),
+        $DbStudentsTable.$converterperiod.toSql(period),
       );
+    }
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<int>(groupId);
     }
     return map;
   }
 
-  StudentsCompanion toCompanion(bool nullToAbsent) {
-    return StudentsCompanion(
+  DbStudentsCompanion toCompanion(bool nullToAbsent) {
+    return DbStudentsCompanion(
       id: Value(id),
       name: Value(name),
       pricing: Value(pricing),
       period: Value(period),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
     );
   }
 
-  factory Student.fromJson(
+  factory DbStudent.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Student(
+    return DbStudent(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       pricing: serializer.fromJson<double>(json['pricing']),
-      period: $StudentsTable.$converterperiod.fromJson(
+      period: $DbStudentsTable.$converterperiod.fromJson(
         serializer.fromJson<String>(json['period']),
       ),
+      groupId: serializer.fromJson<int?>(json['groupId']),
     );
   }
   @override
@@ -478,98 +510,111 @@ class Student extends DataClass implements Insertable<Student> {
       'name': serializer.toJson<String>(name),
       'pricing': serializer.toJson<double>(pricing),
       'period': serializer.toJson<String>(
-        $StudentsTable.$converterperiod.toJson(period),
+        $DbStudentsTable.$converterperiod.toJson(period),
       ),
+      'groupId': serializer.toJson<int?>(groupId),
     };
   }
 
-  Student copyWith({
+  DbStudent copyWith({
     int? id,
     String? name,
     double? pricing,
     RatePeriod? period,
-  }) => Student(
+    Value<int?> groupId = const Value.absent(),
+  }) => DbStudent(
     id: id ?? this.id,
     name: name ?? this.name,
     pricing: pricing ?? this.pricing,
     period: period ?? this.period,
+    groupId: groupId.present ? groupId.value : this.groupId,
   );
-  Student copyWithCompanion(StudentsCompanion data) {
-    return Student(
+  DbStudent copyWithCompanion(DbStudentsCompanion data) {
+    return DbStudent(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       pricing: data.pricing.present ? data.pricing.value : this.pricing,
       period: data.period.present ? data.period.value : this.period,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('Student(')
+    return (StringBuffer('DbStudent(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('pricing: $pricing, ')
-          ..write('period: $period')
+          ..write('period: $period, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, pricing, period);
+  int get hashCode => Object.hash(id, name, pricing, period, groupId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Student &&
+      (other is DbStudent &&
           other.id == this.id &&
           other.name == this.name &&
           other.pricing == this.pricing &&
-          other.period == this.period);
+          other.period == this.period &&
+          other.groupId == this.groupId);
 }
 
-class StudentsCompanion extends UpdateCompanion<Student> {
+class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
   final Value<int> id;
   final Value<String> name;
   final Value<double> pricing;
   final Value<RatePeriod> period;
-  const StudentsCompanion({
+  final Value<int?> groupId;
+  const DbStudentsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.pricing = const Value.absent(),
     this.period = const Value.absent(),
+    this.groupId = const Value.absent(),
   });
-  StudentsCompanion.insert({
+  DbStudentsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required double pricing,
     required RatePeriod period,
+    this.groupId = const Value.absent(),
   }) : name = Value(name),
        pricing = Value(pricing),
        period = Value(period);
-  static Insertable<Student> custom({
+  static Insertable<DbStudent> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<double>? pricing,
     Expression<String>? period,
+    Expression<int>? groupId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (pricing != null) 'pricing': pricing,
       if (period != null) 'period': period,
+      if (groupId != null) 'group_id': groupId,
     });
   }
 
-  StudentsCompanion copyWith({
+  DbStudentsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
     Value<double>? pricing,
     Value<RatePeriod>? period,
+    Value<int?>? groupId,
   }) {
-    return StudentsCompanion(
+    return DbStudentsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       pricing: pricing ?? this.pricing,
       period: period ?? this.period,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -587,30 +632,34 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     }
     if (period.present) {
       map['period'] = Variable<String>(
-        $StudentsTable.$converterperiod.toSql(period.value),
+        $DbStudentsTable.$converterperiod.toSql(period.value),
       );
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('StudentsCompanion(')
+    return (StringBuffer('DbStudentsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('pricing: $pricing, ')
-          ..write('period: $period')
+          ..write('period: $period, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
 }
 
-class $StudentsLessonsTable extends StudentsLessons
-    with TableInfo<$StudentsLessonsTable, StudentsLesson> {
+class $DbStudentsLessonsTable extends DbStudentsLessons
+    with TableInfo<$DbStudentsLessonsTable, DbStudentsLesson> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $StudentsLessonsTable(this.attachedDatabase, [this._alias]);
+  $DbStudentsLessonsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _studentIdMeta = const VerificationMeta(
     'studentId',
   );
@@ -622,7 +671,7 @@ class $StudentsLessonsTable extends StudentsLessons
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES students (id) ON DELETE CASCADE',
+      'REFERENCES db_students (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _lessonIdMeta = const VerificationMeta(
@@ -636,7 +685,7 @@ class $StudentsLessonsTable extends StudentsLessons
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES lessons (id) ON DELETE CASCADE',
+      'REFERENCES db_lessons (id) ON DELETE CASCADE',
     ),
   );
   @override
@@ -645,10 +694,10 @@ class $StudentsLessonsTable extends StudentsLessons
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'students_lessons';
+  static const String $name = 'db_students_lessons';
   @override
   VerificationContext validateIntegrity(
-    Insertable<StudentsLesson> instance, {
+    Insertable<DbStudentsLesson> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -675,9 +724,9 @@ class $StudentsLessonsTable extends StudentsLessons
   @override
   Set<GeneratedColumn> get $primaryKey => {lessonId, studentId};
   @override
-  StudentsLesson map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbStudentsLesson map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return StudentsLesson(
+    return DbStudentsLesson(
       studentId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}student_id'],
@@ -690,15 +739,16 @@ class $StudentsLessonsTable extends StudentsLessons
   }
 
   @override
-  $StudentsLessonsTable createAlias(String alias) {
-    return $StudentsLessonsTable(attachedDatabase, alias);
+  $DbStudentsLessonsTable createAlias(String alias) {
+    return $DbStudentsLessonsTable(attachedDatabase, alias);
   }
 }
 
-class StudentsLesson extends DataClass implements Insertable<StudentsLesson> {
+class DbStudentsLesson extends DataClass
+    implements Insertable<DbStudentsLesson> {
   final int studentId;
   final int lessonId;
-  const StudentsLesson({required this.studentId, required this.lessonId});
+  const DbStudentsLesson({required this.studentId, required this.lessonId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -707,19 +757,19 @@ class StudentsLesson extends DataClass implements Insertable<StudentsLesson> {
     return map;
   }
 
-  StudentsLessonsCompanion toCompanion(bool nullToAbsent) {
-    return StudentsLessonsCompanion(
+  DbStudentsLessonsCompanion toCompanion(bool nullToAbsent) {
+    return DbStudentsLessonsCompanion(
       studentId: Value(studentId),
       lessonId: Value(lessonId),
     );
   }
 
-  factory StudentsLesson.fromJson(
+  factory DbStudentsLesson.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return StudentsLesson(
+    return DbStudentsLesson(
       studentId: serializer.fromJson<int>(json['studentId']),
       lessonId: serializer.fromJson<int>(json['lessonId']),
     );
@@ -733,12 +783,13 @@ class StudentsLesson extends DataClass implements Insertable<StudentsLesson> {
     };
   }
 
-  StudentsLesson copyWith({int? studentId, int? lessonId}) => StudentsLesson(
-    studentId: studentId ?? this.studentId,
-    lessonId: lessonId ?? this.lessonId,
-  );
-  StudentsLesson copyWithCompanion(StudentsLessonsCompanion data) {
-    return StudentsLesson(
+  DbStudentsLesson copyWith({int? studentId, int? lessonId}) =>
+      DbStudentsLesson(
+        studentId: studentId ?? this.studentId,
+        lessonId: lessonId ?? this.lessonId,
+      );
+  DbStudentsLesson copyWithCompanion(DbStudentsLessonsCompanion data) {
+    return DbStudentsLesson(
       studentId: data.studentId.present ? data.studentId.value : this.studentId,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
     );
@@ -746,7 +797,7 @@ class StudentsLesson extends DataClass implements Insertable<StudentsLesson> {
 
   @override
   String toString() {
-    return (StringBuffer('StudentsLesson(')
+    return (StringBuffer('DbStudentsLesson(')
           ..write('studentId: $studentId, ')
           ..write('lessonId: $lessonId')
           ..write(')'))
@@ -758,27 +809,27 @@ class StudentsLesson extends DataClass implements Insertable<StudentsLesson> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is StudentsLesson &&
+      (other is DbStudentsLesson &&
           other.studentId == this.studentId &&
           other.lessonId == this.lessonId);
 }
 
-class StudentsLessonsCompanion extends UpdateCompanion<StudentsLesson> {
+class DbStudentsLessonsCompanion extends UpdateCompanion<DbStudentsLesson> {
   final Value<int> studentId;
   final Value<int> lessonId;
   final Value<int> rowid;
-  const StudentsLessonsCompanion({
+  const DbStudentsLessonsCompanion({
     this.studentId = const Value.absent(),
     this.lessonId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  StudentsLessonsCompanion.insert({
+  DbStudentsLessonsCompanion.insert({
     required int studentId,
     required int lessonId,
     this.rowid = const Value.absent(),
   }) : studentId = Value(studentId),
        lessonId = Value(lessonId);
-  static Insertable<StudentsLesson> custom({
+  static Insertable<DbStudentsLesson> custom({
     Expression<int>? studentId,
     Expression<int>? lessonId,
     Expression<int>? rowid,
@@ -790,12 +841,12 @@ class StudentsLessonsCompanion extends UpdateCompanion<StudentsLesson> {
     });
   }
 
-  StudentsLessonsCompanion copyWith({
+  DbStudentsLessonsCompanion copyWith({
     Value<int>? studentId,
     Value<int>? lessonId,
     Value<int>? rowid,
   }) {
-    return StudentsLessonsCompanion(
+    return DbStudentsLessonsCompanion(
       studentId: studentId ?? this.studentId,
       lessonId: lessonId ?? this.lessonId,
       rowid: rowid ?? this.rowid,
@@ -819,7 +870,7 @@ class StudentsLessonsCompanion extends UpdateCompanion<StudentsLesson> {
 
   @override
   String toString() {
-    return (StringBuffer('StudentsLessonsCompanion(')
+    return (StringBuffer('DbStudentsLessonsCompanion(')
           ..write('studentId: $studentId, ')
           ..write('lessonId: $lessonId, ')
           ..write('rowid: $rowid')
@@ -828,12 +879,12 @@ class StudentsLessonsCompanion extends UpdateCompanion<StudentsLesson> {
   }
 }
 
-class $RoadmapNodesTable extends RoadmapNodes
-    with TableInfo<$RoadmapNodesTable, RoadmapNode> {
+class $DbLessonNotesTable extends DbLessonNotes
+    with TableInfo<$DbLessonNotesTable, DbLessonNote> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $RoadmapNodesTable(this.attachedDatabase, [this._alias]);
+  $DbLessonNotesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -847,71 +898,41 @@ class $RoadmapNodesTable extends RoadmapNodes
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _isPaidMeta = const VerificationMeta('isPaid');
-  @override
-  late final GeneratedColumn<bool> isPaid = GeneratedColumn<bool>(
-    'is_paid',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_paid" IN (0, 1))',
-    ),
-  );
-  static const VerificationMeta _isHomeworkDoneMeta = const VerificationMeta(
-    'isHomeworkDone',
+  static const VerificationMeta _lessonIdMeta = const VerificationMeta(
+    'lessonId',
   );
   @override
-  late final GeneratedColumn<bool> isHomeworkDone = GeneratedColumn<bool>(
-    'is_homework_done',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_homework_done" IN (0, 1))',
-    ),
-  );
-  static const VerificationMeta _studentIdMeta = const VerificationMeta(
-    'studentId',
-  );
-  @override
-  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
-    'student_id',
+  late final GeneratedColumn<int> lessonId = GeneratedColumn<int>(
+    'lesson_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES students (id)',
+      'REFERENCES db_lessons (id) ON DELETE CASCADE',
     ),
   );
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    isPaid,
-    isHomeworkDone,
-    studentId,
-  ];
+  List<GeneratedColumn> get $columns => [id, content, lessonId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'roadmap_nodes';
+  static const String $name = 'db_lesson_notes';
   @override
   VerificationContext validateIntegrity(
-    Insertable<RoadmapNode> instance, {
+    Insertable<DbLessonNote> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -919,40 +940,21 @@ class $RoadmapNodesTable extends RoadmapNodes
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('content')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
       );
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_contentMeta);
     }
-    if (data.containsKey('is_paid')) {
+    if (data.containsKey('lesson_id')) {
       context.handle(
-        _isPaidMeta,
-        isPaid.isAcceptableOrUnknown(data['is_paid']!, _isPaidMeta),
+        _lessonIdMeta,
+        lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_isPaidMeta);
-    }
-    if (data.containsKey('is_homework_done')) {
-      context.handle(
-        _isHomeworkDoneMeta,
-        isHomeworkDone.isAcceptableOrUnknown(
-          data['is_homework_done']!,
-          _isHomeworkDoneMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_isHomeworkDoneMeta);
-    }
-    if (data.containsKey('student_id')) {
-      context.handle(
-        _studentIdMeta,
-        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_studentIdMeta);
+      context.missing(_lessonIdMeta);
     }
     return context;
   }
@@ -960,83 +962,65 @@ class $RoadmapNodesTable extends RoadmapNodes
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  RoadmapNode map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbLessonNote map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return RoadmapNode(
+    return DbLessonNote(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      name: attachedDatabase.typeMapping.read(
+      content: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name'],
+        data['${effectivePrefix}content'],
       )!,
-      isPaid: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_paid'],
-      )!,
-      isHomeworkDone: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_homework_done'],
-      )!,
-      studentId: attachedDatabase.typeMapping.read(
+      lessonId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}student_id'],
+        data['${effectivePrefix}lesson_id'],
       )!,
     );
   }
 
   @override
-  $RoadmapNodesTable createAlias(String alias) {
-    return $RoadmapNodesTable(attachedDatabase, alias);
+  $DbLessonNotesTable createAlias(String alias) {
+    return $DbLessonNotesTable(attachedDatabase, alias);
   }
 }
 
-class RoadmapNode extends DataClass implements Insertable<RoadmapNode> {
+class DbLessonNote extends DataClass implements Insertable<DbLessonNote> {
   final int id;
-  final String name;
-  final bool isPaid;
-  final bool isHomeworkDone;
-  final int studentId;
-  const RoadmapNode({
+  final String content;
+  final int lessonId;
+  const DbLessonNote({
     required this.id,
-    required this.name,
-    required this.isPaid,
-    required this.isHomeworkDone,
-    required this.studentId,
+    required this.content,
+    required this.lessonId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    map['is_paid'] = Variable<bool>(isPaid);
-    map['is_homework_done'] = Variable<bool>(isHomeworkDone);
-    map['student_id'] = Variable<int>(studentId);
+    map['content'] = Variable<String>(content);
+    map['lesson_id'] = Variable<int>(lessonId);
     return map;
   }
 
-  RoadmapNodesCompanion toCompanion(bool nullToAbsent) {
-    return RoadmapNodesCompanion(
+  DbLessonNotesCompanion toCompanion(bool nullToAbsent) {
+    return DbLessonNotesCompanion(
       id: Value(id),
-      name: Value(name),
-      isPaid: Value(isPaid),
-      isHomeworkDone: Value(isHomeworkDone),
-      studentId: Value(studentId),
+      content: Value(content),
+      lessonId: Value(lessonId),
     );
   }
 
-  factory RoadmapNode.fromJson(
+  factory DbLessonNote.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return RoadmapNode(
+    return DbLessonNote(
       id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      isPaid: serializer.fromJson<bool>(json['isPaid']),
-      isHomeworkDone: serializer.fromJson<bool>(json['isHomeworkDone']),
-      studentId: serializer.fromJson<int>(json['studentId']),
+      content: serializer.fromJson<String>(json['content']),
+      lessonId: serializer.fromJson<int>(json['lessonId']),
     );
   }
   @override
@@ -1044,115 +1028,82 @@ class RoadmapNode extends DataClass implements Insertable<RoadmapNode> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'isPaid': serializer.toJson<bool>(isPaid),
-      'isHomeworkDone': serializer.toJson<bool>(isHomeworkDone),
-      'studentId': serializer.toJson<int>(studentId),
+      'content': serializer.toJson<String>(content),
+      'lessonId': serializer.toJson<int>(lessonId),
     };
   }
 
-  RoadmapNode copyWith({
-    int? id,
-    String? name,
-    bool? isPaid,
-    bool? isHomeworkDone,
-    int? studentId,
-  }) => RoadmapNode(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    isPaid: isPaid ?? this.isPaid,
-    isHomeworkDone: isHomeworkDone ?? this.isHomeworkDone,
-    studentId: studentId ?? this.studentId,
-  );
-  RoadmapNode copyWithCompanion(RoadmapNodesCompanion data) {
-    return RoadmapNode(
+  DbLessonNote copyWith({int? id, String? content, int? lessonId}) =>
+      DbLessonNote(
+        id: id ?? this.id,
+        content: content ?? this.content,
+        lessonId: lessonId ?? this.lessonId,
+      );
+  DbLessonNote copyWithCompanion(DbLessonNotesCompanion data) {
+    return DbLessonNote(
       id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
-      isPaid: data.isPaid.present ? data.isPaid.value : this.isPaid,
-      isHomeworkDone: data.isHomeworkDone.present
-          ? data.isHomeworkDone.value
-          : this.isHomeworkDone,
-      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      content: data.content.present ? data.content.value : this.content,
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('RoadmapNode(')
+    return (StringBuffer('DbLessonNote(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('isPaid: $isPaid, ')
-          ..write('isHomeworkDone: $isHomeworkDone, ')
-          ..write('studentId: $studentId')
+          ..write('content: $content, ')
+          ..write('lessonId: $lessonId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, isPaid, isHomeworkDone, studentId);
+  int get hashCode => Object.hash(id, content, lessonId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is RoadmapNode &&
+      (other is DbLessonNote &&
           other.id == this.id &&
-          other.name == this.name &&
-          other.isPaid == this.isPaid &&
-          other.isHomeworkDone == this.isHomeworkDone &&
-          other.studentId == this.studentId);
+          other.content == this.content &&
+          other.lessonId == this.lessonId);
 }
 
-class RoadmapNodesCompanion extends UpdateCompanion<RoadmapNode> {
+class DbLessonNotesCompanion extends UpdateCompanion<DbLessonNote> {
   final Value<int> id;
-  final Value<String> name;
-  final Value<bool> isPaid;
-  final Value<bool> isHomeworkDone;
-  final Value<int> studentId;
-  const RoadmapNodesCompanion({
+  final Value<String> content;
+  final Value<int> lessonId;
+  const DbLessonNotesCompanion({
     this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.isPaid = const Value.absent(),
-    this.isHomeworkDone = const Value.absent(),
-    this.studentId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.lessonId = const Value.absent(),
   });
-  RoadmapNodesCompanion.insert({
+  DbLessonNotesCompanion.insert({
     this.id = const Value.absent(),
-    required String name,
-    required bool isPaid,
-    required bool isHomeworkDone,
-    required int studentId,
-  }) : name = Value(name),
-       isPaid = Value(isPaid),
-       isHomeworkDone = Value(isHomeworkDone),
-       studentId = Value(studentId);
-  static Insertable<RoadmapNode> custom({
+    required String content,
+    required int lessonId,
+  }) : content = Value(content),
+       lessonId = Value(lessonId);
+  static Insertable<DbLessonNote> custom({
     Expression<int>? id,
-    Expression<String>? name,
-    Expression<bool>? isPaid,
-    Expression<bool>? isHomeworkDone,
-    Expression<int>? studentId,
+    Expression<String>? content,
+    Expression<int>? lessonId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (isPaid != null) 'is_paid': isPaid,
-      if (isHomeworkDone != null) 'is_homework_done': isHomeworkDone,
-      if (studentId != null) 'student_id': studentId,
+      if (content != null) 'content': content,
+      if (lessonId != null) 'lesson_id': lessonId,
     });
   }
 
-  RoadmapNodesCompanion copyWith({
+  DbLessonNotesCompanion copyWith({
     Value<int>? id,
-    Value<String>? name,
-    Value<bool>? isPaid,
-    Value<bool>? isHomeworkDone,
-    Value<int>? studentId,
+    Value<String>? content,
+    Value<int>? lessonId,
   }) {
-    return RoadmapNodesCompanion(
+    return DbLessonNotesCompanion(
       id: id ?? this.id,
-      name: name ?? this.name,
-      isPaid: isPaid ?? this.isPaid,
-      isHomeworkDone: isHomeworkDone ?? this.isHomeworkDone,
-      studentId: studentId ?? this.studentId,
+      content: content ?? this.content,
+      lessonId: lessonId ?? this.lessonId,
     );
   }
 
@@ -1162,29 +1113,21 @@ class RoadmapNodesCompanion extends UpdateCompanion<RoadmapNode> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
     }
-    if (isPaid.present) {
-      map['is_paid'] = Variable<bool>(isPaid.value);
-    }
-    if (isHomeworkDone.present) {
-      map['is_homework_done'] = Variable<bool>(isHomeworkDone.value);
-    }
-    if (studentId.present) {
-      map['student_id'] = Variable<int>(studentId.value);
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<int>(lessonId.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('RoadmapNodesCompanion(')
+    return (StringBuffer('DbLessonNotesCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('isPaid: $isPaid, ')
-          ..write('isHomeworkDone: $isHomeworkDone, ')
-          ..write('studentId: $studentId')
+          ..write('content: $content, ')
+          ..write('lessonId: $lessonId')
           ..write(')'))
         .toString();
   }
@@ -1193,84 +1136,112 @@ class RoadmapNodesCompanion extends UpdateCompanion<RoadmapNode> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $LessonsTable lessons = $LessonsTable(this);
-  late final $StudentsTable students = $StudentsTable(this);
-  late final $StudentsLessonsTable studentsLessons = $StudentsLessonsTable(
-    this,
-  );
-  late final $RoadmapNodesTable roadmapNodes = $RoadmapNodesTable(this);
+  late final $DbLessonsTable dbLessons = $DbLessonsTable(this);
+  late final $DbStudentsTable dbStudents = $DbStudentsTable(this);
+  late final $DbStudentsLessonsTable dbStudentsLessons =
+      $DbStudentsLessonsTable(this);
+  late final $DbLessonNotesTable dbLessonNotes = $DbLessonNotesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    lessons,
-    students,
-    studentsLessons,
-    roadmapNodes,
+    dbLessons,
+    dbStudents,
+    dbStudentsLessons,
+    dbLessonNotes,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
-        'students',
+        'db_students',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('students_lessons', kind: UpdateKind.delete)],
+      result: [TableUpdate('db_students_lessons', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
-        'lessons',
+        'db_lessons',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('students_lessons', kind: UpdateKind.delete)],
+      result: [TableUpdate('db_students_lessons', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'db_lessons',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('db_lesson_notes', kind: UpdateKind.delete)],
     ),
   ]);
 }
 
-typedef $$LessonsTableCreateCompanionBuilder =
-    LessonsCompanion Function({
+typedef $$DbLessonsTableCreateCompanionBuilder =
+    DbLessonsCompanion Function({
       Value<int> id,
       required String name,
       required DateTime start,
       required int durationInMinutes,
     });
-typedef $$LessonsTableUpdateCompanionBuilder =
-    LessonsCompanion Function({
+typedef $$DbLessonsTableUpdateCompanionBuilder =
+    DbLessonsCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<DateTime> start,
       Value<int> durationInMinutes,
     });
 
-final class $$LessonsTableReferences
-    extends BaseReferences<_$AppDatabase, $LessonsTable, Lesson> {
-  $$LessonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$DbLessonsTableReferences
+    extends BaseReferences<_$AppDatabase, $DbLessonsTable, DbLesson> {
+  $$DbLessonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$StudentsLessonsTable, List<StudentsLesson>>
-  _studentsLessonsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.studentsLessons,
-    aliasName: $_aliasNameGenerator(db.lessons.id, db.studentsLessons.lessonId),
-  );
+  static MultiTypedResultKey<$DbStudentsLessonsTable, List<DbStudentsLesson>>
+  _dbStudentsLessonsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.dbStudentsLessons,
+        aliasName: $_aliasNameGenerator(
+          db.dbLessons.id,
+          db.dbStudentsLessons.lessonId,
+        ),
+      );
 
-  $$StudentsLessonsTableProcessedTableManager get studentsLessonsRefs {
-    final manager = $$StudentsLessonsTableTableManager(
+  $$DbStudentsLessonsTableProcessedTableManager get dbStudentsLessonsRefs {
+    final manager = $$DbStudentsLessonsTableTableManager(
       $_db,
-      $_db.studentsLessons,
+      $_db.dbStudentsLessons,
     ).filter((f) => f.lessonId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _studentsLessonsRefsTable($_db),
+      _dbStudentsLessonsRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$DbLessonNotesTable, List<DbLessonNote>>
+  _dbLessonNotesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.dbLessonNotes,
+    aliasName: $_aliasNameGenerator(db.dbLessons.id, db.dbLessonNotes.lessonId),
+  );
+
+  $$DbLessonNotesTableProcessedTableManager get dbLessonNotesRefs {
+    final manager = $$DbLessonNotesTableTableManager(
+      $_db,
+      $_db.dbLessonNotes,
+    ).filter((f) => f.lessonId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_dbLessonNotesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
 
-class $$LessonsTableFilterComposer
-    extends Composer<_$AppDatabase, $LessonsTable> {
-  $$LessonsTableFilterComposer({
+class $$DbLessonsTableFilterComposer
+    extends Composer<_$AppDatabase, $DbLessonsTable> {
+  $$DbLessonsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1297,22 +1268,47 @@ class $$LessonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> studentsLessonsRefs(
-    Expression<bool> Function($$StudentsLessonsTableFilterComposer f) f,
+  Expression<bool> dbStudentsLessonsRefs(
+    Expression<bool> Function($$DbStudentsLessonsTableFilterComposer f) f,
   ) {
-    final $$StudentsLessonsTableFilterComposer composer = $composerBuilder(
+    final $$DbStudentsLessonsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.studentsLessons,
+      referencedTable: $db.dbStudentsLessons,
       getReferencedColumn: (t) => t.lessonId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsLessonsTableFilterComposer(
+          }) => $$DbStudentsLessonsTableFilterComposer(
             $db: $db,
-            $table: $db.studentsLessons,
+            $table: $db.dbStudentsLessons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> dbLessonNotesRefs(
+    Expression<bool> Function($$DbLessonNotesTableFilterComposer f) f,
+  ) {
+    final $$DbLessonNotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.dbLessonNotes,
+      getReferencedColumn: (t) => t.lessonId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonNotesTableFilterComposer(
+            $db: $db,
+            $table: $db.dbLessonNotes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1323,9 +1319,9 @@ class $$LessonsTableFilterComposer
   }
 }
 
-class $$LessonsTableOrderingComposer
-    extends Composer<_$AppDatabase, $LessonsTable> {
-  $$LessonsTableOrderingComposer({
+class $$DbLessonsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbLessonsTable> {
+  $$DbLessonsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1353,9 +1349,9 @@ class $$LessonsTableOrderingComposer
   );
 }
 
-class $$LessonsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $LessonsTable> {
-  $$LessonsTableAnnotationComposer({
+class $$DbLessonsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbLessonsTable> {
+  $$DbLessonsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1376,22 +1372,48 @@ class $$LessonsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  Expression<T> studentsLessonsRefs<T extends Object>(
-    Expression<T> Function($$StudentsLessonsTableAnnotationComposer a) f,
+  Expression<T> dbStudentsLessonsRefs<T extends Object>(
+    Expression<T> Function($$DbStudentsLessonsTableAnnotationComposer a) f,
   ) {
-    final $$StudentsLessonsTableAnnotationComposer composer = $composerBuilder(
+    final $$DbStudentsLessonsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.dbStudentsLessons,
+          getReferencedColumn: (t) => t.lessonId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DbStudentsLessonsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.dbStudentsLessons,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> dbLessonNotesRefs<T extends Object>(
+    Expression<T> Function($$DbLessonNotesTableAnnotationComposer a) f,
+  ) {
+    final $$DbLessonNotesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.studentsLessons,
+      referencedTable: $db.dbLessonNotes,
       getReferencedColumn: (t) => t.lessonId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsLessonsTableAnnotationComposer(
+          }) => $$DbLessonNotesTableAnnotationComposer(
             $db: $db,
-            $table: $db.studentsLessons,
+            $table: $db.dbLessonNotes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1402,39 +1424,42 @@ class $$LessonsTableAnnotationComposer
   }
 }
 
-class $$LessonsTableTableManager
+class $$DbLessonsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $LessonsTable,
-          Lesson,
-          $$LessonsTableFilterComposer,
-          $$LessonsTableOrderingComposer,
-          $$LessonsTableAnnotationComposer,
-          $$LessonsTableCreateCompanionBuilder,
-          $$LessonsTableUpdateCompanionBuilder,
-          (Lesson, $$LessonsTableReferences),
-          Lesson,
-          PrefetchHooks Function({bool studentsLessonsRefs})
+          $DbLessonsTable,
+          DbLesson,
+          $$DbLessonsTableFilterComposer,
+          $$DbLessonsTableOrderingComposer,
+          $$DbLessonsTableAnnotationComposer,
+          $$DbLessonsTableCreateCompanionBuilder,
+          $$DbLessonsTableUpdateCompanionBuilder,
+          (DbLesson, $$DbLessonsTableReferences),
+          DbLesson,
+          PrefetchHooks Function({
+            bool dbStudentsLessonsRefs,
+            bool dbLessonNotesRefs,
+          })
         > {
-  $$LessonsTableTableManager(_$AppDatabase db, $LessonsTable table)
+  $$DbLessonsTableTableManager(_$AppDatabase db, $DbLessonsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$LessonsTableFilterComposer($db: db, $table: table),
+              $$DbLessonsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$LessonsTableOrderingComposer($db: db, $table: table),
+              $$DbLessonsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$LessonsTableAnnotationComposer($db: db, $table: table),
+              $$DbLessonsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<DateTime> start = const Value.absent(),
                 Value<int> durationInMinutes = const Value.absent(),
-              }) => LessonsCompanion(
+              }) => DbLessonsCompanion(
                 id: id,
                 name: name,
                 start: start,
@@ -1446,7 +1471,7 @@ class $$LessonsTableTableManager
                 required String name,
                 required DateTime start,
                 required int durationInMinutes,
-              }) => LessonsCompanion.insert(
+              }) => DbLessonsCompanion.insert(
                 id: id,
                 name: name,
                 start: start,
@@ -1456,123 +1481,137 @@ class $$LessonsTableTableManager
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$LessonsTableReferences(db, table, e),
+                  $$DbLessonsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({studentsLessonsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (studentsLessonsRefs) db.studentsLessons,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (studentsLessonsRefs)
-                    await $_getPrefetchedData<
-                      Lesson,
-                      $LessonsTable,
-                      StudentsLesson
-                    >(
-                      currentTable: table,
-                      referencedTable: $$LessonsTableReferences
-                          ._studentsLessonsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$LessonsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).studentsLessonsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.lessonId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({dbStudentsLessonsRefs = false, dbLessonNotesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (dbStudentsLessonsRefs) db.dbStudentsLessons,
+                    if (dbLessonNotesRefs) db.dbLessonNotes,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (dbStudentsLessonsRefs)
+                        await $_getPrefetchedData<
+                          DbLesson,
+                          $DbLessonsTable,
+                          DbStudentsLesson
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbLessonsTableReferences
+                              ._dbStudentsLessonsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbLessonsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dbStudentsLessonsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.lessonId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (dbLessonNotesRefs)
+                        await $_getPrefetchedData<
+                          DbLesson,
+                          $DbLessonsTable,
+                          DbLessonNote
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbLessonsTableReferences
+                              ._dbLessonNotesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbLessonsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dbLessonNotesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.lessonId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
 
-typedef $$LessonsTableProcessedTableManager =
+typedef $$DbLessonsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $LessonsTable,
-      Lesson,
-      $$LessonsTableFilterComposer,
-      $$LessonsTableOrderingComposer,
-      $$LessonsTableAnnotationComposer,
-      $$LessonsTableCreateCompanionBuilder,
-      $$LessonsTableUpdateCompanionBuilder,
-      (Lesson, $$LessonsTableReferences),
-      Lesson,
-      PrefetchHooks Function({bool studentsLessonsRefs})
+      $DbLessonsTable,
+      DbLesson,
+      $$DbLessonsTableFilterComposer,
+      $$DbLessonsTableOrderingComposer,
+      $$DbLessonsTableAnnotationComposer,
+      $$DbLessonsTableCreateCompanionBuilder,
+      $$DbLessonsTableUpdateCompanionBuilder,
+      (DbLesson, $$DbLessonsTableReferences),
+      DbLesson,
+      PrefetchHooks Function({
+        bool dbStudentsLessonsRefs,
+        bool dbLessonNotesRefs,
+      })
     >;
-typedef $$StudentsTableCreateCompanionBuilder =
-    StudentsCompanion Function({
+typedef $$DbStudentsTableCreateCompanionBuilder =
+    DbStudentsCompanion Function({
       Value<int> id,
       required String name,
       required double pricing,
       required RatePeriod period,
+      Value<int?> groupId,
     });
-typedef $$StudentsTableUpdateCompanionBuilder =
-    StudentsCompanion Function({
+typedef $$DbStudentsTableUpdateCompanionBuilder =
+    DbStudentsCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<double> pricing,
       Value<RatePeriod> period,
+      Value<int?> groupId,
     });
 
-final class $$StudentsTableReferences
-    extends BaseReferences<_$AppDatabase, $StudentsTable, Student> {
-  $$StudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$DbStudentsTableReferences
+    extends BaseReferences<_$AppDatabase, $DbStudentsTable, DbStudent> {
+  $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$StudentsLessonsTable, List<StudentsLesson>>
-  _studentsLessonsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.studentsLessons,
-    aliasName: $_aliasNameGenerator(
-      db.students.id,
-      db.studentsLessons.studentId,
-    ),
-  );
+  static MultiTypedResultKey<$DbStudentsLessonsTable, List<DbStudentsLesson>>
+  _dbStudentsLessonsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.dbStudentsLessons,
+        aliasName: $_aliasNameGenerator(
+          db.dbStudents.id,
+          db.dbStudentsLessons.studentId,
+        ),
+      );
 
-  $$StudentsLessonsTableProcessedTableManager get studentsLessonsRefs {
-    final manager = $$StudentsLessonsTableTableManager(
+  $$DbStudentsLessonsTableProcessedTableManager get dbStudentsLessonsRefs {
+    final manager = $$DbStudentsLessonsTableTableManager(
       $_db,
-      $_db.studentsLessons,
+      $_db.dbStudentsLessons,
     ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _studentsLessonsRefsTable($_db),
+      _dbStudentsLessonsRefsTable($_db),
     );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$RoadmapNodesTable, List<RoadmapNode>>
-  _roadmapNodesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.roadmapNodes,
-    aliasName: $_aliasNameGenerator(db.students.id, db.roadmapNodes.studentId),
-  );
-
-  $$RoadmapNodesTableProcessedTableManager get roadmapNodesRefs {
-    final manager = $$RoadmapNodesTableTableManager(
-      $_db,
-      $_db.roadmapNodes,
-    ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_roadmapNodesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
 
-class $$StudentsTableFilterComposer
-    extends Composer<_$AppDatabase, $StudentsTable> {
-  $$StudentsTableFilterComposer({
+class $$DbStudentsTableFilterComposer
+    extends Composer<_$AppDatabase, $DbStudentsTable> {
+  $$DbStudentsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1600,47 +1639,27 @@ class $$StudentsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  Expression<bool> studentsLessonsRefs(
-    Expression<bool> Function($$StudentsLessonsTableFilterComposer f) f,
-  ) {
-    final $$StudentsLessonsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.studentsLessons,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsLessonsTableFilterComposer(
-            $db: $db,
-            $table: $db.studentsLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
+  ColumnFilters<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  Expression<bool> roadmapNodesRefs(
-    Expression<bool> Function($$RoadmapNodesTableFilterComposer f) f,
+  Expression<bool> dbStudentsLessonsRefs(
+    Expression<bool> Function($$DbStudentsLessonsTableFilterComposer f) f,
   ) {
-    final $$RoadmapNodesTableFilterComposer composer = $composerBuilder(
+    final $$DbStudentsLessonsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.roadmapNodes,
+      referencedTable: $db.dbStudentsLessons,
       getReferencedColumn: (t) => t.studentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RoadmapNodesTableFilterComposer(
+          }) => $$DbStudentsLessonsTableFilterComposer(
             $db: $db,
-            $table: $db.roadmapNodes,
+            $table: $db.dbStudentsLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1651,9 +1670,9 @@ class $$StudentsTableFilterComposer
   }
 }
 
-class $$StudentsTableOrderingComposer
-    extends Composer<_$AppDatabase, $StudentsTable> {
-  $$StudentsTableOrderingComposer({
+class $$DbStudentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbStudentsTable> {
+  $$DbStudentsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1679,11 +1698,16 @@ class $$StudentsTableOrderingComposer
     column: $table.period,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$StudentsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $StudentsTable> {
-  $$StudentsTableAnnotationComposer({
+class $$DbStudentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbStudentsTable> {
+  $$DbStudentsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1702,97 +1726,75 @@ class $$StudentsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
       $composableBuilder(column: $table.period, builder: (column) => column);
 
-  Expression<T> studentsLessonsRefs<T extends Object>(
-    Expression<T> Function($$StudentsLessonsTableAnnotationComposer a) f,
-  ) {
-    final $$StudentsLessonsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.studentsLessons,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsLessonsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.studentsLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
+  GeneratedColumn<int> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
 
-  Expression<T> roadmapNodesRefs<T extends Object>(
-    Expression<T> Function($$RoadmapNodesTableAnnotationComposer a) f,
+  Expression<T> dbStudentsLessonsRefs<T extends Object>(
+    Expression<T> Function($$DbStudentsLessonsTableAnnotationComposer a) f,
   ) {
-    final $$RoadmapNodesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.roadmapNodes,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RoadmapNodesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.roadmapNodes,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
+    final $$DbStudentsLessonsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.dbStudentsLessons,
+          getReferencedColumn: (t) => t.studentId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-          ),
-    );
+              }) => $$DbStudentsLessonsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.dbStudentsLessons,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
 
-class $$StudentsTableTableManager
+class $$DbStudentsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $StudentsTable,
-          Student,
-          $$StudentsTableFilterComposer,
-          $$StudentsTableOrderingComposer,
-          $$StudentsTableAnnotationComposer,
-          $$StudentsTableCreateCompanionBuilder,
-          $$StudentsTableUpdateCompanionBuilder,
-          (Student, $$StudentsTableReferences),
-          Student,
-          PrefetchHooks Function({
-            bool studentsLessonsRefs,
-            bool roadmapNodesRefs,
-          })
+          $DbStudentsTable,
+          DbStudent,
+          $$DbStudentsTableFilterComposer,
+          $$DbStudentsTableOrderingComposer,
+          $$DbStudentsTableAnnotationComposer,
+          $$DbStudentsTableCreateCompanionBuilder,
+          $$DbStudentsTableUpdateCompanionBuilder,
+          (DbStudent, $$DbStudentsTableReferences),
+          DbStudent,
+          PrefetchHooks Function({bool dbStudentsLessonsRefs})
         > {
-  $$StudentsTableTableManager(_$AppDatabase db, $StudentsTable table)
+  $$DbStudentsTableTableManager(_$AppDatabase db, $DbStudentsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$StudentsTableFilterComposer($db: db, $table: table),
+              $$DbStudentsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$StudentsTableOrderingComposer($db: db, $table: table),
+              $$DbStudentsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$StudentsTableAnnotationComposer($db: db, $table: table),
+              $$DbStudentsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<double> pricing = const Value.absent(),
                 Value<RatePeriod> period = const Value.absent(),
-              }) => StudentsCompanion(
+                Value<int?> groupId = const Value.absent(),
+              }) => DbStudentsCompanion(
                 id: id,
                 name: name,
                 pricing: pricing,
                 period: period,
+                groupId: groupId,
               ),
           createCompanionCallback:
               ({
@@ -1800,128 +1802,109 @@ class $$StudentsTableTableManager
                 required String name,
                 required double pricing,
                 required RatePeriod period,
-              }) => StudentsCompanion.insert(
+                Value<int?> groupId = const Value.absent(),
+              }) => DbStudentsCompanion.insert(
                 id: id,
                 name: name,
                 pricing: pricing,
                 period: period,
+                groupId: groupId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$StudentsTableReferences(db, table, e),
+                  $$DbStudentsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({studentsLessonsRefs = false, roadmapNodesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (studentsLessonsRefs) db.studentsLessons,
-                    if (roadmapNodesRefs) db.roadmapNodes,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (studentsLessonsRefs)
-                        await $_getPrefetchedData<
-                          Student,
-                          $StudentsTable,
-                          StudentsLesson
-                        >(
-                          currentTable: table,
-                          referencedTable: $$StudentsTableReferences
-                              ._studentsLessonsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$StudentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).studentsLessonsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (roadmapNodesRefs)
-                        await $_getPrefetchedData<
-                          Student,
-                          $StudentsTable,
-                          RoadmapNode
-                        >(
-                          currentTable: table,
-                          referencedTable: $$StudentsTableReferences
-                              ._roadmapNodesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$StudentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).roadmapNodesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({dbStudentsLessonsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (dbStudentsLessonsRefs) db.dbStudentsLessons,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (dbStudentsLessonsRefs)
+                    await $_getPrefetchedData<
+                      DbStudent,
+                      $DbStudentsTable,
+                      DbStudentsLesson
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DbStudentsTableReferences
+                          ._dbStudentsLessonsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DbStudentsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).dbStudentsLessonsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.studentId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
 
-typedef $$StudentsTableProcessedTableManager =
+typedef $$DbStudentsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $StudentsTable,
-      Student,
-      $$StudentsTableFilterComposer,
-      $$StudentsTableOrderingComposer,
-      $$StudentsTableAnnotationComposer,
-      $$StudentsTableCreateCompanionBuilder,
-      $$StudentsTableUpdateCompanionBuilder,
-      (Student, $$StudentsTableReferences),
-      Student,
-      PrefetchHooks Function({bool studentsLessonsRefs, bool roadmapNodesRefs})
+      $DbStudentsTable,
+      DbStudent,
+      $$DbStudentsTableFilterComposer,
+      $$DbStudentsTableOrderingComposer,
+      $$DbStudentsTableAnnotationComposer,
+      $$DbStudentsTableCreateCompanionBuilder,
+      $$DbStudentsTableUpdateCompanionBuilder,
+      (DbStudent, $$DbStudentsTableReferences),
+      DbStudent,
+      PrefetchHooks Function({bool dbStudentsLessonsRefs})
     >;
-typedef $$StudentsLessonsTableCreateCompanionBuilder =
-    StudentsLessonsCompanion Function({
+typedef $$DbStudentsLessonsTableCreateCompanionBuilder =
+    DbStudentsLessonsCompanion Function({
       required int studentId,
       required int lessonId,
       Value<int> rowid,
     });
-typedef $$StudentsLessonsTableUpdateCompanionBuilder =
-    StudentsLessonsCompanion Function({
+typedef $$DbStudentsLessonsTableUpdateCompanionBuilder =
+    DbStudentsLessonsCompanion Function({
       Value<int> studentId,
       Value<int> lessonId,
       Value<int> rowid,
     });
 
-final class $$StudentsLessonsTableReferences
+final class $$DbStudentsLessonsTableReferences
     extends
-        BaseReferences<_$AppDatabase, $StudentsLessonsTable, StudentsLesson> {
-  $$StudentsLessonsTableReferences(
+        BaseReferences<
+          _$AppDatabase,
+          $DbStudentsLessonsTable,
+          DbStudentsLesson
+        > {
+  $$DbStudentsLessonsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $StudentsTable _studentIdTable(_$AppDatabase db) =>
-      db.students.createAlias(
-        $_aliasNameGenerator(db.studentsLessons.studentId, db.students.id),
+  static $DbStudentsTable _studentIdTable(_$AppDatabase db) =>
+      db.dbStudents.createAlias(
+        $_aliasNameGenerator(db.dbStudentsLessons.studentId, db.dbStudents.id),
       );
 
-  $$StudentsTableProcessedTableManager get studentId {
+  $$DbStudentsTableProcessedTableManager get studentId {
     final $_column = $_itemColumn<int>('student_id')!;
 
-    final manager = $$StudentsTableTableManager(
+    final manager = $$DbStudentsTableTableManager(
       $_db,
-      $_db.students,
+      $_db.dbStudents,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_studentIdTable($_db));
     if (item == null) return manager;
@@ -1930,17 +1913,17 @@ final class $$StudentsLessonsTableReferences
     );
   }
 
-  static $LessonsTable _lessonIdTable(_$AppDatabase db) =>
-      db.lessons.createAlias(
-        $_aliasNameGenerator(db.studentsLessons.lessonId, db.lessons.id),
+  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
+      db.dbLessons.createAlias(
+        $_aliasNameGenerator(db.dbStudentsLessons.lessonId, db.dbLessons.id),
       );
 
-  $$LessonsTableProcessedTableManager get lessonId {
+  $$DbLessonsTableProcessedTableManager get lessonId {
     final $_column = $_itemColumn<int>('lesson_id')!;
 
-    final manager = $$LessonsTableTableManager(
+    final manager = $$DbLessonsTableTableManager(
       $_db,
-      $_db.lessons,
+      $_db.dbLessons,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_lessonIdTable($_db));
     if (item == null) return manager;
@@ -1950,29 +1933,29 @@ final class $$StudentsLessonsTableReferences
   }
 }
 
-class $$StudentsLessonsTableFilterComposer
-    extends Composer<_$AppDatabase, $StudentsLessonsTable> {
-  $$StudentsLessonsTableFilterComposer({
+class $$DbStudentsLessonsTableFilterComposer
+    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
+  $$DbStudentsLessonsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  $$StudentsTableFilterComposer get studentId {
-    final $$StudentsTableFilterComposer composer = $composerBuilder(
+  $$DbStudentsTableFilterComposer get studentId {
+    final $$DbStudentsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      referencedTable: $db.dbStudents,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableFilterComposer(
+          }) => $$DbStudentsTableFilterComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbStudents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1982,20 +1965,20 @@ class $$StudentsLessonsTableFilterComposer
     return composer;
   }
 
-  $$LessonsTableFilterComposer get lessonId {
-    final $$LessonsTableFilterComposer composer = $composerBuilder(
+  $$DbLessonsTableFilterComposer get lessonId {
+    final $$DbLessonsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.lessons,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LessonsTableFilterComposer(
+          }) => $$DbLessonsTableFilterComposer(
             $db: $db,
-            $table: $db.lessons,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2006,29 +1989,29 @@ class $$StudentsLessonsTableFilterComposer
   }
 }
 
-class $$StudentsLessonsTableOrderingComposer
-    extends Composer<_$AppDatabase, $StudentsLessonsTable> {
-  $$StudentsLessonsTableOrderingComposer({
+class $$DbStudentsLessonsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
+  $$DbStudentsLessonsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  $$StudentsTableOrderingComposer get studentId {
-    final $$StudentsTableOrderingComposer composer = $composerBuilder(
+  $$DbStudentsTableOrderingComposer get studentId {
+    final $$DbStudentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      referencedTable: $db.dbStudents,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableOrderingComposer(
+          }) => $$DbStudentsTableOrderingComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbStudents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2038,20 +2021,20 @@ class $$StudentsLessonsTableOrderingComposer
     return composer;
   }
 
-  $$LessonsTableOrderingComposer get lessonId {
-    final $$LessonsTableOrderingComposer composer = $composerBuilder(
+  $$DbLessonsTableOrderingComposer get lessonId {
+    final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.lessons,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LessonsTableOrderingComposer(
+          }) => $$DbLessonsTableOrderingComposer(
             $db: $db,
-            $table: $db.lessons,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2062,29 +2045,29 @@ class $$StudentsLessonsTableOrderingComposer
   }
 }
 
-class $$StudentsLessonsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $StudentsLessonsTable> {
-  $$StudentsLessonsTableAnnotationComposer({
+class $$DbStudentsLessonsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
+  $$DbStudentsLessonsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  $$StudentsTableAnnotationComposer get studentId {
-    final $$StudentsTableAnnotationComposer composer = $composerBuilder(
+  $$DbStudentsTableAnnotationComposer get studentId {
+    final $$DbStudentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      referencedTable: $db.dbStudents,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableAnnotationComposer(
+          }) => $$DbStudentsTableAnnotationComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbStudents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2094,20 +2077,20 @@ class $$StudentsLessonsTableAnnotationComposer
     return composer;
   }
 
-  $$LessonsTableAnnotationComposer get lessonId {
-    final $$LessonsTableAnnotationComposer composer = $composerBuilder(
+  $$DbLessonsTableAnnotationComposer get lessonId {
+    final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.lessons,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$LessonsTableAnnotationComposer(
+          }) => $$DbLessonsTableAnnotationComposer(
             $db: $db,
-            $table: $db.lessons,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2118,40 +2101,43 @@ class $$StudentsLessonsTableAnnotationComposer
   }
 }
 
-class $$StudentsLessonsTableTableManager
+class $$DbStudentsLessonsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $StudentsLessonsTable,
-          StudentsLesson,
-          $$StudentsLessonsTableFilterComposer,
-          $$StudentsLessonsTableOrderingComposer,
-          $$StudentsLessonsTableAnnotationComposer,
-          $$StudentsLessonsTableCreateCompanionBuilder,
-          $$StudentsLessonsTableUpdateCompanionBuilder,
-          (StudentsLesson, $$StudentsLessonsTableReferences),
-          StudentsLesson,
+          $DbStudentsLessonsTable,
+          DbStudentsLesson,
+          $$DbStudentsLessonsTableFilterComposer,
+          $$DbStudentsLessonsTableOrderingComposer,
+          $$DbStudentsLessonsTableAnnotationComposer,
+          $$DbStudentsLessonsTableCreateCompanionBuilder,
+          $$DbStudentsLessonsTableUpdateCompanionBuilder,
+          (DbStudentsLesson, $$DbStudentsLessonsTableReferences),
+          DbStudentsLesson,
           PrefetchHooks Function({bool studentId, bool lessonId})
         > {
-  $$StudentsLessonsTableTableManager(
+  $$DbStudentsLessonsTableTableManager(
     _$AppDatabase db,
-    $StudentsLessonsTable table,
+    $DbStudentsLessonsTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$StudentsLessonsTableFilterComposer($db: db, $table: table),
+              $$DbStudentsLessonsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$StudentsLessonsTableOrderingComposer($db: db, $table: table),
+              $$DbStudentsLessonsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$StudentsLessonsTableAnnotationComposer($db: db, $table: table),
+              $$DbStudentsLessonsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
           updateCompanionCallback:
               ({
                 Value<int> studentId = const Value.absent(),
                 Value<int> lessonId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => StudentsLessonsCompanion(
+              }) => DbStudentsLessonsCompanion(
                 studentId: studentId,
                 lessonId: lessonId,
                 rowid: rowid,
@@ -2161,7 +2147,7 @@ class $$StudentsLessonsTableTableManager
                 required int studentId,
                 required int lessonId,
                 Value<int> rowid = const Value.absent(),
-              }) => StudentsLessonsCompanion.insert(
+              }) => DbStudentsLessonsCompanion.insert(
                 studentId: studentId,
                 lessonId: lessonId,
                 rowid: rowid,
@@ -2170,7 +2156,7 @@ class $$StudentsLessonsTableTableManager
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$StudentsLessonsTableReferences(db, table, e),
+                  $$DbStudentsLessonsTableReferences(db, table, e),
                 ),
               )
               .toList(),
@@ -2200,10 +2186,10 @@ class $$StudentsLessonsTableTableManager
                                 currentTable: table,
                                 currentColumn: table.studentId,
                                 referencedTable:
-                                    $$StudentsLessonsTableReferences
+                                    $$DbStudentsLessonsTableReferences
                                         ._studentIdTable(db),
                                 referencedColumn:
-                                    $$StudentsLessonsTableReferences
+                                    $$DbStudentsLessonsTableReferences
                                         ._studentIdTable(db)
                                         .id,
                               )
@@ -2215,10 +2201,10 @@ class $$StudentsLessonsTableTableManager
                                 currentTable: table,
                                 currentColumn: table.lessonId,
                                 referencedTable:
-                                    $$StudentsLessonsTableReferences
+                                    $$DbStudentsLessonsTableReferences
                                         ._lessonIdTable(db),
                                 referencedColumn:
-                                    $$StudentsLessonsTableReferences
+                                    $$DbStudentsLessonsTableReferences
                                         ._lessonIdTable(db)
                                         .id,
                               )
@@ -2236,54 +2222,54 @@ class $$StudentsLessonsTableTableManager
       );
 }
 
-typedef $$StudentsLessonsTableProcessedTableManager =
+typedef $$DbStudentsLessonsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $StudentsLessonsTable,
-      StudentsLesson,
-      $$StudentsLessonsTableFilterComposer,
-      $$StudentsLessonsTableOrderingComposer,
-      $$StudentsLessonsTableAnnotationComposer,
-      $$StudentsLessonsTableCreateCompanionBuilder,
-      $$StudentsLessonsTableUpdateCompanionBuilder,
-      (StudentsLesson, $$StudentsLessonsTableReferences),
-      StudentsLesson,
+      $DbStudentsLessonsTable,
+      DbStudentsLesson,
+      $$DbStudentsLessonsTableFilterComposer,
+      $$DbStudentsLessonsTableOrderingComposer,
+      $$DbStudentsLessonsTableAnnotationComposer,
+      $$DbStudentsLessonsTableCreateCompanionBuilder,
+      $$DbStudentsLessonsTableUpdateCompanionBuilder,
+      (DbStudentsLesson, $$DbStudentsLessonsTableReferences),
+      DbStudentsLesson,
       PrefetchHooks Function({bool studentId, bool lessonId})
     >;
-typedef $$RoadmapNodesTableCreateCompanionBuilder =
-    RoadmapNodesCompanion Function({
+typedef $$DbLessonNotesTableCreateCompanionBuilder =
+    DbLessonNotesCompanion Function({
       Value<int> id,
-      required String name,
-      required bool isPaid,
-      required bool isHomeworkDone,
-      required int studentId,
+      required String content,
+      required int lessonId,
     });
-typedef $$RoadmapNodesTableUpdateCompanionBuilder =
-    RoadmapNodesCompanion Function({
+typedef $$DbLessonNotesTableUpdateCompanionBuilder =
+    DbLessonNotesCompanion Function({
       Value<int> id,
-      Value<String> name,
-      Value<bool> isPaid,
-      Value<bool> isHomeworkDone,
-      Value<int> studentId,
+      Value<String> content,
+      Value<int> lessonId,
     });
 
-final class $$RoadmapNodesTableReferences
-    extends BaseReferences<_$AppDatabase, $RoadmapNodesTable, RoadmapNode> {
-  $$RoadmapNodesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$DbLessonNotesTableReferences
+    extends BaseReferences<_$AppDatabase, $DbLessonNotesTable, DbLessonNote> {
+  $$DbLessonNotesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
 
-  static $StudentsTable _studentIdTable(_$AppDatabase db) =>
-      db.students.createAlias(
-        $_aliasNameGenerator(db.roadmapNodes.studentId, db.students.id),
+  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
+      db.dbLessons.createAlias(
+        $_aliasNameGenerator(db.dbLessonNotes.lessonId, db.dbLessons.id),
       );
 
-  $$StudentsTableProcessedTableManager get studentId {
-    final $_column = $_itemColumn<int>('student_id')!;
+  $$DbLessonsTableProcessedTableManager get lessonId {
+    final $_column = $_itemColumn<int>('lesson_id')!;
 
-    final manager = $$StudentsTableTableManager(
+    final manager = $$DbLessonsTableTableManager(
       $_db,
-      $_db.students,
+      $_db.dbLessons,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_studentIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_lessonIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2291,9 +2277,9 @@ final class $$RoadmapNodesTableReferences
   }
 }
 
-class $$RoadmapNodesTableFilterComposer
-    extends Composer<_$AppDatabase, $RoadmapNodesTable> {
-  $$RoadmapNodesTableFilterComposer({
+class $$DbLessonNotesTableFilterComposer
+    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
+  $$DbLessonNotesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2305,35 +2291,25 @@ class $$RoadmapNodesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get isPaid => $composableBuilder(
-    column: $table.isPaid,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isHomeworkDone => $composableBuilder(
-    column: $table.isHomeworkDone,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$StudentsTableFilterComposer get studentId {
-    final $$StudentsTableFilterComposer composer = $composerBuilder(
+  $$DbLessonsTableFilterComposer get lessonId {
+    final $$DbLessonsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableFilterComposer(
+          }) => $$DbLessonsTableFilterComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2344,9 +2320,9 @@ class $$RoadmapNodesTableFilterComposer
   }
 }
 
-class $$RoadmapNodesTableOrderingComposer
-    extends Composer<_$AppDatabase, $RoadmapNodesTable> {
-  $$RoadmapNodesTableOrderingComposer({
+class $$DbLessonNotesTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
+  $$DbLessonNotesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2358,35 +2334,25 @@ class $$RoadmapNodesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get isPaid => $composableBuilder(
-    column: $table.isPaid,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isHomeworkDone => $composableBuilder(
-    column: $table.isHomeworkDone,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$StudentsTableOrderingComposer get studentId {
-    final $$StudentsTableOrderingComposer composer = $composerBuilder(
+  $$DbLessonsTableOrderingComposer get lessonId {
+    final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableOrderingComposer(
+          }) => $$DbLessonsTableOrderingComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2397,9 +2363,9 @@ class $$RoadmapNodesTableOrderingComposer
   }
 }
 
-class $$RoadmapNodesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $RoadmapNodesTable> {
-  $$RoadmapNodesTableAnnotationComposer({
+class $$DbLessonNotesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
+  $$DbLessonNotesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -2409,31 +2375,23 @@ class $$RoadmapNodesTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
 
-  GeneratedColumn<bool> get isPaid =>
-      $composableBuilder(column: $table.isPaid, builder: (column) => column);
-
-  GeneratedColumn<bool> get isHomeworkDone => $composableBuilder(
-    column: $table.isHomeworkDone,
-    builder: (column) => column,
-  );
-
-  $$StudentsTableAnnotationComposer get studentId {
-    final $$StudentsTableAnnotationComposer composer = $composerBuilder(
+  $$DbLessonsTableAnnotationComposer get lessonId {
+    final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.students,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$StudentsTableAnnotationComposer(
+          }) => $$DbLessonsTableAnnotationComposer(
             $db: $db,
-            $table: $db.students,
+            $table: $db.dbLessons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2444,69 +2402,61 @@ class $$RoadmapNodesTableAnnotationComposer
   }
 }
 
-class $$RoadmapNodesTableTableManager
+class $$DbLessonNotesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $RoadmapNodesTable,
-          RoadmapNode,
-          $$RoadmapNodesTableFilterComposer,
-          $$RoadmapNodesTableOrderingComposer,
-          $$RoadmapNodesTableAnnotationComposer,
-          $$RoadmapNodesTableCreateCompanionBuilder,
-          $$RoadmapNodesTableUpdateCompanionBuilder,
-          (RoadmapNode, $$RoadmapNodesTableReferences),
-          RoadmapNode,
-          PrefetchHooks Function({bool studentId})
+          $DbLessonNotesTable,
+          DbLessonNote,
+          $$DbLessonNotesTableFilterComposer,
+          $$DbLessonNotesTableOrderingComposer,
+          $$DbLessonNotesTableAnnotationComposer,
+          $$DbLessonNotesTableCreateCompanionBuilder,
+          $$DbLessonNotesTableUpdateCompanionBuilder,
+          (DbLessonNote, $$DbLessonNotesTableReferences),
+          DbLessonNote,
+          PrefetchHooks Function({bool lessonId})
         > {
-  $$RoadmapNodesTableTableManager(_$AppDatabase db, $RoadmapNodesTable table)
+  $$DbLessonNotesTableTableManager(_$AppDatabase db, $DbLessonNotesTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$RoadmapNodesTableFilterComposer($db: db, $table: table),
+              $$DbLessonNotesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$RoadmapNodesTableOrderingComposer($db: db, $table: table),
+              $$DbLessonNotesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$RoadmapNodesTableAnnotationComposer($db: db, $table: table),
+              $$DbLessonNotesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<bool> isPaid = const Value.absent(),
-                Value<bool> isHomeworkDone = const Value.absent(),
-                Value<int> studentId = const Value.absent(),
-              }) => RoadmapNodesCompanion(
+                Value<String> content = const Value.absent(),
+                Value<int> lessonId = const Value.absent(),
+              }) => DbLessonNotesCompanion(
                 id: id,
-                name: name,
-                isPaid: isPaid,
-                isHomeworkDone: isHomeworkDone,
-                studentId: studentId,
+                content: content,
+                lessonId: lessonId,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required String name,
-                required bool isPaid,
-                required bool isHomeworkDone,
-                required int studentId,
-              }) => RoadmapNodesCompanion.insert(
+                required String content,
+                required int lessonId,
+              }) => DbLessonNotesCompanion.insert(
                 id: id,
-                name: name,
-                isPaid: isPaid,
-                isHomeworkDone: isHomeworkDone,
-                studentId: studentId,
+                content: content,
+                lessonId: lessonId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$RoadmapNodesTableReferences(db, table, e),
+                  $$DbLessonNotesTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({studentId = false}) {
+          prefetchHooksCallback: ({lessonId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -2526,15 +2476,15 @@ class $$RoadmapNodesTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (studentId) {
+                    if (lessonId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.studentId,
-                                referencedTable: $$RoadmapNodesTableReferences
-                                    ._studentIdTable(db),
-                                referencedColumn: $$RoadmapNodesTableReferences
-                                    ._studentIdTable(db)
+                                currentColumn: table.lessonId,
+                                referencedTable: $$DbLessonNotesTableReferences
+                                    ._lessonIdTable(db),
+                                referencedColumn: $$DbLessonNotesTableReferences
+                                    ._lessonIdTable(db)
                                     .id,
                               )
                               as T;
@@ -2551,30 +2501,30 @@ class $$RoadmapNodesTableTableManager
       );
 }
 
-typedef $$RoadmapNodesTableProcessedTableManager =
+typedef $$DbLessonNotesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $RoadmapNodesTable,
-      RoadmapNode,
-      $$RoadmapNodesTableFilterComposer,
-      $$RoadmapNodesTableOrderingComposer,
-      $$RoadmapNodesTableAnnotationComposer,
-      $$RoadmapNodesTableCreateCompanionBuilder,
-      $$RoadmapNodesTableUpdateCompanionBuilder,
-      (RoadmapNode, $$RoadmapNodesTableReferences),
-      RoadmapNode,
-      PrefetchHooks Function({bool studentId})
+      $DbLessonNotesTable,
+      DbLessonNote,
+      $$DbLessonNotesTableFilterComposer,
+      $$DbLessonNotesTableOrderingComposer,
+      $$DbLessonNotesTableAnnotationComposer,
+      $$DbLessonNotesTableCreateCompanionBuilder,
+      $$DbLessonNotesTableUpdateCompanionBuilder,
+      (DbLessonNote, $$DbLessonNotesTableReferences),
+      DbLessonNote,
+      PrefetchHooks Function({bool lessonId})
     >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$LessonsTableTableManager get lessons =>
-      $$LessonsTableTableManager(_db, _db.lessons);
-  $$StudentsTableTableManager get students =>
-      $$StudentsTableTableManager(_db, _db.students);
-  $$StudentsLessonsTableTableManager get studentsLessons =>
-      $$StudentsLessonsTableTableManager(_db, _db.studentsLessons);
-  $$RoadmapNodesTableTableManager get roadmapNodes =>
-      $$RoadmapNodesTableTableManager(_db, _db.roadmapNodes);
+  $$DbLessonsTableTableManager get dbLessons =>
+      $$DbLessonsTableTableManager(_db, _db.dbLessons);
+  $$DbStudentsTableTableManager get dbStudents =>
+      $$DbStudentsTableTableManager(_db, _db.dbStudents);
+  $$DbStudentsLessonsTableTableManager get dbStudentsLessons =>
+      $$DbStudentsLessonsTableTableManager(_db, _db.dbStudentsLessons);
+  $$DbLessonNotesTableTableManager get dbLessonNotes =>
+      $$DbLessonNotesTableTableManager(_db, _db.dbLessonNotes);
 }
