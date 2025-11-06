@@ -5,14 +5,14 @@ class Lesson<T extends Teachable> {
   final List<T> subjects;
   final DateTime start;
   final Duration duration;
-  final List<String> notes;
+  final String note;
 
   const Lesson({
     required this.name,
     required this.subjects,
     required this.start,
     required this.duration,
-    this.notes = const [],
+    this.note = "",
   });
 
   Lesson.demoActive()
@@ -20,14 +20,14 @@ class Lesson<T extends Teachable> {
       subjects = [Student.demo()] as List<T>,
       start = DateTime.now(),
       duration = Duration(minutes: 70),
-      notes = ["Nothing interesting", "Just text"];
+      note = "Just text";
 
   Lesson.demoNonActive()
     : name = "Present huimple",
       subjects = [Student.demo()] as List<T>,
       start = DateTime.now().add(Duration(days: 2, minutes: 70)),
       duration = Duration(minutes: 60),
-      notes = ["Some note here"];
+      note = "Some note here";
 
   bool get isNow =>
       DateTime.now().isAfter(start) &&

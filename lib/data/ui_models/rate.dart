@@ -1,4 +1,4 @@
-enum RatePeriod { daily, monthly }
+import 'package:besties_notes/data/common.dart';
 
 class Rate {
   final double rate;

@@ -22,10 +22,10 @@ class $DbLessonsTable extends DbLessons
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _topicMeta = const VerificationMeta('topic');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
+  late final GeneratedColumn<String> topic = GeneratedColumn<String>(
+    'topic',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -51,8 +51,57 @@ class $DbLessonsTable extends DbLessons
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
-  List<GeneratedColumn> get $columns => [id, name, start, durationInMinutes];
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LessonStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<LessonStatus>($DbLessonsTable.$converterstatus);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    topic,
+    start,
+    durationInMinutes,
+    note,
+    status,
+    createdAt,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -68,13 +117,13 @@ class $DbLessonsTable extends DbLessons
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('topic')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+        _topicMeta,
+        topic.isAcceptableOrUnknown(data['topic']!, _topicMeta),
       );
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_topicMeta);
     }
     if (data.containsKey('start')) {
       context.handle(
@@ -95,6 +144,28 @@ class $DbLessonsTable extends DbLessons
     } else if (isInserting) {
       context.missing(_durationInMinutesMeta);
     }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
     return context;
   }
 
@@ -108,9 +179,9 @@ class $DbLessonsTable extends DbLessons
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      name: attachedDatabase.typeMapping.read(
+      topic: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name'],
+        data['${effectivePrefix}topic'],
       )!,
       start: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -120,6 +191,24 @@ class $DbLessonsTable extends DbLessons
         DriftSqlType.int,
         data['${effectivePrefix}duration_in_minutes'],
       )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      status: $DbLessonsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
     );
   }
 
@@ -127,35 +216,60 @@ class $DbLessonsTable extends DbLessons
   $DbLessonsTable createAlias(String alias) {
     return $DbLessonsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<LessonStatus, String, String> $converterstatus =
+      const EnumNameConverter<LessonStatus>(LessonStatus.values);
 }
 
 class DbLesson extends DataClass implements Insertable<DbLesson> {
   final int id;
-  final String name;
+  final String topic;
   final DateTime start;
   final int durationInMinutes;
+  final String? note;
+  final LessonStatus status;
+  final int createdAt;
+  final int updatedAt;
   const DbLesson({
     required this.id,
-    required this.name,
+    required this.topic,
     required this.start,
     required this.durationInMinutes,
+    this.note,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
+    map['topic'] = Variable<String>(topic);
     map['start'] = Variable<DateTime>(start);
     map['duration_in_minutes'] = Variable<int>(durationInMinutes);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    {
+      map['status'] = Variable<String>(
+        $DbLessonsTable.$converterstatus.toSql(status),
+      );
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
     return map;
   }
 
   DbLessonsCompanion toCompanion(bool nullToAbsent) {
     return DbLessonsCompanion(
       id: Value(id),
-      name: Value(name),
+      topic: Value(topic),
       start: Value(start),
       durationInMinutes: Value(durationInMinutes),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      status: Value(status),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -166,9 +280,15 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DbLesson(
       id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
+      topic: serializer.fromJson<String>(json['topic']),
       start: serializer.fromJson<DateTime>(json['start']),
       durationInMinutes: serializer.fromJson<int>(json['durationInMinutes']),
+      note: serializer.fromJson<String?>(json['note']),
+      status: $DbLessonsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
   }
   @override
@@ -176,31 +296,49 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
+      'topic': serializer.toJson<String>(topic),
       'start': serializer.toJson<DateTime>(start),
       'durationInMinutes': serializer.toJson<int>(durationInMinutes),
+      'note': serializer.toJson<String?>(note),
+      'status': serializer.toJson<String>(
+        $DbLessonsTable.$converterstatus.toJson(status),
+      ),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
     };
   }
 
   DbLesson copyWith({
     int? id,
-    String? name,
+    String? topic,
     DateTime? start,
     int? durationInMinutes,
+    Value<String?> note = const Value.absent(),
+    LessonStatus? status,
+    int? createdAt,
+    int? updatedAt,
   }) => DbLesson(
     id: id ?? this.id,
-    name: name ?? this.name,
+    topic: topic ?? this.topic,
     start: start ?? this.start,
     durationInMinutes: durationInMinutes ?? this.durationInMinutes,
+    note: note.present ? note.value : this.note,
+    status: status ?? this.status,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
   DbLesson copyWithCompanion(DbLessonsCompanion data) {
     return DbLesson(
       id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
+      topic: data.topic.present ? data.topic.value : this.topic,
       start: data.start.present ? data.start.value : this.start,
       durationInMinutes: data.durationInMinutes.present
           ? data.durationInMinutes.value
           : this.durationInMinutes,
+      note: data.note.present ? data.note.value : this.note,
+      status: data.status.present ? data.status.value : this.status,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -208,69 +346,117 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
   String toString() {
     return (StringBuffer('DbLesson(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
+          ..write('topic: $topic, ')
           ..write('start: $start, ')
-          ..write('durationInMinutes: $durationInMinutes')
+          ..write('durationInMinutes: $durationInMinutes, ')
+          ..write('note: $note, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, start, durationInMinutes);
+  int get hashCode => Object.hash(
+    id,
+    topic,
+    start,
+    durationInMinutes,
+    note,
+    status,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DbLesson &&
           other.id == this.id &&
-          other.name == this.name &&
+          other.topic == this.topic &&
           other.start == this.start &&
-          other.durationInMinutes == this.durationInMinutes);
+          other.durationInMinutes == this.durationInMinutes &&
+          other.note == this.note &&
+          other.status == this.status &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
   final Value<int> id;
-  final Value<String> name;
+  final Value<String> topic;
   final Value<DateTime> start;
   final Value<int> durationInMinutes;
+  final Value<String?> note;
+  final Value<LessonStatus> status;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
   const DbLessonsCompanion({
     this.id = const Value.absent(),
-    this.name = const Value.absent(),
+    this.topic = const Value.absent(),
     this.start = const Value.absent(),
     this.durationInMinutes = const Value.absent(),
+    this.note = const Value.absent(),
+    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   DbLessonsCompanion.insert({
     this.id = const Value.absent(),
-    required String name,
+    required String topic,
     required DateTime start,
     required int durationInMinutes,
-  }) : name = Value(name),
+    this.note = const Value.absent(),
+    required LessonStatus status,
+    required int createdAt,
+    required int updatedAt,
+  }) : topic = Value(topic),
        start = Value(start),
-       durationInMinutes = Value(durationInMinutes);
+       durationInMinutes = Value(durationInMinutes),
+       status = Value(status),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<DbLesson> custom({
     Expression<int>? id,
-    Expression<String>? name,
+    Expression<String>? topic,
     Expression<DateTime>? start,
     Expression<int>? durationInMinutes,
+    Expression<String>? note,
+    Expression<String>? status,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (name != null) 'name': name,
+      if (topic != null) 'topic': topic,
       if (start != null) 'start': start,
       if (durationInMinutes != null) 'duration_in_minutes': durationInMinutes,
+      if (note != null) 'note': note,
+      if (status != null) 'status': status,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
   DbLessonsCompanion copyWith({
     Value<int>? id,
-    Value<String>? name,
+    Value<String>? topic,
     Value<DateTime>? start,
     Value<int>? durationInMinutes,
+    Value<String?>? note,
+    Value<LessonStatus>? status,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
   }) {
     return DbLessonsCompanion(
       id: id ?? this.id,
-      name: name ?? this.name,
+      topic: topic ?? this.topic,
       start: start ?? this.start,
       durationInMinutes: durationInMinutes ?? this.durationInMinutes,
+      note: note ?? this.note,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -280,14 +466,28 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (topic.present) {
+      map['topic'] = Variable<String>(topic.value);
     }
     if (start.present) {
       map['start'] = Variable<DateTime>(start.value);
     }
     if (durationInMinutes.present) {
       map['duration_in_minutes'] = Variable<int>(durationInMinutes.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $DbLessonsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
     }
     return map;
   }
@@ -296,9 +496,13 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
   String toString() {
     return (StringBuffer('DbLessonsCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
+          ..write('topic: $topic, ')
           ..write('start: $start, ')
-          ..write('durationInMinutes: $durationInMinutes')
+          ..write('durationInMinutes: $durationInMinutes, ')
+          ..write('note: $note, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -332,12 +536,43 @@ class $DbStudentsTable extends DbStudents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _pricingMeta = const VerificationMeta(
-    'pricing',
+  static const VerificationMeta _contactMeta = const VerificationMeta(
+    'contact',
   );
   @override
-  late final GeneratedColumn<double> pricing = GeneratedColumn<double>(
-    'pricing',
+  late final GeneratedColumn<String> contact = GeneratedColumn<String>(
+    'contact',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
+    'avatarPath',
+  );
+  @override
+  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
+    'avatar_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payRateMeta = const VerificationMeta(
+    'payRate',
+  );
+  @override
+  late final GeneratedColumn<double> payRate = GeneratedColumn<double>(
+    'pay_rate',
     aliasedName,
     false,
     type: DriftSqlType.double,
@@ -352,19 +587,50 @@ class $DbStudentsTable extends DbStudents
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<RatePeriod>($DbStudentsTable.$converterperiod);
-  static const VerificationMeta _groupIdMeta = const VerificationMeta(
-    'groupId',
-  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
-  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
-    'group_id',
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
     aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, pricing, period, groupId];
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    contact,
+    email,
+    avatarPath,
+    payRate,
+    period,
+    notes,
+    createdAt,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -388,19 +654,57 @@ class $DbStudentsTable extends DbStudents
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('pricing')) {
+    if (data.containsKey('contact')) {
       context.handle(
-        _pricingMeta,
-        pricing.isAcceptableOrUnknown(data['pricing']!, _pricingMeta),
+        _contactMeta,
+        contact.isAcceptableOrUnknown(data['contact']!, _contactMeta),
       );
     } else if (isInserting) {
-      context.missing(_pricingMeta);
+      context.missing(_contactMeta);
     }
-    if (data.containsKey('group_id')) {
+    if (data.containsKey('email')) {
       context.handle(
-        _groupIdMeta,
-        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
       );
+    }
+    if (data.containsKey('avatar_path')) {
+      context.handle(
+        _avatarPathMeta,
+        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
+      );
+    }
+    if (data.containsKey('pay_rate')) {
+      context.handle(
+        _payRateMeta,
+        payRate.isAcceptableOrUnknown(data['pay_rate']!, _payRateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payRateMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_notesMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -419,9 +723,21 @@ class $DbStudentsTable extends DbStudents
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      pricing: attachedDatabase.typeMapping.read(
+      contact: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact'],
+      )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
+      avatarPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_path'],
+      ),
+      payRate: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}pricing'],
+        data['${effectivePrefix}pay_rate'],
       )!,
       period: $DbStudentsTable.$converterperiod.fromSql(
         attachedDatabase.typeMapping.read(
@@ -429,10 +745,18 @@ class $DbStudentsTable extends DbStudents
           data['${effectivePrefix}period'],
         )!,
       ),
-      groupId: attachedDatabase.typeMapping.read(
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}group_id'],
-      ),
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
     );
   }
 
@@ -448,30 +772,47 @@ class $DbStudentsTable extends DbStudents
 class DbStudent extends DataClass implements Insertable<DbStudent> {
   final int id;
   final String name;
-  final double pricing;
+  final String contact;
+  final String? email;
+  final String? avatarPath;
+  final double payRate;
   final RatePeriod period;
-  final int? groupId;
+  final String notes;
+  final int createdAt;
+  final int updatedAt;
   const DbStudent({
     required this.id,
     required this.name,
-    required this.pricing,
+    required this.contact,
+    this.email,
+    this.avatarPath,
+    required this.payRate,
     required this.period,
-    this.groupId,
+    required this.notes,
+    required this.createdAt,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['pricing'] = Variable<double>(pricing);
+    map['contact'] = Variable<String>(contact);
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || avatarPath != null) {
+      map['avatar_path'] = Variable<String>(avatarPath);
+    }
+    map['pay_rate'] = Variable<double>(payRate);
     {
       map['period'] = Variable<String>(
         $DbStudentsTable.$converterperiod.toSql(period),
       );
     }
-    if (!nullToAbsent || groupId != null) {
-      map['group_id'] = Variable<int>(groupId);
-    }
+    map['notes'] = Variable<String>(notes);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
     return map;
   }
 
@@ -479,11 +820,18 @@ class DbStudent extends DataClass implements Insertable<DbStudent> {
     return DbStudentsCompanion(
       id: Value(id),
       name: Value(name),
-      pricing: Value(pricing),
-      period: Value(period),
-      groupId: groupId == null && nullToAbsent
+      contact: Value(contact),
+      email: email == null && nullToAbsent
           ? const Value.absent()
-          : Value(groupId),
+          : Value(email),
+      avatarPath: avatarPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarPath),
+      payRate: Value(payRate),
+      period: Value(period),
+      notes: Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -495,11 +843,16 @@ class DbStudent extends DataClass implements Insertable<DbStudent> {
     return DbStudent(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      pricing: serializer.fromJson<double>(json['pricing']),
+      contact: serializer.fromJson<String>(json['contact']),
+      email: serializer.fromJson<String?>(json['email']),
+      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
+      payRate: serializer.fromJson<double>(json['payRate']),
       period: $DbStudentsTable.$converterperiod.fromJson(
         serializer.fromJson<String>(json['period']),
       ),
-      groupId: serializer.fromJson<int?>(json['groupId']),
+      notes: serializer.fromJson<String>(json['notes']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
   }
   @override
@@ -508,34 +861,56 @@ class DbStudent extends DataClass implements Insertable<DbStudent> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'pricing': serializer.toJson<double>(pricing),
+      'contact': serializer.toJson<String>(contact),
+      'email': serializer.toJson<String?>(email),
+      'avatarPath': serializer.toJson<String?>(avatarPath),
+      'payRate': serializer.toJson<double>(payRate),
       'period': serializer.toJson<String>(
         $DbStudentsTable.$converterperiod.toJson(period),
       ),
-      'groupId': serializer.toJson<int?>(groupId),
+      'notes': serializer.toJson<String>(notes),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
     };
   }
 
   DbStudent copyWith({
     int? id,
     String? name,
-    double? pricing,
+    String? contact,
+    Value<String?> email = const Value.absent(),
+    Value<String?> avatarPath = const Value.absent(),
+    double? payRate,
     RatePeriod? period,
-    Value<int?> groupId = const Value.absent(),
+    String? notes,
+    int? createdAt,
+    int? updatedAt,
   }) => DbStudent(
     id: id ?? this.id,
     name: name ?? this.name,
-    pricing: pricing ?? this.pricing,
+    contact: contact ?? this.contact,
+    email: email.present ? email.value : this.email,
+    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
+    payRate: payRate ?? this.payRate,
     period: period ?? this.period,
-    groupId: groupId.present ? groupId.value : this.groupId,
+    notes: notes ?? this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
   DbStudent copyWithCompanion(DbStudentsCompanion data) {
     return DbStudent(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      pricing: data.pricing.present ? data.pricing.value : this.pricing,
+      contact: data.contact.present ? data.contact.value : this.contact,
+      email: data.email.present ? data.email.value : this.email,
+      avatarPath: data.avatarPath.present
+          ? data.avatarPath.value
+          : this.avatarPath,
+      payRate: data.payRate.present ? data.payRate.value : this.payRate,
       period: data.period.present ? data.period.value : this.period,
-      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -544,77 +919,137 @@ class DbStudent extends DataClass implements Insertable<DbStudent> {
     return (StringBuffer('DbStudent(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('pricing: $pricing, ')
+          ..write('contact: $contact, ')
+          ..write('email: $email, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('payRate: $payRate, ')
           ..write('period: $period, ')
-          ..write('groupId: $groupId')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, pricing, period, groupId);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    contact,
+    email,
+    avatarPath,
+    payRate,
+    period,
+    notes,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DbStudent &&
           other.id == this.id &&
           other.name == this.name &&
-          other.pricing == this.pricing &&
+          other.contact == this.contact &&
+          other.email == this.email &&
+          other.avatarPath == this.avatarPath &&
+          other.payRate == this.payRate &&
           other.period == this.period &&
-          other.groupId == this.groupId);
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
   final Value<int> id;
   final Value<String> name;
-  final Value<double> pricing;
+  final Value<String> contact;
+  final Value<String?> email;
+  final Value<String?> avatarPath;
+  final Value<double> payRate;
   final Value<RatePeriod> period;
-  final Value<int?> groupId;
+  final Value<String> notes;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
   const DbStudentsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.pricing = const Value.absent(),
+    this.contact = const Value.absent(),
+    this.email = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    this.payRate = const Value.absent(),
     this.period = const Value.absent(),
-    this.groupId = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   DbStudentsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required double pricing,
+    required String contact,
+    this.email = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    required double payRate,
     required RatePeriod period,
-    this.groupId = const Value.absent(),
+    required String notes,
+    required int createdAt,
+    required int updatedAt,
   }) : name = Value(name),
-       pricing = Value(pricing),
-       period = Value(period);
+       contact = Value(contact),
+       payRate = Value(payRate),
+       period = Value(period),
+       notes = Value(notes),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<DbStudent> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<double>? pricing,
+    Expression<String>? contact,
+    Expression<String>? email,
+    Expression<String>? avatarPath,
+    Expression<double>? payRate,
     Expression<String>? period,
-    Expression<int>? groupId,
+    Expression<String>? notes,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (pricing != null) 'pricing': pricing,
+      if (contact != null) 'contact': contact,
+      if (email != null) 'email': email,
+      if (avatarPath != null) 'avatar_path': avatarPath,
+      if (payRate != null) 'pay_rate': payRate,
       if (period != null) 'period': period,
-      if (groupId != null) 'group_id': groupId,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
   DbStudentsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
-    Value<double>? pricing,
+    Value<String>? contact,
+    Value<String?>? email,
+    Value<String?>? avatarPath,
+    Value<double>? payRate,
     Value<RatePeriod>? period,
-    Value<int?>? groupId,
+    Value<String>? notes,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
   }) {
     return DbStudentsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      pricing: pricing ?? this.pricing,
+      contact: contact ?? this.contact,
+      email: email ?? this.email,
+      avatarPath: avatarPath ?? this.avatarPath,
+      payRate: payRate ?? this.payRate,
       period: period ?? this.period,
-      groupId: groupId ?? this.groupId,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -627,16 +1062,31 @@ class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (pricing.present) {
-      map['pricing'] = Variable<double>(pricing.value);
+    if (contact.present) {
+      map['contact'] = Variable<String>(contact.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (avatarPath.present) {
+      map['avatar_path'] = Variable<String>(avatarPath.value);
+    }
+    if (payRate.present) {
+      map['pay_rate'] = Variable<double>(payRate.value);
     }
     if (period.present) {
       map['period'] = Variable<String>(
         $DbStudentsTable.$converterperiod.toSql(period.value),
       );
     }
-    if (groupId.present) {
-      map['group_id'] = Variable<int>(groupId.value);
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
     }
     return map;
   }
@@ -646,20 +1096,455 @@ class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
     return (StringBuffer('DbStudentsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('pricing: $pricing, ')
+          ..write('contact: $contact, ')
+          ..write('email: $email, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('payRate: $payRate, ')
           ..write('period: $period, ')
-          ..write('groupId: $groupId')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 }
 
-class $DbStudentsLessonsTable extends DbStudentsLessons
-    with TableInfo<$DbStudentsLessonsTable, DbStudentsLesson> {
+class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DbStudentsLessonsTable(this.attachedDatabase, [this._alias]);
+  $DbGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payRateMeta = const VerificationMeta(
+    'payRate',
+  );
+  @override
+  late final GeneratedColumn<double> payRate = GeneratedColumn<double>(
+    'pay_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    description,
+    payRate,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'db_groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbGroup> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pay_rate')) {
+      context.handle(
+        _payRateMeta,
+        payRate.isAcceptableOrUnknown(data['pay_rate']!, _payRateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payRateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DbGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbGroup(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      payRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pay_rate'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DbGroupsTable createAlias(String alias) {
+    return $DbGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class DbGroup extends DataClass implements Insertable<DbGroup> {
+  final int id;
+  final String name;
+  final String? description;
+  final double payRate;
+  final int createdAt;
+  final int updatedAt;
+  const DbGroup({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.payRate,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['pay_rate'] = Variable<double>(payRate);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  DbGroupsCompanion toCompanion(bool nullToAbsent) {
+    return DbGroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      payRate: Value(payRate),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory DbGroup.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbGroup(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      payRate: serializer.fromJson<double>(json['payRate']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'payRate': serializer.toJson<double>(payRate),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  DbGroup copyWith({
+    int? id,
+    String? name,
+    Value<String?> description = const Value.absent(),
+    double? payRate,
+    int? createdAt,
+    int? updatedAt,
+  }) => DbGroup(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    payRate: payRate ?? this.payRate,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  DbGroup copyWithCompanion(DbGroupsCompanion data) {
+    return DbGroup(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      payRate: data.payRate.present ? data.payRate.value : this.payRate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbGroup(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('payRate: $payRate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, description, payRate, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbGroup &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.payRate == this.payRate &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<double> payRate;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  const DbGroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.payRate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  DbGroupsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.description = const Value.absent(),
+    required double payRate,
+    required int createdAt,
+    required int updatedAt,
+  }) : name = Value(name),
+       payRate = Value(payRate),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<DbGroup> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<double>? payRate,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (payRate != null) 'pay_rate': payRate,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  DbGroupsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<double>? payRate,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+  }) {
+    return DbGroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      payRate: payRate ?? this.payRate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (payRate.present) {
+      map['pay_rate'] = Variable<double>(payRate.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbGroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('payRate: $payRate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GroupMembershipsTable extends GroupMemberships
+    with TableInfo<$GroupMembershipsTable, GroupMembership> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GroupMembershipsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES db_groups (id) ON DELETE CASCADE',
+    ),
+  );
   static const VerificationMeta _studentIdMeta = const VerificationMeta(
     'studentId',
   );
@@ -674,34 +1559,31 @@ class $DbStudentsLessonsTable extends DbStudentsLessons
       'REFERENCES db_students (id) ON DELETE CASCADE',
     ),
   );
-  static const VerificationMeta _lessonIdMeta = const VerificationMeta(
-    'lessonId',
-  );
   @override
-  late final GeneratedColumn<int> lessonId = GeneratedColumn<int>(
-    'lesson_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_lessons (id) ON DELETE CASCADE',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [studentId, lessonId];
+  List<GeneratedColumn> get $columns => [id, groupId, studentId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'db_students_lessons';
+  static const String $name = 'group_memberships';
   @override
   VerificationContext validateIntegrity(
-    Insertable<DbStudentsLesson> instance, {
+    Insertable<GroupMembership> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
     if (data.containsKey('student_id')) {
       context.handle(
         _studentIdMeta,
@@ -710,181 +1592,193 @@ class $DbStudentsLessonsTable extends DbStudentsLessons
     } else if (isInserting) {
       context.missing(_studentIdMeta);
     }
-    if (data.containsKey('lesson_id')) {
-      context.handle(
-        _lessonIdMeta,
-        lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_lessonIdMeta);
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {lessonId, studentId};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  DbStudentsLesson map(Map<String, dynamic> data, {String? tablePrefix}) {
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {groupId, studentId},
+  ];
+  @override
+  GroupMembership map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DbStudentsLesson(
+    return GroupMembership(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      )!,
       studentId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}student_id'],
       )!,
-      lessonId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}lesson_id'],
-      )!,
     );
   }
 
   @override
-  $DbStudentsLessonsTable createAlias(String alias) {
-    return $DbStudentsLessonsTable(attachedDatabase, alias);
+  $GroupMembershipsTable createAlias(String alias) {
+    return $GroupMembershipsTable(attachedDatabase, alias);
   }
 }
 
-class DbStudentsLesson extends DataClass
-    implements Insertable<DbStudentsLesson> {
+class GroupMembership extends DataClass implements Insertable<GroupMembership> {
+  final int id;
+  final int groupId;
   final int studentId;
-  final int lessonId;
-  const DbStudentsLesson({required this.studentId, required this.lessonId});
+  const GroupMembership({
+    required this.id,
+    required this.groupId,
+    required this.studentId,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['group_id'] = Variable<int>(groupId);
     map['student_id'] = Variable<int>(studentId);
-    map['lesson_id'] = Variable<int>(lessonId);
     return map;
   }
 
-  DbStudentsLessonsCompanion toCompanion(bool nullToAbsent) {
-    return DbStudentsLessonsCompanion(
+  GroupMembershipsCompanion toCompanion(bool nullToAbsent) {
+    return GroupMembershipsCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
       studentId: Value(studentId),
-      lessonId: Value(lessonId),
     );
   }
 
-  factory DbStudentsLesson.fromJson(
+  factory GroupMembership.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DbStudentsLesson(
+    return GroupMembership(
+      id: serializer.fromJson<int>(json['id']),
+      groupId: serializer.fromJson<int>(json['groupId']),
       studentId: serializer.fromJson<int>(json['studentId']),
-      lessonId: serializer.fromJson<int>(json['lessonId']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'groupId': serializer.toJson<int>(groupId),
       'studentId': serializer.toJson<int>(studentId),
-      'lessonId': serializer.toJson<int>(lessonId),
     };
   }
 
-  DbStudentsLesson copyWith({int? studentId, int? lessonId}) =>
-      DbStudentsLesson(
+  GroupMembership copyWith({int? id, int? groupId, int? studentId}) =>
+      GroupMembership(
+        id: id ?? this.id,
+        groupId: groupId ?? this.groupId,
         studentId: studentId ?? this.studentId,
-        lessonId: lessonId ?? this.lessonId,
       );
-  DbStudentsLesson copyWithCompanion(DbStudentsLessonsCompanion data) {
-    return DbStudentsLesson(
+  GroupMembership copyWithCompanion(GroupMembershipsCompanion data) {
+    return GroupMembership(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
       studentId: data.studentId.present ? data.studentId.value : this.studentId,
-      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('DbStudentsLesson(')
-          ..write('studentId: $studentId, ')
-          ..write('lessonId: $lessonId')
+    return (StringBuffer('GroupMembership(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('studentId: $studentId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(studentId, lessonId);
+  int get hashCode => Object.hash(id, groupId, studentId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DbStudentsLesson &&
-          other.studentId == this.studentId &&
-          other.lessonId == this.lessonId);
+      (other is GroupMembership &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.studentId == this.studentId);
 }
 
-class DbStudentsLessonsCompanion extends UpdateCompanion<DbStudentsLesson> {
+class GroupMembershipsCompanion extends UpdateCompanion<GroupMembership> {
+  final Value<int> id;
+  final Value<int> groupId;
   final Value<int> studentId;
-  final Value<int> lessonId;
-  final Value<int> rowid;
-  const DbStudentsLessonsCompanion({
+  const GroupMembershipsCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.studentId = const Value.absent(),
-    this.lessonId = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
-  DbStudentsLessonsCompanion.insert({
+  GroupMembershipsCompanion.insert({
+    this.id = const Value.absent(),
+    required int groupId,
     required int studentId,
-    required int lessonId,
-    this.rowid = const Value.absent(),
-  }) : studentId = Value(studentId),
-       lessonId = Value(lessonId);
-  static Insertable<DbStudentsLesson> custom({
+  }) : groupId = Value(groupId),
+       studentId = Value(studentId);
+  static Insertable<GroupMembership> custom({
+    Expression<int>? id,
+    Expression<int>? groupId,
     Expression<int>? studentId,
-    Expression<int>? lessonId,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
       if (studentId != null) 'student_id': studentId,
-      if (lessonId != null) 'lesson_id': lessonId,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
-  DbStudentsLessonsCompanion copyWith({
+  GroupMembershipsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? groupId,
     Value<int>? studentId,
-    Value<int>? lessonId,
-    Value<int>? rowid,
   }) {
-    return DbStudentsLessonsCompanion(
+    return GroupMembershipsCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
       studentId: studentId ?? this.studentId,
-      lessonId: lessonId ?? this.lessonId,
-      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
+    }
     if (studentId.present) {
       map['student_id'] = Variable<int>(studentId.value);
-    }
-    if (lessonId.present) {
-      map['lesson_id'] = Variable<int>(lessonId.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('DbStudentsLessonsCompanion(')
-          ..write('studentId: $studentId, ')
-          ..write('lessonId: $lessonId, ')
-          ..write('rowid: $rowid')
+    return (StringBuffer('GroupMembershipsCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('studentId: $studentId')
           ..write(')'))
         .toString();
   }
 }
 
-class $DbLessonNotesTable extends DbLessonNotes
-    with TableInfo<$DbLessonNotesTable, DbLessonNote> {
+class $DbLessonParticipantsTable extends DbLessonParticipants
+    with TableInfo<$DbLessonParticipantsTable, DbLessonParticipant> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DbLessonNotesTable(this.attachedDatabase, [this._alias]);
+  $DbLessonParticipantsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -898,17 +1792,6 @@ class $DbLessonNotesTable extends DbLessonNotes
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _contentMeta = const VerificationMeta(
-    'content',
-  );
-  @override
-  late final GeneratedColumn<String> content = GeneratedColumn<String>(
-    'content',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _lessonIdMeta = const VerificationMeta(
     'lessonId',
   );
@@ -920,33 +1803,86 @@ class $DbLessonNotesTable extends DbLessonNotes
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_lessons (id) ON DELETE CASCADE',
+      'REFERENCES db_lessons (id)',
+    ),
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES db_students (id)',
+    ),
+  );
+  static const VerificationMeta _isPaidMeta = const VerificationMeta('isPaid');
+  @override
+  late final GeneratedColumn<bool> isPaid = GeneratedColumn<bool>(
+    'is_paid',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_paid" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _attendedMeta = const VerificationMeta(
+    'attended',
+  );
+  @override
+  late final GeneratedColumn<bool> attended = GeneratedColumn<bool>(
+    'attended',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("attended" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES db_groups (id)',
     ),
   );
   @override
-  List<GeneratedColumn> get $columns => [id, content, lessonId];
+  List<GeneratedColumn> get $columns => [
+    id,
+    lessonId,
+    studentId,
+    isPaid,
+    attended,
+    groupId,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'db_lesson_notes';
+  static const String $name = 'db_lesson_participants';
   @override
   VerificationContext validateIntegrity(
-    Insertable<DbLessonNote> instance, {
+    Insertable<DbLessonParticipant> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('content')) {
-      context.handle(
-        _contentMeta,
-        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_contentMeta);
     }
     if (data.containsKey('lesson_id')) {
       context.handle(
@@ -956,71 +1892,137 @@ class $DbLessonNotesTable extends DbLessonNotes
     } else if (isInserting) {
       context.missing(_lessonIdMeta);
     }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('is_paid')) {
+      context.handle(
+        _isPaidMeta,
+        isPaid.isAcceptableOrUnknown(data['is_paid']!, _isPaidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isPaidMeta);
+    }
+    if (data.containsKey('attended')) {
+      context.handle(
+        _attendedMeta,
+        attended.isAcceptableOrUnknown(data['attended']!, _attendedMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_attendedMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  DbLessonNote map(Map<String, dynamic> data, {String? tablePrefix}) {
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {lessonId, studentId},
+  ];
+  @override
+  DbLessonParticipant map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DbLessonNote(
+    return DbLessonParticipant(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
-      )!,
-      content: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}content'],
       )!,
       lessonId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}lesson_id'],
       )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student_id'],
+      )!,
+      isPaid: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_paid'],
+      )!,
+      attended: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}attended'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      ),
     );
   }
 
   @override
-  $DbLessonNotesTable createAlias(String alias) {
-    return $DbLessonNotesTable(attachedDatabase, alias);
+  $DbLessonParticipantsTable createAlias(String alias) {
+    return $DbLessonParticipantsTable(attachedDatabase, alias);
   }
 }
 
-class DbLessonNote extends DataClass implements Insertable<DbLessonNote> {
+class DbLessonParticipant extends DataClass
+    implements Insertable<DbLessonParticipant> {
   final int id;
-  final String content;
   final int lessonId;
-  const DbLessonNote({
+  final int studentId;
+  final bool isPaid;
+  final bool attended;
+  final int? groupId;
+  const DbLessonParticipant({
     required this.id,
-    required this.content,
     required this.lessonId,
+    required this.studentId,
+    required this.isPaid,
+    required this.attended,
+    this.groupId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['content'] = Variable<String>(content);
     map['lesson_id'] = Variable<int>(lessonId);
+    map['student_id'] = Variable<int>(studentId);
+    map['is_paid'] = Variable<bool>(isPaid);
+    map['attended'] = Variable<bool>(attended);
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<int>(groupId);
+    }
     return map;
   }
 
-  DbLessonNotesCompanion toCompanion(bool nullToAbsent) {
-    return DbLessonNotesCompanion(
+  DbLessonParticipantsCompanion toCompanion(bool nullToAbsent) {
+    return DbLessonParticipantsCompanion(
       id: Value(id),
-      content: Value(content),
       lessonId: Value(lessonId),
+      studentId: Value(studentId),
+      isPaid: Value(isPaid),
+      attended: Value(attended),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
     );
   }
 
-  factory DbLessonNote.fromJson(
+  factory DbLessonParticipant.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DbLessonNote(
+    return DbLessonParticipant(
       id: serializer.fromJson<int>(json['id']),
-      content: serializer.fromJson<String>(json['content']),
       lessonId: serializer.fromJson<int>(json['lessonId']),
+      studentId: serializer.fromJson<int>(json['studentId']),
+      isPaid: serializer.fromJson<bool>(json['isPaid']),
+      attended: serializer.fromJson<bool>(json['attended']),
+      groupId: serializer.fromJson<int?>(json['groupId']),
     );
   }
   @override
@@ -1028,82 +2030,128 @@ class DbLessonNote extends DataClass implements Insertable<DbLessonNote> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'content': serializer.toJson<String>(content),
       'lessonId': serializer.toJson<int>(lessonId),
+      'studentId': serializer.toJson<int>(studentId),
+      'isPaid': serializer.toJson<bool>(isPaid),
+      'attended': serializer.toJson<bool>(attended),
+      'groupId': serializer.toJson<int?>(groupId),
     };
   }
 
-  DbLessonNote copyWith({int? id, String? content, int? lessonId}) =>
-      DbLessonNote(
-        id: id ?? this.id,
-        content: content ?? this.content,
-        lessonId: lessonId ?? this.lessonId,
-      );
-  DbLessonNote copyWithCompanion(DbLessonNotesCompanion data) {
-    return DbLessonNote(
+  DbLessonParticipant copyWith({
+    int? id,
+    int? lessonId,
+    int? studentId,
+    bool? isPaid,
+    bool? attended,
+    Value<int?> groupId = const Value.absent(),
+  }) => DbLessonParticipant(
+    id: id ?? this.id,
+    lessonId: lessonId ?? this.lessonId,
+    studentId: studentId ?? this.studentId,
+    isPaid: isPaid ?? this.isPaid,
+    attended: attended ?? this.attended,
+    groupId: groupId.present ? groupId.value : this.groupId,
+  );
+  DbLessonParticipant copyWithCompanion(DbLessonParticipantsCompanion data) {
+    return DbLessonParticipant(
       id: data.id.present ? data.id.value : this.id,
-      content: data.content.present ? data.content.value : this.content,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      isPaid: data.isPaid.present ? data.isPaid.value : this.isPaid,
+      attended: data.attended.present ? data.attended.value : this.attended,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('DbLessonNote(')
+    return (StringBuffer('DbLessonParticipant(')
           ..write('id: $id, ')
-          ..write('content: $content, ')
-          ..write('lessonId: $lessonId')
+          ..write('lessonId: $lessonId, ')
+          ..write('studentId: $studentId, ')
+          ..write('isPaid: $isPaid, ')
+          ..write('attended: $attended, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, content, lessonId);
+  int get hashCode =>
+      Object.hash(id, lessonId, studentId, isPaid, attended, groupId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DbLessonNote &&
+      (other is DbLessonParticipant &&
           other.id == this.id &&
-          other.content == this.content &&
-          other.lessonId == this.lessonId);
+          other.lessonId == this.lessonId &&
+          other.studentId == this.studentId &&
+          other.isPaid == this.isPaid &&
+          other.attended == this.attended &&
+          other.groupId == this.groupId);
 }
 
-class DbLessonNotesCompanion extends UpdateCompanion<DbLessonNote> {
+class DbLessonParticipantsCompanion
+    extends UpdateCompanion<DbLessonParticipant> {
   final Value<int> id;
-  final Value<String> content;
   final Value<int> lessonId;
-  const DbLessonNotesCompanion({
+  final Value<int> studentId;
+  final Value<bool> isPaid;
+  final Value<bool> attended;
+  final Value<int?> groupId;
+  const DbLessonParticipantsCompanion({
     this.id = const Value.absent(),
-    this.content = const Value.absent(),
     this.lessonId = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.isPaid = const Value.absent(),
+    this.attended = const Value.absent(),
+    this.groupId = const Value.absent(),
   });
-  DbLessonNotesCompanion.insert({
+  DbLessonParticipantsCompanion.insert({
     this.id = const Value.absent(),
-    required String content,
     required int lessonId,
-  }) : content = Value(content),
-       lessonId = Value(lessonId);
-  static Insertable<DbLessonNote> custom({
+    required int studentId,
+    required bool isPaid,
+    required bool attended,
+    this.groupId = const Value.absent(),
+  }) : lessonId = Value(lessonId),
+       studentId = Value(studentId),
+       isPaid = Value(isPaid),
+       attended = Value(attended);
+  static Insertable<DbLessonParticipant> custom({
     Expression<int>? id,
-    Expression<String>? content,
     Expression<int>? lessonId,
+    Expression<int>? studentId,
+    Expression<bool>? isPaid,
+    Expression<bool>? attended,
+    Expression<int>? groupId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (content != null) 'content': content,
       if (lessonId != null) 'lesson_id': lessonId,
+      if (studentId != null) 'student_id': studentId,
+      if (isPaid != null) 'is_paid': isPaid,
+      if (attended != null) 'attended': attended,
+      if (groupId != null) 'group_id': groupId,
     });
   }
 
-  DbLessonNotesCompanion copyWith({
+  DbLessonParticipantsCompanion copyWith({
     Value<int>? id,
-    Value<String>? content,
     Value<int>? lessonId,
+    Value<int>? studentId,
+    Value<bool>? isPaid,
+    Value<bool>? attended,
+    Value<int?>? groupId,
   }) {
-    return DbLessonNotesCompanion(
+    return DbLessonParticipantsCompanion(
       id: id ?? this.id,
-      content: content ?? this.content,
       lessonId: lessonId ?? this.lessonId,
+      studentId: studentId ?? this.studentId,
+      isPaid: isPaid ?? this.isPaid,
+      attended: attended ?? this.attended,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -1113,21 +2161,33 @@ class DbLessonNotesCompanion extends UpdateCompanion<DbLessonNote> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (content.present) {
-      map['content'] = Variable<String>(content.value);
-    }
     if (lessonId.present) {
       map['lesson_id'] = Variable<int>(lessonId.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<int>(studentId.value);
+    }
+    if (isPaid.present) {
+      map['is_paid'] = Variable<bool>(isPaid.value);
+    }
+    if (attended.present) {
+      map['attended'] = Variable<bool>(attended.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('DbLessonNotesCompanion(')
+    return (StringBuffer('DbLessonParticipantsCompanion(')
           ..write('id: $id, ')
-          ..write('content: $content, ')
-          ..write('lessonId: $lessonId')
+          ..write('lessonId: $lessonId, ')
+          ..write('studentId: $studentId, ')
+          ..write('isPaid: $isPaid, ')
+          ..write('attended: $attended, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
@@ -1138,9 +2198,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $DbLessonsTable dbLessons = $DbLessonsTable(this);
   late final $DbStudentsTable dbStudents = $DbStudentsTable(this);
-  late final $DbStudentsLessonsTable dbStudentsLessons =
-      $DbStudentsLessonsTable(this);
-  late final $DbLessonNotesTable dbLessonNotes = $DbLessonNotesTable(this);
+  late final $DbGroupsTable dbGroups = $DbGroupsTable(this);
+  late final $GroupMembershipsTable groupMemberships = $GroupMembershipsTable(
+    this,
+  );
+  late final $DbLessonParticipantsTable dbLessonParticipants =
+      $DbLessonParticipantsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1148,31 +2211,25 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     dbLessons,
     dbStudents,
-    dbStudentsLessons,
-    dbLessonNotes,
+    dbGroups,
+    groupMemberships,
+    dbLessonParticipants,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'db_groups',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('group_memberships', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'db_students',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('db_students_lessons', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'db_lessons',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('db_students_lessons', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'db_lessons',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('db_lesson_notes', kind: UpdateKind.delete)],
+      result: [TableUpdate('group_memberships', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -1180,59 +2237,53 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$DbLessonsTableCreateCompanionBuilder =
     DbLessonsCompanion Function({
       Value<int> id,
-      required String name,
+      required String topic,
       required DateTime start,
       required int durationInMinutes,
+      Value<String?> note,
+      required LessonStatus status,
+      required int createdAt,
+      required int updatedAt,
     });
 typedef $$DbLessonsTableUpdateCompanionBuilder =
     DbLessonsCompanion Function({
       Value<int> id,
-      Value<String> name,
+      Value<String> topic,
       Value<DateTime> start,
       Value<int> durationInMinutes,
+      Value<String?> note,
+      Value<LessonStatus> status,
+      Value<int> createdAt,
+      Value<int> updatedAt,
     });
 
 final class $$DbLessonsTableReferences
     extends BaseReferences<_$AppDatabase, $DbLessonsTable, DbLesson> {
   $$DbLessonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$DbStudentsLessonsTable, List<DbStudentsLesson>>
-  _dbStudentsLessonsRefsTable(_$AppDatabase db) =>
+  static MultiTypedResultKey<
+    $DbLessonParticipantsTable,
+    List<DbLessonParticipant>
+  >
+  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
-        db.dbStudentsLessons,
+        db.dbLessonParticipants,
         aliasName: $_aliasNameGenerator(
           db.dbLessons.id,
-          db.dbStudentsLessons.lessonId,
+          db.dbLessonParticipants.lessonId,
         ),
       );
 
-  $$DbStudentsLessonsTableProcessedTableManager get dbStudentsLessonsRefs {
-    final manager = $$DbStudentsLessonsTableTableManager(
+  $$DbLessonParticipantsTableProcessedTableManager
+  get dbLessonParticipantsRefs {
+    final manager = $$DbLessonParticipantsTableTableManager(
       $_db,
-      $_db.dbStudentsLessons,
+      $_db.dbLessonParticipants,
     ).filter((f) => f.lessonId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _dbStudentsLessonsRefsTable($_db),
+      _dbLessonParticipantsRefsTable($_db),
     );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$DbLessonNotesTable, List<DbLessonNote>>
-  _dbLessonNotesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.dbLessonNotes,
-    aliasName: $_aliasNameGenerator(db.dbLessons.id, db.dbLessonNotes.lessonId),
-  );
-
-  $$DbLessonNotesTableProcessedTableManager get dbLessonNotesRefs {
-    final manager = $$DbLessonNotesTableTableManager(
-      $_db,
-      $_db.dbLessonNotes,
-    ).filter((f) => f.lessonId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_dbLessonNotesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -1253,8 +2304,8 @@ class $$DbLessonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnFilters<String> get topic => $composableBuilder(
+    column: $table.topic,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1268,47 +2319,43 @@ class $$DbLessonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> dbStudentsLessonsRefs(
-    Expression<bool> Function($$DbStudentsLessonsTableFilterComposer f) f,
-  ) {
-    final $$DbStudentsLessonsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.dbStudentsLessons,
-      getReferencedColumn: (t) => t.lessonId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbStudentsLessonsTableFilterComposer(
-            $db: $db,
-            $table: $db.dbStudentsLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  Expression<bool> dbLessonNotesRefs(
-    Expression<bool> Function($$DbLessonNotesTableFilterComposer f) f,
+  ColumnWithTypeConverterFilters<LessonStatus, LessonStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> dbLessonParticipantsRefs(
+    Expression<bool> Function($$DbLessonParticipantsTableFilterComposer f) f,
   ) {
-    final $$DbLessonNotesTableFilterComposer composer = $composerBuilder(
+    final $$DbLessonParticipantsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.dbLessonNotes,
+      referencedTable: $db.dbLessonParticipants,
       getReferencedColumn: (t) => t.lessonId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonNotesTableFilterComposer(
+          }) => $$DbLessonParticipantsTableFilterComposer(
             $db: $db,
-            $table: $db.dbLessonNotes,
+            $table: $db.dbLessonParticipants,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1333,8 +2380,8 @@ class $$DbLessonsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnOrderings<String> get topic => $composableBuilder(
+    column: $table.topic,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1345,6 +2392,26 @@ class $$DbLessonsTableOrderingComposer
 
   ColumnOrderings<int> get durationInMinutes => $composableBuilder(
     column: $table.durationInMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1361,8 +2428,8 @@ class $$DbLessonsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get topic =>
+      $composableBuilder(column: $table.topic, builder: (column) => column);
 
   GeneratedColumn<DateTime> get start =>
       $composableBuilder(column: $table.start, builder: (column) => column);
@@ -1372,54 +2439,41 @@ class $$DbLessonsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  Expression<T> dbStudentsLessonsRefs<T extends Object>(
-    Expression<T> Function($$DbStudentsLessonsTableAnnotationComposer a) f,
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<LessonStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> dbLessonParticipantsRefs<T extends Object>(
+    Expression<T> Function($$DbLessonParticipantsTableAnnotationComposer a) f,
   ) {
-    final $$DbStudentsLessonsTableAnnotationComposer composer =
+    final $$DbLessonParticipantsTableAnnotationComposer composer =
         $composerBuilder(
           composer: this,
           getCurrentColumn: (t) => t.id,
-          referencedTable: $db.dbStudentsLessons,
+          referencedTable: $db.dbLessonParticipants,
           getReferencedColumn: (t) => t.lessonId,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$DbStudentsLessonsTableAnnotationComposer(
+              }) => $$DbLessonParticipantsTableAnnotationComposer(
                 $db: $db,
-                $table: $db.dbStudentsLessons,
+                $table: $db.dbLessonParticipants,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
                     $removeJoinBuilderFromRootComposer,
               ),
         );
-    return f(composer);
-  }
-
-  Expression<T> dbLessonNotesRefs<T extends Object>(
-    Expression<T> Function($$DbLessonNotesTableAnnotationComposer a) f,
-  ) {
-    final $$DbLessonNotesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.dbLessonNotes,
-      getReferencedColumn: (t) => t.lessonId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonNotesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.dbLessonNotes,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
     return f(composer);
   }
 }
@@ -1437,10 +2491,7 @@ class $$DbLessonsTableTableManager
           $$DbLessonsTableUpdateCompanionBuilder,
           (DbLesson, $$DbLessonsTableReferences),
           DbLesson,
-          PrefetchHooks Function({
-            bool dbStudentsLessonsRefs,
-            bool dbLessonNotesRefs,
-          })
+          PrefetchHooks Function({bool dbLessonParticipantsRefs})
         > {
   $$DbLessonsTableTableManager(_$AppDatabase db, $DbLessonsTable table)
     : super(
@@ -1456,26 +2507,42 @@ class $$DbLessonsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
+                Value<String> topic = const Value.absent(),
                 Value<DateTime> start = const Value.absent(),
                 Value<int> durationInMinutes = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<LessonStatus> status = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
               }) => DbLessonsCompanion(
                 id: id,
-                name: name,
+                topic: topic,
                 start: start,
                 durationInMinutes: durationInMinutes,
+                note: note,
+                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required String name,
+                required String topic,
                 required DateTime start,
                 required int durationInMinutes,
+                Value<String?> note = const Value.absent(),
+                required LessonStatus status,
+                required int createdAt,
+                required int updatedAt,
               }) => DbLessonsCompanion.insert(
                 id: id,
-                name: name,
+                topic: topic,
                 start: start,
                 durationInMinutes: durationInMinutes,
+                note: note,
+                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1485,63 +2552,38 @@ class $$DbLessonsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({dbStudentsLessonsRefs = false, dbLessonNotesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (dbStudentsLessonsRefs) db.dbStudentsLessons,
-                    if (dbLessonNotesRefs) db.dbLessonNotes,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (dbStudentsLessonsRefs)
-                        await $_getPrefetchedData<
-                          DbLesson,
-                          $DbLessonsTable,
-                          DbStudentsLesson
-                        >(
-                          currentTable: table,
-                          referencedTable: $$DbLessonsTableReferences
-                              ._dbStudentsLessonsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$DbLessonsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).dbStudentsLessonsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.lessonId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (dbLessonNotesRefs)
-                        await $_getPrefetchedData<
-                          DbLesson,
-                          $DbLessonsTable,
-                          DbLessonNote
-                        >(
-                          currentTable: table,
-                          referencedTable: $$DbLessonsTableReferences
-                              ._dbLessonNotesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$DbLessonsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).dbLessonNotesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.lessonId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({dbLessonParticipantsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (dbLessonParticipantsRefs) db.dbLessonParticipants,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (dbLessonParticipantsRefs)
+                    await $_getPrefetchedData<
+                      DbLesson,
+                      $DbLessonsTable,
+                      DbLessonParticipant
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DbLessonsTableReferences
+                          ._dbLessonParticipantsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DbLessonsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).dbLessonParticipantsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.lessonId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -1558,50 +2600,84 @@ typedef $$DbLessonsTableProcessedTableManager =
       $$DbLessonsTableUpdateCompanionBuilder,
       (DbLesson, $$DbLessonsTableReferences),
       DbLesson,
-      PrefetchHooks Function({
-        bool dbStudentsLessonsRefs,
-        bool dbLessonNotesRefs,
-      })
+      PrefetchHooks Function({bool dbLessonParticipantsRefs})
     >;
 typedef $$DbStudentsTableCreateCompanionBuilder =
     DbStudentsCompanion Function({
       Value<int> id,
       required String name,
-      required double pricing,
+      required String contact,
+      Value<String?> email,
+      Value<String?> avatarPath,
+      required double payRate,
       required RatePeriod period,
-      Value<int?> groupId,
+      required String notes,
+      required int createdAt,
+      required int updatedAt,
     });
 typedef $$DbStudentsTableUpdateCompanionBuilder =
     DbStudentsCompanion Function({
       Value<int> id,
       Value<String> name,
-      Value<double> pricing,
+      Value<String> contact,
+      Value<String?> email,
+      Value<String?> avatarPath,
+      Value<double> payRate,
       Value<RatePeriod> period,
-      Value<int?> groupId,
+      Value<String> notes,
+      Value<int> createdAt,
+      Value<int> updatedAt,
     });
 
 final class $$DbStudentsTableReferences
     extends BaseReferences<_$AppDatabase, $DbStudentsTable, DbStudent> {
   $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$DbStudentsLessonsTable, List<DbStudentsLesson>>
-  _dbStudentsLessonsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.dbStudentsLessons,
-        aliasName: $_aliasNameGenerator(
-          db.dbStudents.id,
-          db.dbStudentsLessons.studentId,
-        ),
-      );
+  static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
+  _groupMembershipsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.groupMemberships,
+    aliasName: $_aliasNameGenerator(
+      db.dbStudents.id,
+      db.groupMemberships.studentId,
+    ),
+  );
 
-  $$DbStudentsLessonsTableProcessedTableManager get dbStudentsLessonsRefs {
-    final manager = $$DbStudentsLessonsTableTableManager(
+  $$GroupMembershipsTableProcessedTableManager get groupMembershipsRefs {
+    final manager = $$GroupMembershipsTableTableManager(
       $_db,
-      $_db.dbStudentsLessons,
+      $_db.groupMemberships,
     ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _dbStudentsLessonsRefsTable($_db),
+      _groupMembershipsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $DbLessonParticipantsTable,
+    List<DbLessonParticipant>
+  >
+  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.dbLessonParticipants,
+        aliasName: $_aliasNameGenerator(
+          db.dbStudents.id,
+          db.dbLessonParticipants.studentId,
+        ),
+      );
+
+  $$DbLessonParticipantsTableProcessedTableManager
+  get dbLessonParticipantsRefs {
+    final manager = $$DbLessonParticipantsTableTableManager(
+      $_db,
+      $_db.dbLessonParticipants,
+    ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _dbLessonParticipantsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1628,8 +2704,23 @@ class $$DbStudentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get pricing => $composableBuilder(
-    column: $table.pricing,
+  ColumnFilters<String> get contact => $composableBuilder(
+    column: $table.contact,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get payRate => $composableBuilder(
+    column: $table.payRate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1639,27 +2730,62 @@ class $$DbStudentsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<int> get groupId => $composableBuilder(
-    column: $table.groupId,
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> dbStudentsLessonsRefs(
-    Expression<bool> Function($$DbStudentsLessonsTableFilterComposer f) f,
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> groupMembershipsRefs(
+    Expression<bool> Function($$GroupMembershipsTableFilterComposer f) f,
   ) {
-    final $$DbStudentsLessonsTableFilterComposer composer = $composerBuilder(
+    final $$GroupMembershipsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.dbStudentsLessons,
+      referencedTable: $db.groupMemberships,
       getReferencedColumn: (t) => t.studentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbStudentsLessonsTableFilterComposer(
+          }) => $$GroupMembershipsTableFilterComposer(
             $db: $db,
-            $table: $db.dbStudentsLessons,
+            $table: $db.groupMemberships,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> dbLessonParticipantsRefs(
+    Expression<bool> Function($$DbLessonParticipantsTableFilterComposer f) f,
+  ) {
+    final $$DbLessonParticipantsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.dbLessonParticipants,
+      getReferencedColumn: (t) => t.studentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonParticipantsTableFilterComposer(
+            $db: $db,
+            $table: $db.dbLessonParticipants,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1689,8 +2815,23 @@ class $$DbStudentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get pricing => $composableBuilder(
-    column: $table.pricing,
+  ColumnOrderings<String> get contact => $composableBuilder(
+    column: $table.contact,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get payRate => $composableBuilder(
+    column: $table.payRate,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1699,8 +2840,18 @@ class $$DbStudentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get groupId => $composableBuilder(
-    column: $table.groupId,
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1720,32 +2871,74 @@ class $$DbStudentsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<double> get pricing =>
-      $composableBuilder(column: $table.pricing, builder: (column) => column);
+  GeneratedColumn<String> get contact =>
+      $composableBuilder(column: $table.contact, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get payRate =>
+      $composableBuilder(column: $table.payRate, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
       $composableBuilder(column: $table.period, builder: (column) => column);
 
-  GeneratedColumn<int> get groupId =>
-      $composableBuilder(column: $table.groupId, builder: (column) => column);
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  Expression<T> dbStudentsLessonsRefs<T extends Object>(
-    Expression<T> Function($$DbStudentsLessonsTableAnnotationComposer a) f,
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> groupMembershipsRefs<T extends Object>(
+    Expression<T> Function($$GroupMembershipsTableAnnotationComposer a) f,
   ) {
-    final $$DbStudentsLessonsTableAnnotationComposer composer =
+    final $$GroupMembershipsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.groupMemberships,
+      getReferencedColumn: (t) => t.studentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupMembershipsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.groupMemberships,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> dbLessonParticipantsRefs<T extends Object>(
+    Expression<T> Function($$DbLessonParticipantsTableAnnotationComposer a) f,
+  ) {
+    final $$DbLessonParticipantsTableAnnotationComposer composer =
         $composerBuilder(
           composer: this,
           getCurrentColumn: (t) => t.id,
-          referencedTable: $db.dbStudentsLessons,
+          referencedTable: $db.dbLessonParticipants,
           getReferencedColumn: (t) => t.studentId,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$DbStudentsLessonsTableAnnotationComposer(
+              }) => $$DbLessonParticipantsTableAnnotationComposer(
                 $db: $db,
-                $table: $db.dbStudentsLessons,
+                $table: $db.dbLessonParticipants,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -1769,7 +2962,10 @@ class $$DbStudentsTableTableManager
           $$DbStudentsTableUpdateCompanionBuilder,
           (DbStudent, $$DbStudentsTableReferences),
           DbStudent,
-          PrefetchHooks Function({bool dbStudentsLessonsRefs})
+          PrefetchHooks Function({
+            bool groupMembershipsRefs,
+            bool dbLessonParticipantsRefs,
+          })
         > {
   $$DbStudentsTableTableManager(_$AppDatabase db, $DbStudentsTable table)
     : super(
@@ -1786,29 +2982,49 @@ class $$DbStudentsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<double> pricing = const Value.absent(),
+                Value<String> contact = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                Value<double> payRate = const Value.absent(),
                 Value<RatePeriod> period = const Value.absent(),
-                Value<int?> groupId = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
               }) => DbStudentsCompanion(
                 id: id,
                 name: name,
-                pricing: pricing,
+                contact: contact,
+                email: email,
+                avatarPath: avatarPath,
+                payRate: payRate,
                 period: period,
-                groupId: groupId,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
-                required double pricing,
+                required String contact,
+                Value<String?> email = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                required double payRate,
                 required RatePeriod period,
-                Value<int?> groupId = const Value.absent(),
+                required String notes,
+                required int createdAt,
+                required int updatedAt,
               }) => DbStudentsCompanion.insert(
                 id: id,
                 name: name,
-                pricing: pricing,
+                contact: contact,
+                email: email,
+                avatarPath: avatarPath,
+                payRate: payRate,
                 period: period,
-                groupId: groupId,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1818,38 +3034,66 @@ class $$DbStudentsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({dbStudentsLessonsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (dbStudentsLessonsRefs) db.dbStudentsLessons,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (dbStudentsLessonsRefs)
-                    await $_getPrefetchedData<
-                      DbStudent,
-                      $DbStudentsTable,
-                      DbStudentsLesson
-                    >(
-                      currentTable: table,
-                      referencedTable: $$DbStudentsTableReferences
-                          ._dbStudentsLessonsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$DbStudentsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).dbStudentsLessonsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.studentId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                groupMembershipsRefs = false,
+                dbLessonParticipantsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (groupMembershipsRefs) db.groupMemberships,
+                    if (dbLessonParticipantsRefs) db.dbLessonParticipants,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (groupMembershipsRefs)
+                        await $_getPrefetchedData<
+                          DbStudent,
+                          $DbStudentsTable,
+                          GroupMembership
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbStudentsTableReferences
+                              ._groupMembershipsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbStudentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).groupMembershipsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.studentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (dbLessonParticipantsRefs)
+                        await $_getPrefetchedData<
+                          DbStudent,
+                          $DbStudentsTable,
+                          DbLessonParticipant
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbStudentsTableReferences
+                              ._dbLessonParticipantsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbStudentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dbLessonParticipantsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.studentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1866,37 +3110,878 @@ typedef $$DbStudentsTableProcessedTableManager =
       $$DbStudentsTableUpdateCompanionBuilder,
       (DbStudent, $$DbStudentsTableReferences),
       DbStudent,
-      PrefetchHooks Function({bool dbStudentsLessonsRefs})
+      PrefetchHooks Function({
+        bool groupMembershipsRefs,
+        bool dbLessonParticipantsRefs,
+      })
     >;
-typedef $$DbStudentsLessonsTableCreateCompanionBuilder =
-    DbStudentsLessonsCompanion Function({
-      required int studentId,
-      required int lessonId,
-      Value<int> rowid,
+typedef $$DbGroupsTableCreateCompanionBuilder =
+    DbGroupsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<String?> description,
+      required double payRate,
+      required int createdAt,
+      required int updatedAt,
     });
-typedef $$DbStudentsLessonsTableUpdateCompanionBuilder =
-    DbStudentsLessonsCompanion Function({
-      Value<int> studentId,
-      Value<int> lessonId,
-      Value<int> rowid,
+typedef $$DbGroupsTableUpdateCompanionBuilder =
+    DbGroupsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String?> description,
+      Value<double> payRate,
+      Value<int> createdAt,
+      Value<int> updatedAt,
     });
 
-final class $$DbStudentsLessonsTableReferences
+final class $$DbGroupsTableReferences
+    extends BaseReferences<_$AppDatabase, $DbGroupsTable, DbGroup> {
+  $$DbGroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
+  _groupMembershipsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.groupMemberships,
+    aliasName: $_aliasNameGenerator(
+      db.dbGroups.id,
+      db.groupMemberships.groupId,
+    ),
+  );
+
+  $$GroupMembershipsTableProcessedTableManager get groupMembershipsRefs {
+    final manager = $$GroupMembershipsTableTableManager(
+      $_db,
+      $_db.groupMemberships,
+    ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _groupMembershipsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $DbLessonParticipantsTable,
+    List<DbLessonParticipant>
+  >
+  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.dbLessonParticipants,
+        aliasName: $_aliasNameGenerator(
+          db.dbGroups.id,
+          db.dbLessonParticipants.groupId,
+        ),
+      );
+
+  $$DbLessonParticipantsTableProcessedTableManager
+  get dbLessonParticipantsRefs {
+    final manager = $$DbLessonParticipantsTableTableManager(
+      $_db,
+      $_db.dbLessonParticipants,
+    ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _dbLessonParticipantsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$DbGroupsTableFilterComposer
+    extends Composer<_$AppDatabase, $DbGroupsTable> {
+  $$DbGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> groupMembershipsRefs(
+    Expression<bool> Function($$GroupMembershipsTableFilterComposer f) f,
+  ) {
+    final $$GroupMembershipsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.groupMemberships,
+      getReferencedColumn: (t) => t.groupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupMembershipsTableFilterComposer(
+            $db: $db,
+            $table: $db.groupMemberships,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> dbLessonParticipantsRefs(
+    Expression<bool> Function($$DbLessonParticipantsTableFilterComposer f) f,
+  ) {
+    final $$DbLessonParticipantsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.dbLessonParticipants,
+      getReferencedColumn: (t) => t.groupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonParticipantsTableFilterComposer(
+            $db: $db,
+            $table: $db.dbLessonParticipants,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DbGroupsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbGroupsTable> {
+  $$DbGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DbGroupsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbGroupsTable> {
+  $$DbGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get payRate =>
+      $composableBuilder(column: $table.payRate, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> groupMembershipsRefs<T extends Object>(
+    Expression<T> Function($$GroupMembershipsTableAnnotationComposer a) f,
+  ) {
+    final $$GroupMembershipsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.groupMemberships,
+      getReferencedColumn: (t) => t.groupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupMembershipsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.groupMemberships,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> dbLessonParticipantsRefs<T extends Object>(
+    Expression<T> Function($$DbLessonParticipantsTableAnnotationComposer a) f,
+  ) {
+    final $$DbLessonParticipantsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.dbLessonParticipants,
+          getReferencedColumn: (t) => t.groupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DbLessonParticipantsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.dbLessonParticipants,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$DbGroupsTableTableManager
     extends
-        BaseReferences<
+        RootTableManager<
           _$AppDatabase,
-          $DbStudentsLessonsTable,
-          DbStudentsLesson
+          $DbGroupsTable,
+          DbGroup,
+          $$DbGroupsTableFilterComposer,
+          $$DbGroupsTableOrderingComposer,
+          $$DbGroupsTableAnnotationComposer,
+          $$DbGroupsTableCreateCompanionBuilder,
+          $$DbGroupsTableUpdateCompanionBuilder,
+          (DbGroup, $$DbGroupsTableReferences),
+          DbGroup,
+          PrefetchHooks Function({
+            bool groupMembershipsRefs,
+            bool dbLessonParticipantsRefs,
+          })
         > {
-  $$DbStudentsLessonsTableReferences(
+  $$DbGroupsTableTableManager(_$AppDatabase db, $DbGroupsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DbGroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DbGroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DbGroupsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<double> payRate = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+              }) => DbGroupsCompanion(
+                id: id,
+                name: name,
+                description: description,
+                payRate: payRate,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<String?> description = const Value.absent(),
+                required double payRate,
+                required int createdAt,
+                required int updatedAt,
+              }) => DbGroupsCompanion.insert(
+                id: id,
+                name: name,
+                description: description,
+                payRate: payRate,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DbGroupsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                groupMembershipsRefs = false,
+                dbLessonParticipantsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (groupMembershipsRefs) db.groupMemberships,
+                    if (dbLessonParticipantsRefs) db.dbLessonParticipants,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (groupMembershipsRefs)
+                        await $_getPrefetchedData<
+                          DbGroup,
+                          $DbGroupsTable,
+                          GroupMembership
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbGroupsTableReferences
+                              ._groupMembershipsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbGroupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).groupMembershipsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.groupId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (dbLessonParticipantsRefs)
+                        await $_getPrefetchedData<
+                          DbGroup,
+                          $DbGroupsTable,
+                          DbLessonParticipant
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbGroupsTableReferences
+                              ._dbLessonParticipantsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbGroupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dbLessonParticipantsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.groupId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$DbGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DbGroupsTable,
+      DbGroup,
+      $$DbGroupsTableFilterComposer,
+      $$DbGroupsTableOrderingComposer,
+      $$DbGroupsTableAnnotationComposer,
+      $$DbGroupsTableCreateCompanionBuilder,
+      $$DbGroupsTableUpdateCompanionBuilder,
+      (DbGroup, $$DbGroupsTableReferences),
+      DbGroup,
+      PrefetchHooks Function({
+        bool groupMembershipsRefs,
+        bool dbLessonParticipantsRefs,
+      })
+    >;
+typedef $$GroupMembershipsTableCreateCompanionBuilder =
+    GroupMembershipsCompanion Function({
+      Value<int> id,
+      required int groupId,
+      required int studentId,
+    });
+typedef $$GroupMembershipsTableUpdateCompanionBuilder =
+    GroupMembershipsCompanion Function({
+      Value<int> id,
+      Value<int> groupId,
+      Value<int> studentId,
+    });
+
+final class $$GroupMembershipsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $GroupMembershipsTable, GroupMembership> {
+  $$GroupMembershipsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
+  static $DbGroupsTable _groupIdTable(_$AppDatabase db) =>
+      db.dbGroups.createAlias(
+        $_aliasNameGenerator(db.groupMemberships.groupId, db.dbGroups.id),
+      );
+
+  $$DbGroupsTableProcessedTableManager get groupId {
+    final $_column = $_itemColumn<int>('group_id')!;
+
+    final manager = $$DbGroupsTableTableManager(
+      $_db,
+      $_db.dbGroups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
   static $DbStudentsTable _studentIdTable(_$AppDatabase db) =>
       db.dbStudents.createAlias(
-        $_aliasNameGenerator(db.dbStudentsLessons.studentId, db.dbStudents.id),
+        $_aliasNameGenerator(db.groupMemberships.studentId, db.dbStudents.id),
+      );
+
+  $$DbStudentsTableProcessedTableManager get studentId {
+    final $_column = $_itemColumn<int>('student_id')!;
+
+    final manager = $$DbStudentsTableTableManager(
+      $_db,
+      $_db.dbStudents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_studentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$GroupMembershipsTableFilterComposer
+    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+  $$GroupMembershipsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DbGroupsTableFilterComposer get groupId {
+    final $$DbGroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbGroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.dbGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DbStudentsTableFilterComposer get studentId {
+    final $$DbStudentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.studentId,
+      referencedTable: $db.dbStudents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbStudentsTableFilterComposer(
+            $db: $db,
+            $table: $db.dbStudents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GroupMembershipsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+  $$GroupMembershipsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DbGroupsTableOrderingComposer get groupId {
+    final $$DbGroupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbGroupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.dbGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DbStudentsTableOrderingComposer get studentId {
+    final $$DbStudentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.studentId,
+      referencedTable: $db.dbStudents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbStudentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.dbStudents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GroupMembershipsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+  $$GroupMembershipsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  $$DbGroupsTableAnnotationComposer get groupId {
+    final $$DbGroupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbGroupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.dbGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DbStudentsTableAnnotationComposer get studentId {
+    final $$DbStudentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.studentId,
+      referencedTable: $db.dbStudents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbStudentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.dbStudents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GroupMembershipsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GroupMembershipsTable,
+          GroupMembership,
+          $$GroupMembershipsTableFilterComposer,
+          $$GroupMembershipsTableOrderingComposer,
+          $$GroupMembershipsTableAnnotationComposer,
+          $$GroupMembershipsTableCreateCompanionBuilder,
+          $$GroupMembershipsTableUpdateCompanionBuilder,
+          (GroupMembership, $$GroupMembershipsTableReferences),
+          GroupMembership,
+          PrefetchHooks Function({bool groupId, bool studentId})
+        > {
+  $$GroupMembershipsTableTableManager(
+    _$AppDatabase db,
+    $GroupMembershipsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GroupMembershipsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GroupMembershipsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GroupMembershipsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> groupId = const Value.absent(),
+                Value<int> studentId = const Value.absent(),
+              }) => GroupMembershipsCompanion(
+                id: id,
+                groupId: groupId,
+                studentId: studentId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int groupId,
+                required int studentId,
+              }) => GroupMembershipsCompanion.insert(
+                id: id,
+                groupId: groupId,
+                studentId: studentId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$GroupMembershipsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({groupId = false, studentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (groupId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.groupId,
+                                referencedTable:
+                                    $$GroupMembershipsTableReferences
+                                        ._groupIdTable(db),
+                                referencedColumn:
+                                    $$GroupMembershipsTableReferences
+                                        ._groupIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (studentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.studentId,
+                                referencedTable:
+                                    $$GroupMembershipsTableReferences
+                                        ._studentIdTable(db),
+                                referencedColumn:
+                                    $$GroupMembershipsTableReferences
+                                        ._studentIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GroupMembershipsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GroupMembershipsTable,
+      GroupMembership,
+      $$GroupMembershipsTableFilterComposer,
+      $$GroupMembershipsTableOrderingComposer,
+      $$GroupMembershipsTableAnnotationComposer,
+      $$GroupMembershipsTableCreateCompanionBuilder,
+      $$GroupMembershipsTableUpdateCompanionBuilder,
+      (GroupMembership, $$GroupMembershipsTableReferences),
+      GroupMembership,
+      PrefetchHooks Function({bool groupId, bool studentId})
+    >;
+typedef $$DbLessonParticipantsTableCreateCompanionBuilder =
+    DbLessonParticipantsCompanion Function({
+      Value<int> id,
+      required int lessonId,
+      required int studentId,
+      required bool isPaid,
+      required bool attended,
+      Value<int?> groupId,
+    });
+typedef $$DbLessonParticipantsTableUpdateCompanionBuilder =
+    DbLessonParticipantsCompanion Function({
+      Value<int> id,
+      Value<int> lessonId,
+      Value<int> studentId,
+      Value<bool> isPaid,
+      Value<bool> attended,
+      Value<int?> groupId,
+    });
+
+final class $$DbLessonParticipantsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $DbLessonParticipantsTable,
+          DbLessonParticipant
+        > {
+  $$DbLessonParticipantsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
+      db.dbLessons.createAlias(
+        $_aliasNameGenerator(db.dbLessonParticipants.lessonId, db.dbLessons.id),
+      );
+
+  $$DbLessonsTableProcessedTableManager get lessonId {
+    final $_column = $_itemColumn<int>('lesson_id')!;
+
+    final manager = $$DbLessonsTableTableManager(
+      $_db,
+      $_db.dbLessons,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_lessonIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DbStudentsTable _studentIdTable(_$AppDatabase db) =>
+      db.dbStudents.createAlias(
+        $_aliasNameGenerator(
+          db.dbLessonParticipants.studentId,
+          db.dbStudents.id,
+        ),
       );
 
   $$DbStudentsTableProcessedTableManager get studentId {
@@ -1913,19 +3998,19 @@ final class $$DbStudentsLessonsTableReferences
     );
   }
 
-  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
-      db.dbLessons.createAlias(
-        $_aliasNameGenerator(db.dbStudentsLessons.lessonId, db.dbLessons.id),
+  static $DbGroupsTable _groupIdTable(_$AppDatabase db) =>
+      db.dbGroups.createAlias(
+        $_aliasNameGenerator(db.dbLessonParticipants.groupId, db.dbGroups.id),
       );
 
-  $$DbLessonsTableProcessedTableManager get lessonId {
-    final $_column = $_itemColumn<int>('lesson_id')!;
-
-    final manager = $$DbLessonsTableTableManager(
+  $$DbGroupsTableProcessedTableManager? get groupId {
+    final $_column = $_itemColumn<int>('group_id');
+    if ($_column == null) return null;
+    final manager = $$DbGroupsTableTableManager(
       $_db,
-      $_db.dbLessons,
+      $_db.dbGroups,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_lessonIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -1933,15 +4018,53 @@ final class $$DbStudentsLessonsTableReferences
   }
 }
 
-class $$DbStudentsLessonsTableFilterComposer
-    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
-  $$DbStudentsLessonsTableFilterComposer({
+class $$DbLessonParticipantsTableFilterComposer
+    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+  $$DbLessonParticipantsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPaid => $composableBuilder(
+    column: $table.isPaid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get attended => $composableBuilder(
+    column: $table.attended,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DbLessonsTableFilterComposer get lessonId {
+    final $$DbLessonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonsTableFilterComposer(
+            $db: $db,
+            $table: $db.dbLessons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$DbStudentsTableFilterComposer get studentId {
     final $$DbStudentsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -1965,20 +4088,20 @@ class $$DbStudentsLessonsTableFilterComposer
     return composer;
   }
 
-  $$DbLessonsTableFilterComposer get lessonId {
-    final $$DbLessonsTableFilterComposer composer = $composerBuilder(
+  $$DbGroupsTableFilterComposer get groupId {
+    final $$DbGroupsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableFilterComposer(
+          }) => $$DbGroupsTableFilterComposer(
             $db: $db,
-            $table: $db.dbLessons,
+            $table: $db.dbGroups,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1989,15 +4112,53 @@ class $$DbStudentsLessonsTableFilterComposer
   }
 }
 
-class $$DbStudentsLessonsTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
-  $$DbStudentsLessonsTableOrderingComposer({
+class $$DbLessonParticipantsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+  $$DbLessonParticipantsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPaid => $composableBuilder(
+    column: $table.isPaid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get attended => $composableBuilder(
+    column: $table.attended,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DbLessonsTableOrderingComposer get lessonId {
+    final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonsTableOrderingComposer(
+            $db: $db,
+            $table: $db.dbLessons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$DbStudentsTableOrderingComposer get studentId {
     final $$DbStudentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2021,20 +4182,20 @@ class $$DbStudentsLessonsTableOrderingComposer
     return composer;
   }
 
-  $$DbLessonsTableOrderingComposer get lessonId {
-    final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
+  $$DbGroupsTableOrderingComposer get groupId {
+    final $$DbGroupsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableOrderingComposer(
+          }) => $$DbGroupsTableOrderingComposer(
             $db: $db,
-            $table: $db.dbLessons,
+            $table: $db.dbGroups,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2045,15 +4206,47 @@ class $$DbStudentsLessonsTableOrderingComposer
   }
 }
 
-class $$DbStudentsLessonsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbStudentsLessonsTable> {
-  $$DbStudentsLessonsTableAnnotationComposer({
+class $$DbLessonParticipantsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+  $$DbLessonParticipantsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPaid =>
+      $composableBuilder(column: $table.isPaid, builder: (column) => column);
+
+  GeneratedColumn<bool> get attended =>
+      $composableBuilder(column: $table.attended, builder: (column) => column);
+
+  $$DbLessonsTableAnnotationComposer get lessonId {
+    final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.lessonId,
+      referencedTable: $db.dbLessons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DbLessonsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.dbLessons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$DbStudentsTableAnnotationComposer get studentId {
     final $$DbStudentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2077,20 +4270,20 @@ class $$DbStudentsLessonsTableAnnotationComposer
     return composer;
   }
 
-  $$DbLessonsTableAnnotationComposer get lessonId {
-    final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
+  $$DbGroupsTableAnnotationComposer get groupId {
+    final $$DbGroupsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.dbGroups,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableAnnotationComposer(
+          }) => $$DbGroupsTableAnnotationComposer(
             $db: $db,
-            $table: $db.dbLessons,
+            $table: $db.dbGroups,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2101,419 +4294,171 @@ class $$DbStudentsLessonsTableAnnotationComposer
   }
 }
 
-class $$DbStudentsLessonsTableTableManager
+class $$DbLessonParticipantsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $DbStudentsLessonsTable,
-          DbStudentsLesson,
-          $$DbStudentsLessonsTableFilterComposer,
-          $$DbStudentsLessonsTableOrderingComposer,
-          $$DbStudentsLessonsTableAnnotationComposer,
-          $$DbStudentsLessonsTableCreateCompanionBuilder,
-          $$DbStudentsLessonsTableUpdateCompanionBuilder,
-          (DbStudentsLesson, $$DbStudentsLessonsTableReferences),
-          DbStudentsLesson,
-          PrefetchHooks Function({bool studentId, bool lessonId})
+          $DbLessonParticipantsTable,
+          DbLessonParticipant,
+          $$DbLessonParticipantsTableFilterComposer,
+          $$DbLessonParticipantsTableOrderingComposer,
+          $$DbLessonParticipantsTableAnnotationComposer,
+          $$DbLessonParticipantsTableCreateCompanionBuilder,
+          $$DbLessonParticipantsTableUpdateCompanionBuilder,
+          (DbLessonParticipant, $$DbLessonParticipantsTableReferences),
+          DbLessonParticipant,
+          PrefetchHooks Function({bool lessonId, bool studentId, bool groupId})
         > {
-  $$DbStudentsLessonsTableTableManager(
+  $$DbLessonParticipantsTableTableManager(
     _$AppDatabase db,
-    $DbStudentsLessonsTable table,
+    $DbLessonParticipantsTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$DbStudentsLessonsTableFilterComposer($db: db, $table: table),
+              $$DbLessonParticipantsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$DbStudentsLessonsTableOrderingComposer($db: db, $table: table),
+              $$DbLessonParticipantsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
           createComputedFieldComposer: () =>
-              $$DbStudentsLessonsTableAnnotationComposer(
+              $$DbLessonParticipantsTableAnnotationComposer(
                 $db: db,
                 $table: table,
               ),
           updateCompanionCallback:
               ({
+                Value<int> id = const Value.absent(),
+                Value<int> lessonId = const Value.absent(),
                 Value<int> studentId = const Value.absent(),
-                Value<int> lessonId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => DbStudentsLessonsCompanion(
-                studentId: studentId,
+                Value<bool> isPaid = const Value.absent(),
+                Value<bool> attended = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
+              }) => DbLessonParticipantsCompanion(
+                id: id,
                 lessonId: lessonId,
-                rowid: rowid,
+                studentId: studentId,
+                isPaid: isPaid,
+                attended: attended,
+                groupId: groupId,
               ),
           createCompanionCallback:
               ({
+                Value<int> id = const Value.absent(),
+                required int lessonId,
                 required int studentId,
-                required int lessonId,
-                Value<int> rowid = const Value.absent(),
-              }) => DbStudentsLessonsCompanion.insert(
+                required bool isPaid,
+                required bool attended,
+                Value<int?> groupId = const Value.absent(),
+              }) => DbLessonParticipantsCompanion.insert(
+                id: id,
+                lessonId: lessonId,
                 studentId: studentId,
-                lessonId: lessonId,
-                rowid: rowid,
+                isPaid: isPaid,
+                attended: attended,
+                groupId: groupId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$DbStudentsLessonsTableReferences(db, table, e),
+                  $$DbLessonParticipantsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({studentId = false, lessonId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (studentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.studentId,
-                                referencedTable:
-                                    $$DbStudentsLessonsTableReferences
-                                        ._studentIdTable(db),
-                                referencedColumn:
-                                    $$DbStudentsLessonsTableReferences
-                                        ._studentIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-                    if (lessonId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.lessonId,
-                                referencedTable:
-                                    $$DbStudentsLessonsTableReferences
-                                        ._lessonIdTable(db),
-                                referencedColumn:
-                                    $$DbStudentsLessonsTableReferences
-                                        ._lessonIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({lessonId = false, studentId = false, groupId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (lessonId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.lessonId,
+                                    referencedTable:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._lessonIdTable(db),
+                                    referencedColumn:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._lessonIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (studentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.studentId,
+                                    referencedTable:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._studentIdTable(db),
+                                    referencedColumn:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._studentIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (groupId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.groupId,
+                                    referencedTable:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._groupIdTable(db),
+                                    referencedColumn:
+                                        $$DbLessonParticipantsTableReferences
+                                            ._groupIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
 
-typedef $$DbStudentsLessonsTableProcessedTableManager =
+typedef $$DbLessonParticipantsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $DbStudentsLessonsTable,
-      DbStudentsLesson,
-      $$DbStudentsLessonsTableFilterComposer,
-      $$DbStudentsLessonsTableOrderingComposer,
-      $$DbStudentsLessonsTableAnnotationComposer,
-      $$DbStudentsLessonsTableCreateCompanionBuilder,
-      $$DbStudentsLessonsTableUpdateCompanionBuilder,
-      (DbStudentsLesson, $$DbStudentsLessonsTableReferences),
-      DbStudentsLesson,
-      PrefetchHooks Function({bool studentId, bool lessonId})
-    >;
-typedef $$DbLessonNotesTableCreateCompanionBuilder =
-    DbLessonNotesCompanion Function({
-      Value<int> id,
-      required String content,
-      required int lessonId,
-    });
-typedef $$DbLessonNotesTableUpdateCompanionBuilder =
-    DbLessonNotesCompanion Function({
-      Value<int> id,
-      Value<String> content,
-      Value<int> lessonId,
-    });
-
-final class $$DbLessonNotesTableReferences
-    extends BaseReferences<_$AppDatabase, $DbLessonNotesTable, DbLessonNote> {
-  $$DbLessonNotesTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
-      db.dbLessons.createAlias(
-        $_aliasNameGenerator(db.dbLessonNotes.lessonId, db.dbLessons.id),
-      );
-
-  $$DbLessonsTableProcessedTableManager get lessonId {
-    final $_column = $_itemColumn<int>('lesson_id')!;
-
-    final manager = $$DbLessonsTableTableManager(
-      $_db,
-      $_db.dbLessons,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_lessonIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$DbLessonNotesTableFilterComposer
-    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
-  $$DbLessonNotesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get content => $composableBuilder(
-    column: $table.content,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$DbLessonsTableFilterComposer get lessonId {
-    final $$DbLessonsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableFilterComposer(
-            $db: $db,
-            $table: $db.dbLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$DbLessonNotesTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
-  $$DbLessonNotesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get content => $composableBuilder(
-    column: $table.content,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$DbLessonsTableOrderingComposer get lessonId {
-    final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableOrderingComposer(
-            $db: $db,
-            $table: $db.dbLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$DbLessonNotesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbLessonNotesTable> {
-  $$DbLessonNotesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get content =>
-      $composableBuilder(column: $table.content, builder: (column) => column);
-
-  $$DbLessonsTableAnnotationComposer get lessonId {
-    final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lessonId,
-      referencedTable: $db.dbLessons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.dbLessons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$DbLessonNotesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $DbLessonNotesTable,
-          DbLessonNote,
-          $$DbLessonNotesTableFilterComposer,
-          $$DbLessonNotesTableOrderingComposer,
-          $$DbLessonNotesTableAnnotationComposer,
-          $$DbLessonNotesTableCreateCompanionBuilder,
-          $$DbLessonNotesTableUpdateCompanionBuilder,
-          (DbLessonNote, $$DbLessonNotesTableReferences),
-          DbLessonNote,
-          PrefetchHooks Function({bool lessonId})
-        > {
-  $$DbLessonNotesTableTableManager(_$AppDatabase db, $DbLessonNotesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$DbLessonNotesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$DbLessonNotesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$DbLessonNotesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> content = const Value.absent(),
-                Value<int> lessonId = const Value.absent(),
-              }) => DbLessonNotesCompanion(
-                id: id,
-                content: content,
-                lessonId: lessonId,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String content,
-                required int lessonId,
-              }) => DbLessonNotesCompanion.insert(
-                id: id,
-                content: content,
-                lessonId: lessonId,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$DbLessonNotesTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({lessonId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (lessonId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.lessonId,
-                                referencedTable: $$DbLessonNotesTableReferences
-                                    ._lessonIdTable(db),
-                                referencedColumn: $$DbLessonNotesTableReferences
-                                    ._lessonIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$DbLessonNotesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $DbLessonNotesTable,
-      DbLessonNote,
-      $$DbLessonNotesTableFilterComposer,
-      $$DbLessonNotesTableOrderingComposer,
-      $$DbLessonNotesTableAnnotationComposer,
-      $$DbLessonNotesTableCreateCompanionBuilder,
-      $$DbLessonNotesTableUpdateCompanionBuilder,
-      (DbLessonNote, $$DbLessonNotesTableReferences),
-      DbLessonNote,
-      PrefetchHooks Function({bool lessonId})
+      $DbLessonParticipantsTable,
+      DbLessonParticipant,
+      $$DbLessonParticipantsTableFilterComposer,
+      $$DbLessonParticipantsTableOrderingComposer,
+      $$DbLessonParticipantsTableAnnotationComposer,
+      $$DbLessonParticipantsTableCreateCompanionBuilder,
+      $$DbLessonParticipantsTableUpdateCompanionBuilder,
+      (DbLessonParticipant, $$DbLessonParticipantsTableReferences),
+      DbLessonParticipant,
+      PrefetchHooks Function({bool lessonId, bool studentId, bool groupId})
     >;
 
 class $AppDatabaseManager {
@@ -2523,8 +4468,10 @@ class $AppDatabaseManager {
       $$DbLessonsTableTableManager(_db, _db.dbLessons);
   $$DbStudentsTableTableManager get dbStudents =>
       $$DbStudentsTableTableManager(_db, _db.dbStudents);
-  $$DbStudentsLessonsTableTableManager get dbStudentsLessons =>
-      $$DbStudentsLessonsTableTableManager(_db, _db.dbStudentsLessons);
-  $$DbLessonNotesTableTableManager get dbLessonNotes =>
-      $$DbLessonNotesTableTableManager(_db, _db.dbLessonNotes);
+  $$DbGroupsTableTableManager get dbGroups =>
+      $$DbGroupsTableTableManager(_db, _db.dbGroups);
+  $$GroupMembershipsTableTableManager get groupMemberships =>
+      $$GroupMembershipsTableTableManager(_db, _db.groupMemberships);
+  $$DbLessonParticipantsTableTableManager get dbLessonParticipants =>
+      $$DbLessonParticipantsTableTableManager(_db, _db.dbLessonParticipants);
 }

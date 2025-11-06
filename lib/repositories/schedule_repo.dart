@@ -14,15 +14,15 @@ class ScheduleRepo<T extends DataProvider> {
       final students = details.students.values.map(
         (s) => Student(
           name: s.name,
-          pricing: Rate(rate: s.pricing, period: s.period),
+          pricing: Rate(rate: s.payRate, period: s.period),
         ),
       );
       return Lesson(
-        name: details.lesson.name,
+        name: details.lesson.topic,
         subjects: students.toList(),
         start: details.lesson.start,
         duration: Duration(minutes: details.lesson.durationInMinutes),
-        notes: details.notes.values.map((n) => n.content).toList(),
+        note: details.lesson.note ?? "",
       );
     }).toList();
   }

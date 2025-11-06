@@ -1,4 +1,4 @@
-import 'package:besties_notes/data/ui_models/rate.dart';
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
@@ -9,7 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'db_provider.g.dart';
 
 @DriftDatabase(
-  tables: [DbLessons, DbStudents, DbStudentsLessons, DbLessonNotes],
+  tables: [
+    DbLessons, DbStudents, DbGroups, GroupMemberships, DbLessonParticipants
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
@@ -37,7 +39,6 @@ class DbProvider extends DataProvider {
 
     for (final row in queryRes) {
       final lesson = row.readTable(_db.dbLessons);
-      final note = row.readTableOrNull(_db.dbLessonNotes);
       final student = row.readTableOrNull(_db.dbStudents);
 
       final details = lessonDetails.putIfAbsent(
@@ -45,7 +46,6 @@ class DbProvider extends DataProvider {
         () => DbLessonDetails(lesson: lesson),
       );
 
-      if (note != null) details.notes[note.id] = note;
       if (student != null) details.students[student.id] = student;
     }
     return lessonDetails.values.toList();
@@ -57,18 +57,7 @@ class DbProvider extends DataProvider {
     final endOfTheWeek = startOfToday.add(Duration(days: 7));
 
     final query = (_db.select(_db.dbLessons)).join([
-      leftOuterJoin(
-        _db.dbLessonNotes,
-        _db.dbLessonNotes.lessonId.equalsExp(_db.dbLessons.id),
-      ),
-      leftOuterJoin(
-        _db.dbStudentsLessons,
-        _db.dbStudentsLessons.lessonId.equalsExp(_db.dbLessons.id),
-      ),
-      leftOuterJoin(
-        _db.dbStudents,
-        _db.dbStudents.id.equalsExp(_db.dbStudentsLessons.studentId),
-      ),
+      
     ])..where(_db.dbLessons.start.isBetweenValues(startOfToday, endOfTheWeek));
 
     return query.get();

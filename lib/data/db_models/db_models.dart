@@ -1,40 +1,63 @@
 import 'package:drift/drift.dart';
-import 'package:besties_notes/data/ui_models/rate.dart';
+import 'package:besties_notes/data/common.dart';
 
-class DbGroup extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
-}
 
 class DbStudents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  RealColumn get pricing => real()();
+  TextColumn get contact => text()();
+  TextColumn get email => text().nullable()();
+  TextColumn get avatarPath => text().nullable()();
+  RealColumn get payRate => real()();
   TextColumn get period => textEnum<RatePeriod>()();
-  IntColumn get groupId => integer().nullable()();
+  TextColumn get notes => text()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+}
+
+class DbGroups extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  RealColumn get payRate => real()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+}
+
+class GroupMemberships extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get groupId =>
+      integer().references(DbGroups, #id, onDelete: KeyAction.cascade)();
+  IntColumn get studentId =>
+      integer().references(DbStudents, #id, onDelete: KeyAction.cascade)();
+
+  @override
+  List<Set<Column<Object>>>? get uniqueKeys => [
+    {groupId, studentId}
+  ];
 }
 
 class DbLessons extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
+  TextColumn get topic => text()();
   DateTimeColumn get start => dateTime()();
   IntColumn get durationInMinutes => integer()();
+  TextColumn get note => text().nullable()();
+  TextColumn get status => textEnum<LessonStatus>()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
 }
 
-class DbStudentsLessons extends Table {
-  // many-to-many rlations table of Lessons and Students
-  IntColumn get studentId =>
-      integer().references(DbStudents, #id, onDelete: KeyAction.cascade)();
-  IntColumn get lessonId =>
-      integer().references(DbLessons, #id, onDelete: KeyAction.cascade)();
+class DbLessonParticipants extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get lessonId => integer().references(DbLessons, #id)();
+  IntColumn get studentId => integer().references(DbStudents, #id)();
+  BoolColumn get isPaid => boolean()();
+  BoolColumn get attended => boolean()();
+  IntColumn get groupId => integer().references(DbGroups, #id).nullable()();
 
   @override
-  Set<Column> get primaryKey => {lessonId, studentId};
-}
-
-class DbLessonNotes extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get content => text()();
-  IntColumn get lessonId =>
-      integer().references(DbLessons, #id, onDelete: KeyAction.cascade)();
+  List<Set<Column<Object>>>? get uniqueKeys => [
+    {lessonId, studentId}
+  ];
 }
