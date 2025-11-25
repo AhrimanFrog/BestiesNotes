@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:besties_notes/data/ui_models/lesson.dart';
-import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +8,7 @@ class ScheduleViewModel extends AsyncNotifier<List<Lesson>> {
   late final ScheduleRepo scheduleRepo;
 
   @override
-  Future<List<Lesson<Teachable>>> build() {
+  Future<List<Lesson>> build() {
     scheduleRepo = ref.read(scheduleRepoProvider);
     return scheduleRepo.getLessonsForAWeek();
   }

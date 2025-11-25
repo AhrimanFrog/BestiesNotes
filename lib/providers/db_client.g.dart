@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'db_provider.dart';
+part of 'db_client.dart';
 
 // ignore_for_file: type=lint
 class $DbLessonsTable extends DbLessons
@@ -1147,6 +1147,17 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
+    'avatarPath',
+  );
+  @override
+  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
+    'avatar_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _payRateMeta = const VerificationMeta(
     'payRate',
   );
@@ -1158,6 +1169,15 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<RatePeriod, String> period =
+      GeneratedColumn<String>(
+        'period',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RatePeriod>($DbGroupsTable.$converterperiod);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1185,7 +1205,9 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
     id,
     name,
     description,
+    avatarPath,
     payRate,
+    period,
     createdAt,
     updatedAt,
   ];
@@ -1219,6 +1241,12 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
           data['description']!,
           _descriptionMeta,
         ),
+      );
+    }
+    if (data.containsKey('avatar_path')) {
+      context.handle(
+        _avatarPathMeta,
+        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
       );
     }
     if (data.containsKey('pay_rate')) {
@@ -1266,10 +1294,20 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      avatarPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_path'],
+      ),
       payRate: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}pay_rate'],
       )!,
+      period: $DbGroupsTable.$converterperiod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}period'],
+        )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -1285,20 +1323,27 @@ class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
   $DbGroupsTable createAlias(String alias) {
     return $DbGroupsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<RatePeriod, String, String> $converterperiod =
+      const EnumNameConverter<RatePeriod>(RatePeriod.values);
 }
 
 class DbGroup extends DataClass implements Insertable<DbGroup> {
   final int id;
   final String name;
   final String? description;
+  final String? avatarPath;
   final double payRate;
+  final RatePeriod period;
   final int createdAt;
   final int updatedAt;
   const DbGroup({
     required this.id,
     required this.name,
     this.description,
+    this.avatarPath,
     required this.payRate,
+    required this.period,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -1310,7 +1355,15 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    if (!nullToAbsent || avatarPath != null) {
+      map['avatar_path'] = Variable<String>(avatarPath);
+    }
     map['pay_rate'] = Variable<double>(payRate);
+    {
+      map['period'] = Variable<String>(
+        $DbGroupsTable.$converterperiod.toSql(period),
+      );
+    }
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     return map;
@@ -1323,7 +1376,11 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      avatarPath: avatarPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarPath),
       payRate: Value(payRate),
+      period: Value(period),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1338,7 +1395,11 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
+      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
       payRate: serializer.fromJson<double>(json['payRate']),
+      period: $DbGroupsTable.$converterperiod.fromJson(
+        serializer.fromJson<String>(json['period']),
+      ),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
@@ -1350,7 +1411,11 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
+      'avatarPath': serializer.toJson<String?>(avatarPath),
       'payRate': serializer.toJson<double>(payRate),
+      'period': serializer.toJson<String>(
+        $DbGroupsTable.$converterperiod.toJson(period),
+      ),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
     };
@@ -1360,14 +1425,18 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
     int? id,
     String? name,
     Value<String?> description = const Value.absent(),
+    Value<String?> avatarPath = const Value.absent(),
     double? payRate,
+    RatePeriod? period,
     int? createdAt,
     int? updatedAt,
   }) => DbGroup(
     id: id ?? this.id,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
+    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
     payRate: payRate ?? this.payRate,
+    period: period ?? this.period,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -1378,7 +1447,11 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      avatarPath: data.avatarPath.present
+          ? data.avatarPath.value
+          : this.avatarPath,
       payRate: data.payRate.present ? data.payRate.value : this.payRate,
+      period: data.period.present ? data.period.value : this.period,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1390,7 +1463,9 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
+          ..write('avatarPath: $avatarPath, ')
           ..write('payRate: $payRate, ')
+          ..write('period: $period, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1398,8 +1473,16 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, description, payRate, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    avatarPath,
+    payRate,
+    period,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1407,7 +1490,9 @@ class DbGroup extends DataClass implements Insertable<DbGroup> {
           other.id == this.id &&
           other.name == this.name &&
           other.description == this.description &&
+          other.avatarPath == this.avatarPath &&
           other.payRate == this.payRate &&
+          other.period == this.period &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1416,14 +1501,18 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
   final Value<int> id;
   final Value<String> name;
   final Value<String?> description;
+  final Value<String?> avatarPath;
   final Value<double> payRate;
+  final Value<RatePeriod> period;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   const DbGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
+    this.avatarPath = const Value.absent(),
     this.payRate = const Value.absent(),
+    this.period = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -1431,18 +1520,23 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
     this.id = const Value.absent(),
     required String name,
     this.description = const Value.absent(),
+    this.avatarPath = const Value.absent(),
     required double payRate,
+    required RatePeriod period,
     required int createdAt,
     required int updatedAt,
   }) : name = Value(name),
        payRate = Value(payRate),
+       period = Value(period),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
   static Insertable<DbGroup> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? description,
+    Expression<String>? avatarPath,
     Expression<double>? payRate,
+    Expression<String>? period,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
   }) {
@@ -1450,7 +1544,9 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
+      if (avatarPath != null) 'avatar_path': avatarPath,
       if (payRate != null) 'pay_rate': payRate,
+      if (period != null) 'period': period,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -1460,7 +1556,9 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
     Value<int>? id,
     Value<String>? name,
     Value<String?>? description,
+    Value<String?>? avatarPath,
     Value<double>? payRate,
+    Value<RatePeriod>? period,
     Value<int>? createdAt,
     Value<int>? updatedAt,
   }) {
@@ -1468,7 +1566,9 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      avatarPath: avatarPath ?? this.avatarPath,
       payRate: payRate ?? this.payRate,
+      period: period ?? this.period,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -1486,8 +1586,16 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (avatarPath.present) {
+      map['avatar_path'] = Variable<String>(avatarPath.value);
+    }
     if (payRate.present) {
       map['pay_rate'] = Variable<double>(payRate.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(
+        $DbGroupsTable.$converterperiod.toSql(period.value),
+      );
     }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
@@ -1504,7 +1612,9 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
+          ..write('avatarPath: $avatarPath, ')
           ..write('payRate: $payRate, ')
+          ..write('period: $period, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2193,9 +2303,9 @@ class DbLessonParticipantsCompanion
   }
 }
 
-abstract class _$AppDatabase extends GeneratedDatabase {
-  _$AppDatabase(QueryExecutor e) : super(e);
-  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+abstract class _$DbClient extends GeneratedDatabase {
+  _$DbClient(QueryExecutor e) : super(e);
+  $DbClientManager get managers => $DbClientManager(this);
   late final $DbLessonsTable dbLessons = $DbLessonsTable(this);
   late final $DbStudentsTable dbStudents = $DbStudentsTable(this);
   late final $DbGroupsTable dbGroups = $DbGroupsTable(this);
@@ -2258,14 +2368,14 @@ typedef $$DbLessonsTableUpdateCompanionBuilder =
     });
 
 final class $$DbLessonsTableReferences
-    extends BaseReferences<_$AppDatabase, $DbLessonsTable, DbLesson> {
+    extends BaseReferences<_$DbClient, $DbLessonsTable, DbLesson> {
   $$DbLessonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<
     $DbLessonParticipantsTable,
     List<DbLessonParticipant>
   >
-  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
+  _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
         aliasName: $_aliasNameGenerator(
@@ -2291,7 +2401,7 @@ final class $$DbLessonsTableReferences
 }
 
 class $$DbLessonsTableFilterComposer
-    extends Composer<_$AppDatabase, $DbLessonsTable> {
+    extends Composer<_$DbClient, $DbLessonsTable> {
   $$DbLessonsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2367,7 +2477,7 @@ class $$DbLessonsTableFilterComposer
 }
 
 class $$DbLessonsTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbLessonsTable> {
+    extends Composer<_$DbClient, $DbLessonsTable> {
   $$DbLessonsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2417,7 +2527,7 @@ class $$DbLessonsTableOrderingComposer
 }
 
 class $$DbLessonsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbLessonsTable> {
+    extends Composer<_$DbClient, $DbLessonsTable> {
   $$DbLessonsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2481,7 +2591,7 @@ class $$DbLessonsTableAnnotationComposer
 class $$DbLessonsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$DbClient,
           $DbLessonsTable,
           DbLesson,
           $$DbLessonsTableFilterComposer,
@@ -2493,7 +2603,7 @@ class $$DbLessonsTableTableManager
           DbLesson,
           PrefetchHooks Function({bool dbLessonParticipantsRefs})
         > {
-  $$DbLessonsTableTableManager(_$AppDatabase db, $DbLessonsTable table)
+  $$DbLessonsTableTableManager(_$DbClient db, $DbLessonsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -2590,7 +2700,7 @@ class $$DbLessonsTableTableManager
 
 typedef $$DbLessonsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$DbClient,
       $DbLessonsTable,
       DbLesson,
       $$DbLessonsTableFilterComposer,
@@ -2630,11 +2740,11 @@ typedef $$DbStudentsTableUpdateCompanionBuilder =
     });
 
 final class $$DbStudentsTableReferences
-    extends BaseReferences<_$AppDatabase, $DbStudentsTable, DbStudent> {
+    extends BaseReferences<_$DbClient, $DbStudentsTable, DbStudent> {
   $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
-  _groupMembershipsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _groupMembershipsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
     db.groupMemberships,
     aliasName: $_aliasNameGenerator(
       db.dbStudents.id,
@@ -2660,7 +2770,7 @@ final class $$DbStudentsTableReferences
     $DbLessonParticipantsTable,
     List<DbLessonParticipant>
   >
-  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
+  _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
         aliasName: $_aliasNameGenerator(
@@ -2686,7 +2796,7 @@ final class $$DbStudentsTableReferences
 }
 
 class $$DbStudentsTableFilterComposer
-    extends Composer<_$AppDatabase, $DbStudentsTable> {
+    extends Composer<_$DbClient, $DbStudentsTable> {
   $$DbStudentsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2797,7 +2907,7 @@ class $$DbStudentsTableFilterComposer
 }
 
 class $$DbStudentsTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbStudentsTable> {
+    extends Composer<_$DbClient, $DbStudentsTable> {
   $$DbStudentsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2857,7 +2967,7 @@ class $$DbStudentsTableOrderingComposer
 }
 
 class $$DbStudentsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbStudentsTable> {
+    extends Composer<_$DbClient, $DbStudentsTable> {
   $$DbStudentsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2952,7 +3062,7 @@ class $$DbStudentsTableAnnotationComposer
 class $$DbStudentsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$DbClient,
           $DbStudentsTable,
           DbStudent,
           $$DbStudentsTableFilterComposer,
@@ -2967,7 +3077,7 @@ class $$DbStudentsTableTableManager
             bool dbLessonParticipantsRefs,
           })
         > {
-  $$DbStudentsTableTableManager(_$AppDatabase db, $DbStudentsTable table)
+  $$DbStudentsTableTableManager(_$DbClient db, $DbStudentsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -3100,7 +3210,7 @@ class $$DbStudentsTableTableManager
 
 typedef $$DbStudentsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$DbClient,
       $DbStudentsTable,
       DbStudent,
       $$DbStudentsTableFilterComposer,
@@ -3120,7 +3230,9 @@ typedef $$DbGroupsTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       Value<String?> description,
+      Value<String?> avatarPath,
       required double payRate,
+      required RatePeriod period,
       required int createdAt,
       required int updatedAt,
     });
@@ -3129,17 +3241,19 @@ typedef $$DbGroupsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> name,
       Value<String?> description,
+      Value<String?> avatarPath,
       Value<double> payRate,
+      Value<RatePeriod> period,
       Value<int> createdAt,
       Value<int> updatedAt,
     });
 
 final class $$DbGroupsTableReferences
-    extends BaseReferences<_$AppDatabase, $DbGroupsTable, DbGroup> {
+    extends BaseReferences<_$DbClient, $DbGroupsTable, DbGroup> {
   $$DbGroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
-  _groupMembershipsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _groupMembershipsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
     db.groupMemberships,
     aliasName: $_aliasNameGenerator(
       db.dbGroups.id,
@@ -3165,7 +3279,7 @@ final class $$DbGroupsTableReferences
     $DbLessonParticipantsTable,
     List<DbLessonParticipant>
   >
-  _dbLessonParticipantsRefsTable(_$AppDatabase db) =>
+  _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
         aliasName: $_aliasNameGenerator(
@@ -3191,7 +3305,7 @@ final class $$DbGroupsTableReferences
 }
 
 class $$DbGroupsTableFilterComposer
-    extends Composer<_$AppDatabase, $DbGroupsTable> {
+    extends Composer<_$DbClient, $DbGroupsTable> {
   $$DbGroupsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3214,10 +3328,21 @@ class $$DbGroupsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<double> get payRate => $composableBuilder(
     column: $table.payRate,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<RatePeriod, RatePeriod, String> get period =>
+      $composableBuilder(
+        column: $table.period,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
@@ -3281,7 +3406,7 @@ class $$DbGroupsTableFilterComposer
 }
 
 class $$DbGroupsTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbGroupsTable> {
+    extends Composer<_$DbClient, $DbGroupsTable> {
   $$DbGroupsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3304,8 +3429,18 @@ class $$DbGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get payRate => $composableBuilder(
     column: $table.payRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3321,7 +3456,7 @@ class $$DbGroupsTableOrderingComposer
 }
 
 class $$DbGroupsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbGroupsTable> {
+    extends Composer<_$DbClient, $DbGroupsTable> {
   $$DbGroupsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3340,8 +3475,16 @@ class $$DbGroupsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<double> get payRate =>
       $composableBuilder(column: $table.payRate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -3404,7 +3547,7 @@ class $$DbGroupsTableAnnotationComposer
 class $$DbGroupsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$DbClient,
           $DbGroupsTable,
           DbGroup,
           $$DbGroupsTableFilterComposer,
@@ -3419,7 +3562,7 @@ class $$DbGroupsTableTableManager
             bool dbLessonParticipantsRefs,
           })
         > {
-  $$DbGroupsTableTableManager(_$AppDatabase db, $DbGroupsTable table)
+  $$DbGroupsTableTableManager(_$DbClient db, $DbGroupsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -3435,14 +3578,18 @@ class $$DbGroupsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
                 Value<double> payRate = const Value.absent(),
+                Value<RatePeriod> period = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
               }) => DbGroupsCompanion(
                 id: id,
                 name: name,
                 description: description,
+                avatarPath: avatarPath,
                 payRate: payRate,
+                period: period,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -3451,14 +3598,18 @@ class $$DbGroupsTableTableManager
                 Value<int> id = const Value.absent(),
                 required String name,
                 Value<String?> description = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
                 required double payRate,
+                required RatePeriod period,
                 required int createdAt,
                 required int updatedAt,
               }) => DbGroupsCompanion.insert(
                 id: id,
                 name: name,
                 description: description,
+                avatarPath: avatarPath,
                 payRate: payRate,
+                period: period,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -3536,7 +3687,7 @@ class $$DbGroupsTableTableManager
 
 typedef $$DbGroupsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$DbClient,
       $DbGroupsTable,
       DbGroup,
       $$DbGroupsTableFilterComposer,
@@ -3566,17 +3717,16 @@ typedef $$GroupMembershipsTableUpdateCompanionBuilder =
 
 final class $$GroupMembershipsTableReferences
     extends
-        BaseReferences<_$AppDatabase, $GroupMembershipsTable, GroupMembership> {
+        BaseReferences<_$DbClient, $GroupMembershipsTable, GroupMembership> {
   $$GroupMembershipsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $DbGroupsTable _groupIdTable(_$AppDatabase db) =>
-      db.dbGroups.createAlias(
-        $_aliasNameGenerator(db.groupMemberships.groupId, db.dbGroups.id),
-      );
+  static $DbGroupsTable _groupIdTable(_$DbClient db) => db.dbGroups.createAlias(
+    $_aliasNameGenerator(db.groupMemberships.groupId, db.dbGroups.id),
+  );
 
   $$DbGroupsTableProcessedTableManager get groupId {
     final $_column = $_itemColumn<int>('group_id')!;
@@ -3592,7 +3742,7 @@ final class $$GroupMembershipsTableReferences
     );
   }
 
-  static $DbStudentsTable _studentIdTable(_$AppDatabase db) =>
+  static $DbStudentsTable _studentIdTable(_$DbClient db) =>
       db.dbStudents.createAlias(
         $_aliasNameGenerator(db.groupMemberships.studentId, db.dbStudents.id),
       );
@@ -3613,7 +3763,7 @@ final class $$GroupMembershipsTableReferences
 }
 
 class $$GroupMembershipsTableFilterComposer
-    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+    extends Composer<_$DbClient, $GroupMembershipsTable> {
   $$GroupMembershipsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3674,7 +3824,7 @@ class $$GroupMembershipsTableFilterComposer
 }
 
 class $$GroupMembershipsTableOrderingComposer
-    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+    extends Composer<_$DbClient, $GroupMembershipsTable> {
   $$GroupMembershipsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3735,7 +3885,7 @@ class $$GroupMembershipsTableOrderingComposer
 }
 
 class $$GroupMembershipsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GroupMembershipsTable> {
+    extends Composer<_$DbClient, $GroupMembershipsTable> {
   $$GroupMembershipsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3796,7 +3946,7 @@ class $$GroupMembershipsTableAnnotationComposer
 class $$GroupMembershipsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$DbClient,
           $GroupMembershipsTable,
           GroupMembership,
           $$GroupMembershipsTableFilterComposer,
@@ -3809,7 +3959,7 @@ class $$GroupMembershipsTableTableManager
           PrefetchHooks Function({bool groupId, bool studentId})
         > {
   $$GroupMembershipsTableTableManager(
-    _$AppDatabase db,
+    _$DbClient db,
     $GroupMembershipsTable table,
   ) : super(
         TableManagerState(
@@ -3913,7 +4063,7 @@ class $$GroupMembershipsTableTableManager
 
 typedef $$GroupMembershipsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$DbClient,
       $GroupMembershipsTable,
       GroupMembership,
       $$GroupMembershipsTableFilterComposer,
@@ -3947,7 +4097,7 @@ typedef $$DbLessonParticipantsTableUpdateCompanionBuilder =
 final class $$DbLessonParticipantsTableReferences
     extends
         BaseReferences<
-          _$AppDatabase,
+          _$DbClient,
           $DbLessonParticipantsTable,
           DbLessonParticipant
         > {
@@ -3957,7 +4107,7 @@ final class $$DbLessonParticipantsTableReferences
     super.$_typedResult,
   );
 
-  static $DbLessonsTable _lessonIdTable(_$AppDatabase db) =>
+  static $DbLessonsTable _lessonIdTable(_$DbClient db) =>
       db.dbLessons.createAlias(
         $_aliasNameGenerator(db.dbLessonParticipants.lessonId, db.dbLessons.id),
       );
@@ -3976,7 +4126,7 @@ final class $$DbLessonParticipantsTableReferences
     );
   }
 
-  static $DbStudentsTable _studentIdTable(_$AppDatabase db) =>
+  static $DbStudentsTable _studentIdTable(_$DbClient db) =>
       db.dbStudents.createAlias(
         $_aliasNameGenerator(
           db.dbLessonParticipants.studentId,
@@ -3998,10 +4148,9 @@ final class $$DbLessonParticipantsTableReferences
     );
   }
 
-  static $DbGroupsTable _groupIdTable(_$AppDatabase db) =>
-      db.dbGroups.createAlias(
-        $_aliasNameGenerator(db.dbLessonParticipants.groupId, db.dbGroups.id),
-      );
+  static $DbGroupsTable _groupIdTable(_$DbClient db) => db.dbGroups.createAlias(
+    $_aliasNameGenerator(db.dbLessonParticipants.groupId, db.dbGroups.id),
+  );
 
   $$DbGroupsTableProcessedTableManager? get groupId {
     final $_column = $_itemColumn<int>('group_id');
@@ -4019,7 +4168,7 @@ final class $$DbLessonParticipantsTableReferences
 }
 
 class $$DbLessonParticipantsTableFilterComposer
-    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+    extends Composer<_$DbClient, $DbLessonParticipantsTable> {
   $$DbLessonParticipantsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4113,7 +4262,7 @@ class $$DbLessonParticipantsTableFilterComposer
 }
 
 class $$DbLessonParticipantsTableOrderingComposer
-    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+    extends Composer<_$DbClient, $DbLessonParticipantsTable> {
   $$DbLessonParticipantsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4207,7 +4356,7 @@ class $$DbLessonParticipantsTableOrderingComposer
 }
 
 class $$DbLessonParticipantsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DbLessonParticipantsTable> {
+    extends Composer<_$DbClient, $DbLessonParticipantsTable> {
   $$DbLessonParticipantsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4297,7 +4446,7 @@ class $$DbLessonParticipantsTableAnnotationComposer
 class $$DbLessonParticipantsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$DbClient,
           $DbLessonParticipantsTable,
           DbLessonParticipant,
           $$DbLessonParticipantsTableFilterComposer,
@@ -4310,7 +4459,7 @@ class $$DbLessonParticipantsTableTableManager
           PrefetchHooks Function({bool lessonId, bool studentId, bool groupId})
         > {
   $$DbLessonParticipantsTableTableManager(
-    _$AppDatabase db,
+    _$DbClient db,
     $DbLessonParticipantsTable table,
   ) : super(
         TableManagerState(
@@ -4448,7 +4597,7 @@ class $$DbLessonParticipantsTableTableManager
 
 typedef $$DbLessonParticipantsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$DbClient,
       $DbLessonParticipantsTable,
       DbLessonParticipant,
       $$DbLessonParticipantsTableFilterComposer,
@@ -4461,9 +4610,9 @@ typedef $$DbLessonParticipantsTableProcessedTableManager =
       PrefetchHooks Function({bool lessonId, bool studentId, bool groupId})
     >;
 
-class $AppDatabaseManager {
-  final _$AppDatabase _db;
-  $AppDatabaseManager(this._db);
+class $DbClientManager {
+  final _$DbClient _db;
+  $DbClientManager(this._db);
   $$DbLessonsTableTableManager get dbLessons =>
       $$DbLessonsTableTableManager(_db, _db.dbLessons);
   $$DbStudentsTableTableManager get dbStudents =>

@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/common.dart';
 
-
 class DbStudents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
@@ -19,7 +18,9 @@ class DbGroups extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   TextColumn get description => text().nullable()();
+  TextColumn get avatarPath => text().nullable()();
   RealColumn get payRate => real()();
+  TextColumn get period => textEnum<RatePeriod>()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
 }
@@ -33,7 +34,7 @@ class GroupMemberships extends Table {
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
-    {groupId, studentId}
+    {groupId, studentId},
   ];
 }
 
@@ -58,6 +59,6 @@ class DbLessonParticipants extends Table {
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
-    {lessonId, studentId}
+    {lessonId, studentId},
   ];
 }

@@ -6,6 +6,7 @@ class Group extends Teachable {
   Set<Student> students;
 
   Group({
+    super.id,
     required super.name,
     required super.pricing,
     super.iconPath,

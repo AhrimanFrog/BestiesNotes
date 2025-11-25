@@ -1,11 +1,17 @@
 import 'rate.dart';
 
 abstract class Teachable {
+  int? id;
   String name;
   Rate pricing;
   String? iconPath;
 
-  Teachable({required this.name, required this.pricing, this.iconPath});
+  Teachable({
+    this.id,
+    required this.name,
+    required this.pricing,
+    this.iconPath,
+  });
 
   String get initials => name
       .split(' ')

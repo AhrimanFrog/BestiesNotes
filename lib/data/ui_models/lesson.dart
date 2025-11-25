@@ -1,8 +1,8 @@
 import 'package:besties_notes/data/ui_models/index.dart';
 
-class Lesson<T extends Teachable> {
+class Lesson {
   final String name;
-  final List<T> subjects;
+  final List<Teachable> subjects;
   final DateTime start;
   final Duration duration;
   final String note;
@@ -17,14 +17,14 @@ class Lesson<T extends Teachable> {
 
   Lesson.demoActive()
     : name = "Present simple",
-      subjects = [Student.demo()] as List<T>,
+      subjects = [Student.demo()],
       start = DateTime.now(),
       duration = Duration(minutes: 70),
       note = "Just text";
 
   Lesson.demoNonActive()
     : name = "Present huimple",
-      subjects = [Student.demo()] as List<T>,
+      subjects = [Student.demo()],
       start = DateTime.now().add(Duration(days: 2, minutes: 70)),
       duration = Duration(minutes: 60),
       note = "Some note here";
