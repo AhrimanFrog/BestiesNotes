@@ -1,5 +1,5 @@
-export 'lesson_card.dart';
-export 'schedule_card.dart';
+export 'cards/lesson_card.dart';
+export 'cards/schedule_card.dart';
 export 'initials_circle.dart';
 export 'texts/day_title.dart';
 export 'gradient_background.dart';
