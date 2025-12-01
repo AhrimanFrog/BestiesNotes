@@ -9,3 +9,4 @@ export 'small_icon_button.dart';
 export 'rows/time_row.dart';
 export 'rows/note_row.dart';
 export 'rows/modal_header_row.dart';
+export 'user_avatar.dart';

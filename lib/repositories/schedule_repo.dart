@@ -44,6 +44,11 @@ class ScheduleRepo {
     final dbStudents = await dataProvider.getAllStudents();
     return dbStudents.map((s) => s.toDomain()).toList();
   }
+
+  Future<List<Group>> getAllGroups() async {
+    final dbGroups = await dataProvider.getAllGrous();
+    return dbGroups.map((g) => g.toDomain()).toList();
+  }
 }
 
 final scheduleRepoProvider = Provider((ref) {

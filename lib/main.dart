@@ -42,7 +42,12 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          body: const TabBarView(children: [SchedulePage(), StudentsPage()]),
+          body: const TabBarView(
+            children: [
+              SchedulePage(),
+              StudentsPage(students: []),
+            ],
+          ),
         ),
       ),
     );

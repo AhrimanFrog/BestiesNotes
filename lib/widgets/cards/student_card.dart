@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/index.dart';
 
 class StudentCard extends StatelessWidget {
   final Student student;
@@ -36,7 +36,7 @@ class StudentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Avatar Section
-              _buildAvatar(),
+              UserAvatar(student: student),
 
               const SizedBox(height: 12),
 
@@ -90,32 +90,6 @@ class StudentCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Helper to build image or fallback initials
-  Widget _buildAvatar() {
-    final initials = InitialsCircle(
-      initials: student.initials,
-      circleColor: AppColors.accentPink,
-    );
-
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.accentPink, width: 2),
-      ),
-      child: ClipOval(
-        child: student.iconPath != null
-            ? Image.network(
-                student.iconPath!, // Assuming it's a URL
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => initials,
-              )
-            : initials,
       ),
     );
   }
