@@ -2,10 +2,9 @@ import 'package:besties_notes/views/schedule_view/schedule_view.dart';
 import 'package:besties_notes/views/students_view/students_view.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -1,17 +1,10 @@
-import 'dart:async';
-
 import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ScheduleViewModel extends AsyncNotifier<List<Lesson>> {
-  late final ScheduleRepo scheduleRepo;
+class ScheduleViewModel {
+  final ScheduleRepo scheduleRepo;
 
-  @override
-  Future<List<Lesson>> build() {
-    scheduleRepo = ref.read(scheduleRepoProvider);
-    return scheduleRepo.getLessonsForAWeek();
-  }
+  const ScheduleViewModel({required this.scheduleRepo});
 
   Map<DateTime, List<Lesson>> groupeLessons(List<Lesson> lessons) {
     final Map<DateTime, List<Lesson>> grouped = {};
@@ -26,5 +19,3 @@ class ScheduleViewModel extends AsyncNotifier<List<Lesson>> {
     return grouped;
   }
 }
-
-final scheduleViewModelProvider = AsyncNotifierProvider(ScheduleViewModel.new);

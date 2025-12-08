@@ -1,9 +1,7 @@
 import 'package:besties_notes/extensions/db_group_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/index.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/providers/db_client.dart';
 
 class ScheduleRepo {
   late final DataProvider dataProvider;
@@ -50,7 +48,3 @@ class ScheduleRepo {
     return dbGroups.map((g) => g.toDomain()).toList();
   }
 }
-
-final scheduleRepoProvider = Provider((ref) {
-  return ScheduleRepo(dataProvider: ref.read(dbClientProvider));
-});

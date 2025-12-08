@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
 import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'db_client.g.dart';
 
@@ -95,5 +94,3 @@ class DbClient extends _$DbClient implements DataProvider {
     return select(dbStudents).get();
   }
 }
-
-final dbClientProvider = Provider((ref) => DbClient());
