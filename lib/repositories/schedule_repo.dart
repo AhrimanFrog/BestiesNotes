@@ -38,13 +38,15 @@ class ScheduleRepo {
      );
   }
 
-  Future<List<Student>> getAllStudents() async {
-    final dbStudents = await dataProvider.getAllStudents();
+  Future<List<Student>> getStudents({int offset = 0, limit = 100}) async {
+    final dbStudents = await dataProvider.getStudents(
+      offset: offset, limit: limit
+    );
     return dbStudents.map((s) => s.toDomain()).toList();
   }
 
-  Future<List<Group>> getAllGroups() async {
-    final dbGroups = await dataProvider.getAllGrous();
+  Future<List<Group>> getGroups({int offset = 0, limit = 100}) async {
+    final dbGroups = await dataProvider.getGroups(offset: offset, limit: limit);
     return dbGroups.map((g) => g.toDomain()).toList();
   }
 }

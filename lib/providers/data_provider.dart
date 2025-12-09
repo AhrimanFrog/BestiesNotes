@@ -8,7 +8,7 @@ abstract class DataProvider {
 
   Future<int> createOrUpdateStudent(DbStudentsCompanion student);
 
-  Future<List<DbStudent>> getAllStudents();
+  Future<List<DbStudent>> getStudents({int offset = 0, int limit = 100});
 
-  Future<List<DbGroup>> getAllGrous();
+  Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100});
 }

@@ -85,12 +85,12 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<DbGroup>> getAllGrous() {
-    return select(dbGroups).get();
+  Future<List<DbStudent>> getStudents({int offset = 0, int limit = 100}) {
+    return (select(dbStudents)..limit(limit, offset: offset)).get();
   }
 
   @override
-  Future<List<DbStudent>> getAllStudents() {
-    return select(dbStudents).get();
+  Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100}) {
+    return (select(dbGroups)..limit(limit, offset: offset)).get();
   }
 }

@@ -1,4 +1,6 @@
-include: package:flutter_lints/flutter.yaml
+include: 
+  - package:flutter_lints/flutter.yaml
+  - package:bloc_lint/recommended.yaml
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -19,3 +21,8 @@ analyzer:
     - custom_lint
   enable-experiment:
     - dot-shorthands
+
+bloc:
+  rules:
+    - avoid_public_bloc_methods
+    - prefer_cubit
