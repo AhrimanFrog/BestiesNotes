@@ -1,6 +1,7 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/views/schedule_view/schedule_view.dart';
 import 'package:besties_notes/views/students_view/students_view.dart';
 import 'package:besties_notes/common/app_colors.dart';
@@ -9,7 +10,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   final dbClient = DbClient();
-  runApp(MyApp(dbClient: dbClient));
+  runApp(
+    MaterialApp(
+      title: 'Besties Notes',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accentPink),
+      ),
+      home: MyApp(dbClient: dbClient),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,49 +28,51 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Besties Notes',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accentPink),
-      ),
-      home: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => {},
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(icon: Icon(Icons.settings), onPressed: () => {}),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (_) => StudentForm(),
+                  backgroundColor: Colors.transparent,
+                  useSafeArea: true,
+                  isScrollControlled: true,
+                ),
+              },
             ),
-            actions: [IconButton(icon: Icon(Icons.add), onPressed: () => {})],
-          ),
-          bottomNavigationBar: Container(
-            color: Colors.white,
-            child: const TabBar(
-              padding: EdgeInsets.only(bottom: 20),
-              dividerHeight: 0,
-              indicator: BoxDecoration(),
-              labelColor: AppColors.accentPink,
-              unselectedLabelColor: AppColors.softPink,
-              tabs: [
-                Tab(icon: Icon(Icons.calendar_month, size: 50)),
-                Tab(icon: Icon(Icons.school, size: 50)),
-              ],
-            ),
-          ),
-          body: TabBarView(
-            children: [
-              SchedulePage(),
-              BlocProvider(
-                create: (_) =>
-                    StudentsAndGroupsCubit(
-                        ScheduleRepo(dataProvider: dbClient),
-                      )
-                      ..fetchStudents()
-                      ..fetchGroups(),
-                child: StudentsPage(),
-              ),
+          ],
+        ),
+        bottomNavigationBar: Container(
+          color: Colors.white,
+          child: const TabBar(
+            padding: EdgeInsets.only(bottom: 20),
+            dividerHeight: 0,
+            indicator: BoxDecoration(),
+            labelColor: AppColors.accentPink,
+            unselectedLabelColor: AppColors.softPink,
+            tabs: [
+              Tab(icon: Icon(Icons.calendar_month, size: 50)),
+              Tab(icon: Icon(Icons.school, size: 50)),
             ],
           ),
+        ),
+        body: TabBarView(
+          children: [
+            SchedulePage(),
+            BlocProvider(
+              create: (_) =>
+                  StudentsAndGroupsCubit(ScheduleRepo(dataProvider: dbClient))
+                    ..fetchStudents()
+                    ..fetchGroups(),
+              child: StudentsPage(),
+            ),
+          ],
         ),
       ),
     );

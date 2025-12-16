@@ -37,4 +37,9 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
     emit(state.copyWith(groups: stateGroups));
   }
+
+  Future<void> createStudent(Student student) async {
+    await _scheduleRepo.createOrUpdateStudent(student);
+    await fetchStudents();
+  }
 }
