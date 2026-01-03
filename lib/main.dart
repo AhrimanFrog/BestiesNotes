@@ -1,7 +1,6 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/views/schedule_view/schedule_view.dart';
 import 'package:besties_notes/views/students_view/students_view.dart';
 import 'package:besties_notes/common/app_colors.dart';
@@ -31,23 +30,6 @@ class MyApp extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(icon: Icon(Icons.settings), onPressed: () => {}),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (_) => StudentForm(),
-                  backgroundColor: Colors.transparent,
-                  useSafeArea: true,
-                  isScrollControlled: true,
-                ),
-              },
-            ),
-          ],
-        ),
         bottomNavigationBar: Container(
           color: Colors.white,
           child: const TabBar(

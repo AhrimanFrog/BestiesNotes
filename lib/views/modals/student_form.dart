@@ -48,10 +48,7 @@ class _StudentFormState extends State<StudentForm> {
         ),
         note: _noteController.text.trim(),
       );
-
-      final cubit = context.read<StudentsAndGroupsCubit>();
-      await cubit.createStudent(student);
-
+      await context.read<StudentsAndGroupsCubit>().createStudent(student);
       if (mounted) Navigator.pop(context);
       // } catch (e) {
       //   if (mounted) {

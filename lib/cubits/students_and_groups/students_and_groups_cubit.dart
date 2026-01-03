@@ -15,14 +15,9 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
       offset: offset,
       limit: limit,
     );
-    if (students.isEmpty) {
-      return emit(state.copyWith(noMoreStudents: true));
-    }
+    if (students.isEmpty) return emit(state.copyWith(noMoreStudents: true));
 
-    final stateStudents = state.students;
-    stateStudents.addAll(students);
-
-    emit(state.copyWith(students: stateStudents));
+    emit(state.copyWith(students: [...state.students, ...students]));
   }
 
   Future<void> fetchGroups({int offset = 0, limit = 100}) async {
@@ -40,6 +35,6 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   Future<void> createStudent(Student student) async {
     await _scheduleRepo.createOrUpdateStudent(student);
-    await fetchStudents();
+    emit(state.copyWith(students: [...state.students, student]));
   }
 }
