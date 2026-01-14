@@ -37,4 +37,10 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     await _scheduleRepo.createOrUpdateStudent(student);
     emit(state.copyWith(students: [...state.students, student]));
   }
+
+  Future<void> deleteStudent(int studentId) async {
+    await _scheduleRepo.deleteStudent(studentId);
+    final updatedStudents = state.students.where((s) => s.id != studentId);
+    emit(state.copyWith(students: updatedStudents.toList()));
+  }
 }

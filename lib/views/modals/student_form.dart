@@ -50,15 +50,15 @@ class _StudentFormState extends State<StudentForm> {
       );
       await context.read<StudentsAndGroupsCubit>().createStudent(student);
       if (mounted) Navigator.pop(context);
-      // } catch (e) {
-      //   if (mounted) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(
-      //         content: Text('Error creating student: $e'),
-      //         backgroundColor: Colors.red,
-      //       ),
-      //     );
-      //   }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error creating student: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

@@ -27,15 +27,19 @@ class ScheduleRepo {
   Future<int> createOrUpdateStudent(Student student) {
     return dataProvider.createOrUpdateStudent(
       .insert(
-        name: student.name, 
-        contact: student.contact, 
-        payRate: student.pricing.rate, 
-        period: student.pricing.period, 
+        name: student.name,
+        contact: student.contact,
+        payRate: student.pricing.rate,
+        period: student.pricing.period,
         notes: student.note,
-        createdAt: DateTime.now().millisecondsSinceEpoch, 
+        createdAt: DateTime.now().millisecondsSinceEpoch,
         updatedAt: DateTime.now().millisecondsSinceEpoch
       )
      );
+  }
+
+  Future<void> deleteStudent(int studentId) {
+    return dataProvider.deleteStudent(studentId);
   }
 
   Future<List<Student>> getStudents({int offset = 0, limit = 100}) async {
