@@ -8,21 +8,31 @@ import 'package:besties_notes/data/ui_models/rate.dart';
 import 'package:besties_notes/widgets/index.dart';
 
 class StudentForm extends StatefulWidget {
-  const StudentForm({super.key});
+  final Student? student;
+
+  const StudentForm(this.student, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _StudentFormState();
+  State<StatefulWidget> createState() => _StudentFormState(student);
 }
 
 class _StudentFormState extends State<StudentForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _contactController = TextEditingController();
-  final _rateController = TextEditingController();
-  final _noteController = TextEditingController();
+  final Student? student;
+  final TextEditingController _nameController;
+  final TextEditingController _contactController;
+  final TextEditingController _rateController;
+  final TextEditingController _noteController;
 
-  RatePeriod _selectedPeriod = RatePeriod.daily;
+  RatePeriod _selectedPeriod;
   bool _isSubmitting = false;
+
+  _StudentFormState(this.student)
+    : _nameController = TextEditingController(text: student?.name),
+      _contactController = TextEditingController(text: student?.contact),
+      _rateController = TextEditingController(text: "${student?.pricing.rate}"),
+      _noteController = TextEditingController(text: student?.note),
+      _selectedPeriod = student?.pricing.period ?? .daily;
 
   @override
   void dispose() {
@@ -40,6 +50,7 @@ class _StudentFormState extends State<StudentForm> {
 
     try {
       final student = Student(
+        id: this.student?.id,
         name: _nameController.text.trim(),
         contact: _contactController.text.trim(),
         pricing: Rate(
@@ -48,17 +59,18 @@ class _StudentFormState extends State<StudentForm> {
         ),
         note: _noteController.text.trim(),
       );
-      await context.read<StudentsAndGroupsCubit>().createStudent(student);
+      final cubit = context.read<StudentsAndGroupsCubit>();
+      await cubit.createOrUpdateStudent(student);
       if (mounted) Navigator.pop(context);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error creating student: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating student: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -75,7 +87,10 @@ class _StudentFormState extends State<StudentForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 24,
             children: [
-              ModalHeaderRow(title: 'New Student', icon: Icons.person_add),
+              ModalHeaderRow(
+                title: student != null ? 'Edit Student' : 'New Student',
+                icon: student != null ? Icons.edit : Icons.person_add,
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -177,9 +192,9 @@ class _StudentFormState extends State<StudentForm> {
                           ),
                         ),
                       )
-                    : const Text(
-                        'Create Student',
-                        style: TextStyle(fontSize: 16),
+                    : Text(
+                        student != null ? 'Update Student' : 'Create Student',
+                        style: const TextStyle(fontSize: 16),
                       ),
               ),
             ],

@@ -37,6 +37,19 @@ class StudentsPage extends StatelessWidget {
     );
   }
 
+  void _showStudentForm(BuildContext context, Student? student) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<StudentsAndGroupsCubit>(),
+        child: StudentForm(student),
+      ),
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,18 +58,7 @@ class StudentsPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => {
-              showModalBottomSheet(
-                context: context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<StudentsAndGroupsCubit>(),
-                  child: StudentForm(),
-                ),
-                backgroundColor: Colors.transparent,
-                useSafeArea: true,
-                isScrollControlled: true,
-              ),
-            },
+            onPressed: () => _showStudentForm(context, null),
           ),
         ],
       ),
@@ -74,6 +76,7 @@ class StudentsPage extends StatelessWidget {
                   for (final student in state.students)
                     StudentCard(
                       student: student,
+                      onTap: () => _showStudentForm(context, student),
                       onDelete: () => _showDeleteConfirmation(context, student),
                     ),
                 ],
