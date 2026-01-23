@@ -20,9 +20,9 @@ class ScheduleRepo {
     return (await dataProvider.getLesson(lessonId)).toDomain();
   }
 
-  void createOrUpdateLesson(Lesson lesson) async {
+  Future<void> createOrUpdateLesson(Lesson lesson) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    dataProvider.createOrUpdateLesson(
+    await dataProvider.createOrUpdateLesson(
       .insert(
         topic: lesson.name, 
         start: lesson.start, 
