@@ -2,9 +2,13 @@ import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 import 'package:besties_notes/providers/db_client.dart';
 
 abstract class DataProvider {
-  Future<List<DbLessonDetails>> getLessonsForWeek() async {
-    throw UnimplementedError();
-  }
+  Future<List<DbLessonDetails>> getLessonsForWeek();
+
+  Future<DbLessonDetails> getLesson(int lessonId);
+
+  Future<void> createOrUpdateLesson(DbLessonsCompanion lesson);
+
+  Future<void> deleteLesson(int lessonId);
 
   Future<int> createOrUpdateStudent(DbStudentsCompanion student);
 

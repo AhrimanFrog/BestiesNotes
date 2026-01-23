@@ -1,4 +1,5 @@
 import 'package:besties_notes/extensions/db_group_ext.dart';
+import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
@@ -8,21 +9,36 @@ class ScheduleRepo {
 
   ScheduleRepo({required this.dataProvider});
 
+  // ---------------- LESSONS CRUD -----------------
+
   Future<List<Lesson>> getLessonsForAWeek() async {
     final dbLessons = await dataProvider.getLessonsForWeek();
-    return dbLessons.map((details) {
-      final List<Teachable> participants = [];
-      participants.addAll(details.students.values.map((s) => s.toDomain()));
-      participants.addAll(details.groups.values.map((g) => g.toDomain()));
-      return Lesson(
-        name: details.lesson.topic,
-        subjects: participants.toList(),
-        start: details.lesson.start,
-        duration: Duration(minutes: details.lesson.durationInMinutes),
-        note: details.lesson.note ?? "",
-      );
-    }).toList();
+    return dbLessons.map((details) => details.toDomain()).toList();
   }
+
+  Future<Lesson> getLesson({required int lessonId}) async {
+    return (await dataProvider.getLesson(lessonId)).toDomain();
+  }
+
+  void createOrUpdateLesson(Lesson lesson) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    dataProvider.createOrUpdateLesson(
+      .insert(
+        topic: lesson.name, 
+        start: lesson.start, 
+        durationInMinutes: lesson.duration.inMinutes, 
+        status: .scheduled, 
+        createdAt: now, 
+        updatedAt: now
+      )
+    );
+  }
+
+  Future<void> removeLesson(int lessonId) async {
+    await dataProvider.deleteLesson(lessonId);
+  }
+
+  // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) {
     return dataProvider.createOrUpdateStudent(
