@@ -3,7 +3,7 @@ import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/widgets/cards/lesson_card.dart';
 import 'package:besties_notes/widgets/texts/day_title.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/views/lesson_view/lesson_view.dart';
+import 'package:besties_notes/views/modals/lesson_view.dart';
 
 class ScheduleCard extends StatelessWidget {
   final List<Lesson> lessons;

@@ -1,8 +1,8 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/views/schedule_view/schedule_view.dart';
-import 'package:besties_notes/views/students_view/students_view.dart';
+import 'package:besties_notes/views/schedule_view.dart';
+import 'package:besties_notes/views/students_view.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
