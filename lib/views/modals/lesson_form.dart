@@ -1,0 +1,378 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/widgets/index.dart';
+
+class LessonForm extends StatefulWidget {
+  final Lesson? lesson;
+
+  const LessonForm(this.lesson, {super.key});
+
+  @override
+  State<StatefulWidget> createState() => _LessonFormState();
+}
+
+class _LessonFormState extends State<LessonForm> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _durationController;
+  late final TextEditingController _noteController;
+
+  late DateTime _selectedDate;
+  late TimeOfDay _selectedTime;
+  late List<Teachable> _selectedSubjects;
+  bool _isSubmitting = false;
+
+  Lesson? get lesson => widget.lesson;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: lesson?.name);
+    _durationController = TextEditingController(
+      text: "${lesson?.duration.inMinutes ?? 60}",
+    );
+    _noteController = TextEditingController(text: lesson?.note);
+    _selectedDate = lesson?.start ?? DateTime.now();
+    _selectedTime = TimeOfDay.fromDateTime(lesson?.start ?? DateTime.now());
+    _selectedSubjects = lesson?.subjects ?? [];
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _durationController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null) {
+      setState(() => _selectedTime = picked);
+    }
+  }
+
+  Future<void> _selectSubjects() async {
+    final studentsAndGroupsCubit = context.read<StudentsAndGroupsCubit>();
+    final students = studentsAndGroupsCubit.state.students;
+    final groups = studentsAndGroupsCubit.state.groups;
+    final allTeachables = [...students, ...groups];
+
+    if (allTeachables.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No students or groups available. Create some first.'),
+        ),
+      );
+      return;
+    }
+
+    final selected = await showDialog<List<Teachable>>(
+      context: context,
+      builder: (context) => _SubjectSelectionDialog(
+        available: allTeachables,
+        selected: _selectedSubjects,
+      ),
+    );
+
+    if (selected != null) {
+      setState(() => _selectedSubjects = selected);
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_selectedSubjects.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one student or group'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final startDateTime = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
+
+      final lesson = Lesson(
+        id: this.lesson?.id,
+        name: _nameController.text.trim(),
+        subjects: _selectedSubjects,
+        start: startDateTime,
+        duration: Duration(minutes: int.parse(_durationController.text)),
+        note: _noteController.text.trim(),
+      );
+
+      final cubit = context.read<LessonsCubit>();
+      await cubit.createOrUpdateLesson(lesson);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving lesson: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 24,
+            children: [
+              ModalHeaderRow(
+                title: lesson != null ? 'Edit Lesson' : 'New Lesson',
+                icon: lesson != null ? Icons.edit : Icons.add_box,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 16,
+                    children: [
+                      InputField(
+                        _nameController,
+                        label: 'Lesson Name',
+                        hint: 'E.g. Present Simple',
+                        icon: const Icon(Icons.book),
+                      ),
+                      _buildSubjectSelector(),
+                      Row(
+                        children: [
+                          Expanded(child: _buildDateSelector()),
+                          const SizedBox(width: 16),
+                          Expanded(child: _buildTimeSelector()),
+                        ],
+                      ),
+                      InputField(
+                        _durationController,
+                        label: 'Duration (minutes)',
+                        hint: '60',
+                        icon: const Icon(Icons.timer),
+                        textInputType: TextInputType.number,
+                        formatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter duration';
+                          }
+                          final duration = int.tryParse(value);
+                          if (duration == null || duration <= 0) {
+                            return 'Please enter a valid duration';
+                          }
+                          return null;
+                        },
+                      ),
+                      InputField(
+                        _noteController,
+                        label: 'Notes (Optional)',
+                        icon: const Icon(Icons.notes),
+                        validator: (_) => null,
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              FilledButton(
+                onPressed: _isSubmitting ? null : _submitForm,
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        lesson != null ? 'Update Lesson' : 'Create Lesson',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectSelector() {
+    return InkWell(
+      onTap: _selectSubjects,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Students / Groups',
+          border: OutlineInputBorder(),
+          prefixIcon: Icon(Icons.people),
+        ),
+        child: _selectedSubjects.isEmpty
+            ? const Text(
+                'Tap to select',
+                style: TextStyle(color: Colors.grey),
+              )
+            : Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: _selectedSubjects
+                    .map((s) => Chip(
+                          label: Text(s.name),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () {
+                            setState(() {
+                              _selectedSubjects = _selectedSubjects
+                                  .where((t) => t != s)
+                                  .toList();
+                            });
+                          },
+                        ))
+                    .toList(),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildDateSelector() {
+    return InkWell(
+      onTap: _selectDate,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Date',
+          border: OutlineInputBorder(),
+          prefixIcon: Icon(Icons.calendar_today),
+        ),
+        child: Text(
+          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeSelector() {
+    return InkWell(
+      onTap: _selectTime,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Time',
+          border: OutlineInputBorder(),
+          prefixIcon: Icon(Icons.access_time),
+        ),
+        child: Text(_selectedTime.format(context)),
+      ),
+    );
+  }
+}
+
+class _SubjectSelectionDialog extends StatefulWidget {
+  final List<Teachable> available;
+  final List<Teachable> selected;
+
+  const _SubjectSelectionDialog({
+    required this.available,
+    required this.selected,
+  });
+
+  @override
+  State<_SubjectSelectionDialog> createState() =>
+      _SubjectSelectionDialogState();
+}
+
+class _SubjectSelectionDialogState extends State<_SubjectSelectionDialog> {
+  late List<Teachable> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = List.from(widget.selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select Students / Groups'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.available.length,
+          itemBuilder: (context, index) {
+            final teachable = widget.available[index];
+            final isSelected = _selected.any((t) => t.id == teachable.id);
+            final isGroup = teachable is Group;
+
+            return CheckboxListTile(
+              value: isSelected,
+              title: Text(teachable.name),
+              subtitle: Text(isGroup ? 'Group' : 'Student'),
+              secondary: Icon(isGroup ? Icons.groups : Icons.person),
+              onChanged: (checked) {
+                setState(() {
+                  if (checked == true) {
+                    _selected.add(teachable);
+                  } else {
+                    _selected.removeWhere((t) => t.id == teachable.id);
+                  }
+                });
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _selected),
+          child: const Text('Confirm'),
+        ),
+      ],
+    );
+  }
+}

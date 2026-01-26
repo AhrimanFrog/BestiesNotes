@@ -13,26 +13,30 @@ class StudentForm extends StatefulWidget {
   const StudentForm(this.student, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _StudentFormState(student);
+  State<StatefulWidget> createState() => _StudentFormState();
 }
 
 class _StudentFormState extends State<StudentForm> {
   final _formKey = GlobalKey<FormState>();
-  final Student? student;
-  final TextEditingController _nameController;
-  final TextEditingController _contactController;
-  final TextEditingController _rateController;
-  final TextEditingController _noteController;
+  late final TextEditingController _nameController;
+  late final TextEditingController _contactController;
+  late final TextEditingController _rateController;
+  late final TextEditingController _noteController;
 
-  RatePeriod _selectedPeriod;
+  late RatePeriod _selectedPeriod;
   bool _isSubmitting = false;
 
-  _StudentFormState(this.student)
-    : _nameController = TextEditingController(text: student?.name),
-      _contactController = TextEditingController(text: student?.contact),
-      _rateController = TextEditingController(text: "${student?.pricing.rate}"),
-      _noteController = TextEditingController(text: student?.note),
-      _selectedPeriod = student?.pricing.period ?? .daily;
+  Student? get student => widget.student;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: student?.name);
+    _contactController = TextEditingController(text: student?.contact);
+    _rateController = TextEditingController(text: "${student?.pricing.rate}");
+    _noteController = TextEditingController(text: student?.note);
+    _selectedPeriod = student?.pricing.period ?? .daily;
+  }
 
   @override
   void dispose() {
