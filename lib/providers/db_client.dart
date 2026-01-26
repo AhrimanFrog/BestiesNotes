@@ -76,7 +76,7 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<void> createOrUpdateLesson(DbLessonsCompanion lesson) {
+  Future<int> createOrUpdateLesson(DbLessonsCompanion lesson) {
     return into(dbLessons).insertOnConflictUpdate(lesson);
   }
 

@@ -18,16 +18,26 @@ class LessonsCubit extends Cubit<LessonsState> {
   }
 
   Future<void> createOrUpdateLesson(Lesson lesson) async {
-    await _scheduleRepo.createOrUpdateLesson(lesson);
+    final id = await _scheduleRepo.createOrUpdateLesson(lesson);
     final lessonExists = lesson.id != null;
+
+    final lessonWithId = Lesson(
+      id: id,
+      name: lesson.name,
+      subjects: lesson.subjects,
+      start: lesson.start,
+      duration: lesson.duration,
+      note: lesson.note,
+    );
+
     if (lessonExists) {
       final lessonIndex = state.lessons.indexWhere((s) => s.id == lesson.id);
       final stateLessons = [...state.lessons];
-      stateLessons[lessonIndex] = lesson;
+      stateLessons[lessonIndex] = lessonWithId;
       return emit(state.copyWith(lessons: stateLessons));
     }
 
-    emit(state.copyWith(lessons: [...state.lessons, lesson]));
+    emit(state.copyWith(lessons: [...state.lessons, lessonWithId]));
   }
 
   Future<void> deleteLesson(int lessonId) async {

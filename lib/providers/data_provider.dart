@@ -6,7 +6,7 @@ abstract class DataProvider {
 
   Future<DbLessonDetails> getLesson(int lessonId);
 
-  Future<void> createOrUpdateLesson(DbLessonsCompanion lesson);
+  Future<int> createOrUpdateLesson(DbLessonsCompanion lesson);
 
   Future<void> deleteLesson(int lessonId);
 

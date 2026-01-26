@@ -28,16 +28,26 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> createOrUpdateStudent(Student student) async {
-    await _scheduleRepo.createOrUpdateStudent(student);
+    final id = await _scheduleRepo.createOrUpdateStudent(student);
+    final studentWithId = Student(
+      id: id,
+      name: student.name,
+      contact: student.contact,
+      pricing: student.pricing,
+      note: student.note,
+      iconPath: student.iconPath,
+      group: student.group,
+    );
     final studentExists = student.id != null;
+
     if (studentExists) {
       final studentIndex = state.students.indexWhere((s) => s.id == student.id);
       final stateStudents = [...state.students];
-      stateStudents[studentIndex] = student;
+      stateStudents[studentIndex] = studentWithId;
       return emit(state.copyWith(students: stateStudents));
     }
 
-    emit(state.copyWith(students: [...state.students, student]));
+    emit(state.copyWith(students: [...state.students, studentWithId]));
   }
 
   Future<void> deleteStudent(int studentId) async {
