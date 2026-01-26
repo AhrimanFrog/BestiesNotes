@@ -9,6 +9,16 @@ class LessonsState extends Equatable {
   @override
   List<Object?> get props => [lessons, noMoreLessons];
 
+  Map<DateTime, List<Lesson>> getLessonsByDate() {
+    Map<DateTime, List<Lesson>> lessonsMap = {};
+    for (final lesson in lessons) {
+      final start = lesson.start;
+      final lessonDay = DateTime(start.year, start.month, start.day);
+      lessonsMap.putIfAbsent(lessonDay, () => []).add(lesson);
+    }
+    return lessonsMap;
+  }
+
   LessonsState copyWith({List<Lesson>? lessons, bool? noMoreLessons}) {
     return LessonsState(
       lessons: lessons ?? this.lessons,
