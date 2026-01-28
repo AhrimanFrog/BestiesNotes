@@ -3,6 +3,7 @@ import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:drift/drift.dart';
 
 class ScheduleRepo {
   late final DataProvider dataProvider;
@@ -24,6 +25,7 @@ class ScheduleRepo {
     final now = DateTime.now().millisecondsSinceEpoch;
     return dataProvider.createOrUpdateLesson(
       .insert(
+        id: lesson.id != null ? Value(lesson.id!) : .absent(),
         topic: lesson.name,
         start: lesson.start,
         durationInMinutes: lesson.duration.inMinutes,
@@ -43,6 +45,7 @@ class ScheduleRepo {
   Future<int> createOrUpdateStudent(Student student) {
     return dataProvider.createOrUpdateStudent(
       .insert(
+        id: student.id != null ? Value(student.id!) : .absent(),
         name: student.name,
         contact: student.contact,
         payRate: student.pricing.rate,

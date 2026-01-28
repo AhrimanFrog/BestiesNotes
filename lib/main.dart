@@ -46,19 +46,18 @@ class MyApp extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
+        body: MultiBlocProvider(
+          providers: [
             BlocProvider(
               create: (_) => LessonsCubit(scheduleRepo)..fetchLessons(),
-              child: SchedulePage(),
             ),
             BlocProvider(
               create: (_) => StudentsAndGroupsCubit(scheduleRepo)
                 ..fetchStudents()
                 ..fetchGroups(),
-              child: StudentsPage(),
             ),
           ],
+          child: TabBarView(children: [SchedulePage(), StudentsPage()]),
         ),
       ),
     );
