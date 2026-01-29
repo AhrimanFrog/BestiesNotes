@@ -1,5 +1,6 @@
 // import 'schedule_view_model.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/lesson_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,15 @@ class SchedulePage extends StatelessWidget {
             onPressed: () => {
               showModalBottomSheet(
                 context: context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<LessonsCubit>(),
+                builder: (_) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: context.read<LessonsCubit>(),
+                    ),
+                    BlocProvider.value(
+                      value: context.read<StudentsAndGroupsCubit>(),
+                    ),
+                  ],
                   child: LessonForm(null),
                 ),
                 backgroundColor: Colors.transparent,
