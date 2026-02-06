@@ -1,9 +1,12 @@
+import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/views/modals/lesson_form.dart';
 import 'package:besties_notes/widgets/cards/lesson_card.dart';
 import 'package:besties_notes/widgets/texts/day_title.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/views/modals/lesson_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ScheduleCard extends StatelessWidget {
   final List<Lesson> lessons;
@@ -32,7 +35,20 @@ class ScheduleCard extends StatelessWidget {
                     onClick: () {
                       showModalBottomSheet(
                         context: context,
-                        builder: (context) => LessonView(lesson: lesson),
+                        builder: (_) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider.value(
+                              value: context.read<LessonsCubit>(),
+                            ),
+                            BlocProvider.value(
+                              value: context.read<StudentsAndGroupsCubit>(),
+                            ),
+                          ],
+                          child: LessonForm(lesson),
+                        ),
+                        backgroundColor: Colors.transparent,
+                        useSafeArea: true,
+                        isScrollControlled: true,
                       );
                     },
                   ),
