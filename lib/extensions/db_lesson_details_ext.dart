@@ -10,11 +10,13 @@ extension DbLessonDetailsExt on DbLessonDetails {
     participants.addAll(students.values.map((s) => s.toDomain()));
     participants.addAll(groups.values.map((g) => g.toDomain()));
     return Lesson(
+      id: lesson.id,
       name: lesson.topic,
       subjects: participants.toList(),
       start: lesson.start,
       duration: Duration(minutes: lesson.durationInMinutes),
       note: lesson.note ?? "",
+      status: lesson.status,
     );
   }
 }

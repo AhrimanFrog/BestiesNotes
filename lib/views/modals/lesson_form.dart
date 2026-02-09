@@ -1,3 +1,4 @@
+import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,6 +97,49 @@ class _LessonFormState extends State<LessonForm> {
 
     if (selected != null) {
       setState(() => _selectedSubjects = selected);
+    }
+  }
+
+  Future<void> _cancelLesson() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Lesson'),
+        content: const Text('Are you sure you want to cancel this lesson?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.accentPink,
+            ),
+            child: const Text('Yes, cancel it'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    setState(() => _isSubmitting = true);
+
+    try {
+      final cubit = context.read<LessonsCubit>();
+      await cubit.cancelLesson(lesson!.id!);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error cancelling lesson: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -235,6 +279,19 @@ class _LessonFormState extends State<LessonForm> {
                         style: const TextStyle(fontSize: 16),
                       ),
               ),
+              if (lesson != null && !lesson!.isCancelled)
+                OutlinedButton(
+                  onPressed: _isSubmitting ? null : _cancelLesson,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: AppColors.accentPink,
+                    side: const BorderSide(color: AppColors.accentPink),
+                  ),
+                  child: const Text(
+                    'Cancel Lesson',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
             ],
           ),
         ),

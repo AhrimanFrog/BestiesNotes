@@ -1,3 +1,4 @@
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/extensions/db_group_ext.dart';
 import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
@@ -29,9 +30,27 @@ class ScheduleRepo {
         topic: lesson.name,
         start: lesson.start,
         durationInMinutes: lesson.duration.inMinutes,
-        status: .scheduled,
+        status: lesson.status,
         createdAt: now,
         updatedAt: now
+      )
+    );
+  }
+
+  Future<void> cancelLesson(int lessonId) async {
+    final dbDetails = await dataProvider.getLesson(lessonId);
+    final dbLesson = dbDetails.lesson;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await dataProvider.createOrUpdateLesson(
+      .insert(
+        id: Value(dbLesson.id),
+        topic: dbLesson.topic,
+        start: dbLesson.start,
+        durationInMinutes: dbLesson.durationInMinutes,
+        note: Value(dbLesson.note),
+        status: LessonStatus.cancelled,
+        createdAt: dbLesson.createdAt,
+        updatedAt: now,
       )
     );
   }

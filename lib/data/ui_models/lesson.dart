@@ -1,3 +1,4 @@
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 
 class Lesson {
@@ -7,6 +8,7 @@ class Lesson {
   final DateTime start;
   final Duration duration;
   final String note;
+  final LessonStatus status;
 
   const Lesson({
     this.id,
@@ -15,6 +17,7 @@ class Lesson {
     required this.start,
     required this.duration,
     this.note = "",
+    this.status = LessonStatus.scheduled,
   });
 
   Lesson.demoActive()
@@ -23,7 +26,8 @@ class Lesson {
       subjects = [Student.demo()],
       start = DateTime.now(),
       duration = Duration(minutes: 70),
-      note = "Just text";
+      note = "Just text",
+      status = LessonStatus.scheduled;
 
   Lesson.demoNonActive()
     : id = null,
@@ -31,11 +35,14 @@ class Lesson {
       subjects = [Student.demo()],
       start = DateTime.now().add(Duration(days: 2, minutes: 70)),
       duration = Duration(minutes: 60),
-      note = "Some note here";
+      note = "Some note here",
+      status = LessonStatus.scheduled;
 
   bool get isNow =>
       DateTime.now().isAfter(start) &&
       DateTime.now().isBefore(start.add(duration));
+
+  bool get isCancelled => status == LessonStatus.cancelled;
 
   DateTime get end => start.add(duration);
 }
