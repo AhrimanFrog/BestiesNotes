@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/widgets/initials_circle.dart';
@@ -24,8 +26,10 @@ class UserAvatar extends StatelessWidget {
       ),
       child: student.iconPath != null
           ? ClipOval(
-              child: Image.network(
-                student.iconPath!,
+              child: Image.file(
+                File(student.iconPath!),
+                width: 64,
+                height: 64,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => initials,
               ),
