@@ -55,4 +55,12 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     final updatedStudents = state.students.where((s) => s.id != studentId);
     emit(state.copyWith(students: updatedStudents.toList()));
   }
+
+  void setSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
+  }
+
+  void setFilterGroup(int? groupId) {
+    emit(state.copyWith(filterGroupId: () => groupId));
+  }
 }
