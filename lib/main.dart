@@ -1,8 +1,9 @@
+import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/views/schedule_view/schedule_view.dart';
-import 'package:besties_notes/views/students_view/students_view.dart';
+import 'package:besties_notes/views/schedule_view.dart';
+import 'package:besties_notes/views/students_view.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,9 +22,10 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final DbClient dbClient;
+  final ScheduleRepo scheduleRepo;
 
-  const MyApp({super.key, required this.dbClient});
+  MyApp({super.key, required DbClient dbClient})
+    : scheduleRepo = ScheduleRepo(dataProvider: dbClient);
 
   @override
   Widget build(BuildContext context) {
@@ -44,17 +46,18 @@ class MyApp extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            SchedulePage(),
+        body: MultiBlocProvider(
+          providers: [
             BlocProvider(
-              create: (_) =>
-                  StudentsAndGroupsCubit(ScheduleRepo(dataProvider: dbClient))
-                    ..fetchStudents()
-                    ..fetchGroups(),
-              child: StudentsPage(),
+              create: (_) => LessonsCubit(scheduleRepo)..fetchLessons(),
+            ),
+            BlocProvider(
+              create: (_) => StudentsAndGroupsCubit(scheduleRepo)
+                ..fetchStudents()
+                ..fetchGroups(),
             ),
           ],
+          child: TabBarView(children: [SchedulePage(), StudentsPage()]),
         ),
       ),
     );

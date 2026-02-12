@@ -1,32 +1,66 @@
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/extensions/db_group_ext.dart';
+import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:drift/drift.dart';
 
 class ScheduleRepo {
   late final DataProvider dataProvider;
 
   ScheduleRepo({required this.dataProvider});
 
+  // ---------------- LESSONS CRUD -----------------
+
   Future<List<Lesson>> getLessonsForAWeek() async {
     final dbLessons = await dataProvider.getLessonsForWeek();
-    return dbLessons.map((details) {
-      final List<Teachable> participants = [];
-      participants.addAll(details.students.values.map((s) => s.toDomain()));
-      participants.addAll(details.groups.values.map((g) => g.toDomain()));
-      return Lesson(
-        name: details.lesson.topic,
-        subjects: participants.toList(),
-        start: details.lesson.start,
-        duration: Duration(minutes: details.lesson.durationInMinutes),
-        note: details.lesson.note ?? "",
-      );
-    }).toList();
+    return dbLessons.map((details) => details.toDomain()).toList();
   }
+
+  Future<Lesson> getLesson({required int lessonId}) async {
+    return (await dataProvider.getLesson(lessonId)).toDomain();
+  }
+
+  Future<int> createOrUpdateLesson(Lesson lesson) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return dataProvider.createOrUpdateLesson(
+      .insert(
+        id: lesson.id != null ? Value(lesson.id!) : .absent(),
+        topic: lesson.name,
+        start: lesson.start,
+        durationInMinutes: lesson.duration.inMinutes,
+        status: lesson.status,
+        createdAt: now,
+        updatedAt: now
+      )
+    );
+  }
+
+  Future<void> cancelLesson(int lessonId) async {
+    final dbDetails = await dataProvider.getLesson(lessonId);
+    final dbLesson = dbDetails.lesson;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await dataProvider.createOrUpdateLesson(
+      .insert(
+        id: Value(dbLesson.id),
+        topic: dbLesson.topic,
+        start: dbLesson.start,
+        durationInMinutes: dbLesson.durationInMinutes,
+        note: Value(dbLesson.note),
+        status: LessonStatus.cancelled,
+        createdAt: dbLesson.createdAt,
+        updatedAt: now,
+      )
+    );
+  }
+
+  // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) {
     return dataProvider.createOrUpdateStudent(
       .insert(
+        id: student.id != null ? Value(student.id!) : .absent(),
         name: student.name,
         contact: student.contact,
         payRate: student.pricing.rate,

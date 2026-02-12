@@ -31,14 +31,18 @@ class DbClient extends _$DbClient implements DataProvider {
     final now = DateTime.now();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
-    final queryRes = await _getLessonsForPeriod(
-      start: startOfToday,
-      end: startOfToday.add(Duration(days: 7)),
-    );
+    final queryRes = _lessonsQuery()
+      ..where(
+        dbLessons.start.isBetweenValues(
+          startOfToday,
+          startOfToday.add(Duration(days: 7)),
+        ),
+      )
+      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
 
     final Map<int, DbLessonDetails> lessonDetails = {};
 
-    for (final row in queryRes) {
+    for (final row in await queryRes.get()) {
       final lesson = row.readTable(dbLessons);
       final student = row.readTableOrNull(dbStudents);
       final group = row.readTableOrNull(dbGroups);
@@ -54,29 +58,26 @@ class DbClient extends _$DbClient implements DataProvider {
     return lessonDetails.values.toList();
   }
 
-  Future<List> _getLessonsForPeriod({
-    required DateTime start,
-    required DateTime end,
-  }) {
-    final query =
-        (select(dbLessons)).join([
-            leftOuterJoin(
-              dbLessonParticipants,
-              dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
-            ),
-            leftOuterJoin(
-              dbStudents,
-              dbStudents.id.equalsExp(dbLessonParticipants.studentId),
-            ),
-            leftOuterJoin(
-              dbGroups,
-              dbGroups.id.equalsExp(dbLessonParticipants.groupId),
-            ),
-          ])
-          ..where(dbLessons.start.isBetweenValues(start, end))
-          ..orderBy([OrderingTerm.asc(dbLessons.start)]);
+  @override
+  Future<DbLessonDetails> getLesson(int lessonId) async {
+    final query = _lessonsQuery()..where(dbLessons.id.equals(lessonId));
+    final rows = await query.get();
+    if (rows.isEmpty) throw Exception("Lesson not Found!");
+    final details = DbLessonDetails(lesson: rows.first.readTable(dbLessons));
 
-    return query.get();
+    for (final row in rows) {
+      final student = row.readTableOrNull(dbStudents);
+      final group = row.readTableOrNull(dbGroups);
+      if (student != null) details.students[student.id] = student;
+      if (group != null) details.groups[group.id] = group;
+    }
+
+    return details;
+  }
+
+  @override
+  Future<int> createOrUpdateLesson(DbLessonsCompanion lesson) {
+    return into(dbLessons).insertOnConflictUpdate(lesson);
   }
 
   @override
@@ -97,5 +98,22 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100}) {
     return (select(dbGroups)..limit(limit, offset: offset)).get();
+  }
+
+  JoinedSelectStatement _lessonsQuery() {
+    return (select(dbLessons)).join([
+      leftOuterJoin(
+        dbLessonParticipants,
+        dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
+      ),
+      leftOuterJoin(
+        dbStudents,
+        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
+      ),
+      leftOuterJoin(
+        dbGroups,
+        dbGroups.id.equalsExp(dbLessonParticipants.groupId),
+      ),
+    ]);
   }
 }
