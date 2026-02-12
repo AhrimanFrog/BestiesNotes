@@ -87,4 +87,33 @@ class ScheduleRepo {
     final dbGroups = await dataProvider.getGroups(offset: offset, limit: limit);
     return dbGroups.map((g) => g.toDomain()).toList();
   }
+
+  // ---------------- GROUPS CRUD -----------------
+
+  Future<int> createOrUpdateGroup(Group group) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return dataProvider.createOrUpdateGroup(
+      .insert(
+        id: group.id != null ? Value(group.id!) : .absent(),
+        name: group.name,
+        payRate: group.pricing.rate,
+        period: group.pricing.period,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+  }
+
+  Future<void> deleteGroup(int groupId) {
+    return dataProvider.deleteGroup(groupId);
+  }
+
+  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) {
+    return dataProvider.syncGroupMemberships(groupId, studentIds);
+  }
+
+  Future<Set<Student>> getGroupMembers(int groupId) async {
+    final dbStudents = await dataProvider.getGroupMembers(groupId);
+    return dbStudents.map((s) => s.toDomain()).toSet();
+  }
 }

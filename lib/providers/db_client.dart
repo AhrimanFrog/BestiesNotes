@@ -100,6 +100,47 @@ class DbClient extends _$DbClient implements DataProvider {
     return (select(dbGroups)..limit(limit, offset: offset)).get();
   }
 
+  @override
+  Future<int> createOrUpdateGroup(DbGroupsCompanion group) {
+    return into(dbGroups).insertOnConflictUpdate(group);
+  }
+
+  @override
+  Future<void> deleteGroup(int groupId) {
+    return (delete(dbGroups)..where((g) => g.id.equals(groupId))).go();
+  }
+
+  @override
+  Future<List<DbStudent>> getGroupMembers(int groupId) async {
+    final query = select(groupMemberships).join([
+      innerJoin(
+        dbStudents,
+        dbStudents.id.equalsExp(groupMemberships.studentId),
+      ),
+    ])..where(groupMemberships.groupId.equals(groupId));
+
+    final rows = await query.get();
+    return rows.map((row) => row.readTable(dbStudents)).toList();
+  }
+
+  @override
+  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) {
+    return transaction(() async {
+      await (delete(
+        groupMemberships,
+      )..where((m) => m.groupId.equals(groupId))).go();
+
+      for (final studentId in studentIds) {
+        await into(groupMemberships).insert(
+          GroupMembershipsCompanion.insert(
+            groupId: groupId,
+            studentId: studentId,
+          ),
+        );
+      }
+    });
+  }
+
   JoinedSelectStatement _lessonsQuery() {
     return (select(dbLessons)).join([
       leftOuterJoin(

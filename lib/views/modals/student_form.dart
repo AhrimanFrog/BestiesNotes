@@ -1,13 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
@@ -53,55 +46,6 @@ class _StudentFormState extends State<StudentForm> {
     _rateController.dispose();
     _noteController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickAvatar() async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            if (_avatarPath != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Remove Photo',
-                    style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  setState(() => _avatarPath = null);
-                  Navigator.pop(ctx);
-                },
-              ),
-          ],
-        ),
-      ),
-    );
-    if (source == null) return;
-
-    final picked = await ImagePicker().pickImage(
-      source: source,
-      maxWidth: 512,
-      maxHeight: 512,
-    );
-    if (picked == null) return;
-
-    final appDir = await getApplicationDocumentsDirectory();
-    final ext = p.extension(picked.path);
-    final savedPath = p.join(appDir.path, 'avatars', '${DateTime.now().millisecondsSinceEpoch}$ext');
-    await Directory(p.dirname(savedPath)).create(recursive: true);
-    await File(picked.path).copy(savedPath);
-
-    setState(() => _avatarPath = savedPath);
   }
 
   Future<void> _submitForm() async {
@@ -159,45 +103,10 @@ class _StudentFormState extends State<StudentForm> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: 16,
                     children: [
-                      Center(
-                        child: GestureDetector(
-                          onTap: _pickAvatar,
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.accentPink, width: 2),
-                                  color: AppColors.softWarmPink,
-                                ),
-                                child: _avatarPath != null
-                                    ? ClipOval(
-                                        child: Image.file(
-                                          File(_avatarPath!),
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : const Icon(Icons.person, size: 40, color: AppColors.accentPink),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.accentPink,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      AvatarPickerField(
+                        avatarPath: _avatarPath,
+                        defaultIcon: Icons.person,
+                        onChanged: (path) => setState(() => _avatarPath = path),
                       ),
                       InputField(
                         _nameController,
@@ -211,61 +120,10 @@ class _StudentFormState extends State<StudentForm> {
                         hint: 'E.g. phone number or tag in messanger',
                         icon: Icon(Icons.phone),
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: InputField(
-                              _rateController,
-                              label: 'Rate',
-                              hint: '420',
-                              icon: Icon(Icons.attach_money),
-                              textInputType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
-                              formatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d*\.?\d*'),
-                                ),
-                              ],
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter a rate';
-                                }
-                                final rate = double.tryParse(value);
-                                if (rate == null || rate <= 0) {
-                                  return 'Please enter a valid rate';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          Flexible(
-                            child: DropdownButtonFormField<RatePeriod>(
-                              initialValue: _selectedPeriod,
-                              decoration: const InputDecoration(
-                                labelText: 'Period',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: RatePeriod.daily,
-                                  child: Text('Daily'),
-                                ),
-                                DropdownMenuItem(
-                                  value: RatePeriod.monthly,
-                                  child: Text('Monthly'),
-                                ),
-                              ],
-                              onChanged: (val) {
-                                if (val != null) {
-                                  setState(() => _selectedPeriod = val);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                      RatePeriodField(
+                        rateController: _rateController,
+                        selectedPeriod: _selectedPeriod,
+                        onPeriodChanged: (val) => setState(() => _selectedPeriod = val),
                       ),
                       InputField(
                         _noteController,

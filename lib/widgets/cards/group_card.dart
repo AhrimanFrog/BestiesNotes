@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:besties_notes/data/ui_models/student.dart';
+import 'package:besties_notes/data/ui_models/group.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/widgets/index.dart';
 
-class StudentCard extends StatelessWidget {
-  final Student student;
+class GroupCard extends StatelessWidget {
+  final Group group;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
-  const StudentCard({
-    super.key,
-    required this.student,
-    this.onTap,
-    this.onDelete,
-  });
+  const GroupCard({super.key, required this.group, this.onTap, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        fit: .expand,
+        fit: StackFit.expand,
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white, // clean card background
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.softPink, width: 2),
               boxShadow: [
@@ -40,12 +35,9 @@ class StudentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 6,
               children: [
-                // Avatar Section
-                UserAvatar(teachable: student),
-
-                // Name Section
+                UserAvatar(teachable: group),
                 Text(
-                  student.name,
+                  group.name,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.mainText,
@@ -55,10 +47,8 @@ class StudentCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-
-                // Subtitle (Location/Price/Group)
                 Text(
-                  student.group?.name ?? student.contact,
+                  'Group',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.secondaryText,
@@ -66,7 +56,6 @@ class StudentCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                // Action / Status Pill
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -77,7 +66,7 @@ class StudentCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    "${student.pricing.rate} / ${student.pricing.period.name}",
+                    "${group.pricing.rate} / ${group.pricing.period.name}",
                     style: const TextStyle(
                       color: AppColors.accentPink,
                       fontSize: 11,
@@ -89,7 +78,9 @@ class StudentCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 4, right: 4, child: DeleteItemIcon(onDelete: onDelete,)
+            top: 4,
+            right: 4,
+            child: DeleteItemIcon(onDelete: onDelete),
           ),
         ],
       ),

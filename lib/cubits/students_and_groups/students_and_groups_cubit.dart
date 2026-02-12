@@ -56,6 +56,43 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     emit(state.copyWith(students: updatedStudents.toList()));
   }
 
+  Future<void> createOrUpdateGroup(Group group) async {
+    final id = await _scheduleRepo.createOrUpdateGroup(group);
+    final studentIds = group.students
+        .where((s) => s.id != null)
+        .map((s) => s.id!)
+        .toList();
+    await _scheduleRepo.syncGroupMemberships(id, studentIds);
+
+    final groupWithId = Group(
+      id: id,
+      name: group.name,
+      pricing: group.pricing,
+      iconPath: group.iconPath,
+      students: group.students,
+    );
+
+    final groupExists = group.id != null;
+    if (groupExists) {
+      final groupIndex = state.groups.indexWhere((g) => g.id == group.id);
+      final stateGroups = [...state.groups];
+      stateGroups[groupIndex] = groupWithId;
+      return emit(state.copyWith(groups: stateGroups));
+    }
+
+    emit(state.copyWith(groups: [...state.groups, groupWithId]));
+  }
+
+  Future<void> deleteGroup(int groupId) async {
+    await _scheduleRepo.deleteGroup(groupId);
+    final updatedGroups = state.groups.where((g) => g.id != groupId).toList();
+    emit(state.copyWith(groups: updatedGroups));
+  }
+
+  Future<Set<Student>> fetchGroupMembers(int groupId) {
+    return _scheduleRepo.getGroupMembers(groupId);
+  }
+
   void setSearchQuery(String query) {
     emit(state.copyWith(searchQuery: query));
   }

@@ -15,4 +15,12 @@ abstract class DataProvider {
   Future<List<DbStudent>> getStudents({int offset = 0, int limit = 100});
 
   Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100});
+
+  Future<int> createOrUpdateGroup(DbGroupsCompanion group);
+
+  Future<void> deleteGroup(int groupId);
+
+  Future<List<DbStudent>> getGroupMembers(int groupId);
+
+  Future<void> syncGroupMemberships(int groupId, List<int> studentIds);
 }

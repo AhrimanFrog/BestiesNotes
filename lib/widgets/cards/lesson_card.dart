@@ -80,7 +80,9 @@ class LessonCard extends StatelessWidget {
                       fontSize: 14,
                       color: cardAccentColor,
                       fontWeight: FontWeight.bold,
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   Text(
@@ -88,7 +90,9 @@ class LessonCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       color: cardAccentColor.withValues(alpha: 0.8),
-                      decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ],
@@ -115,7 +119,9 @@ class LessonCard extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                               color: AppColors.mainText,
-                              decoration: isCancelled ? TextDecoration.lineThrough : null,
+                              decoration: isCancelled
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                           Text(
@@ -123,7 +129,9 @@ class LessonCard extends StatelessWidget {
                             style: TextStyle(
                               color: AppColors.secondaryText,
                               fontSize: 13,
-                              decoration: isCancelled ? TextDecoration.lineThrough : null,
+                              decoration: isCancelled
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                         ],

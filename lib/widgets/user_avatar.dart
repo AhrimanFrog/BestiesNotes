@@ -1,19 +1,19 @@
 import 'dart:io';
 
-import 'package:besties_notes/data/ui_models/student.dart';
+import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/widgets/initials_circle.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatar extends StatelessWidget {
-  final Student student;
+  final Teachable teachable;
 
-  const UserAvatar({super.key, required this.student});
+  const UserAvatar({super.key, required this.teachable});
 
   @override
   Widget build(BuildContext context) {
     final initials = InitialsCircle(
-      initials: student.initials,
+      initials: teachable.initials,
       circleColor: AppColors.accentPink,
     );
 
@@ -24,10 +24,10 @@ class UserAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.accentPink, width: 2),
       ),
-      child: student.iconPath != null
+      child: teachable.iconPath != null
           ? ClipOval(
               child: Image.file(
-                File(student.iconPath!),
+                File(teachable.iconPath!),
                 width: 64,
                 height: 64,
                 fit: BoxFit.cover,

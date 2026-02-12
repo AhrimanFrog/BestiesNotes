@@ -5,11 +5,7 @@ class DayTitle extends StatelessWidget {
   final String weekDay;
   final String date;
 
-  const DayTitle({
-    super.key,
-    required this.weekDay,
-    required this.date
-  });
+  const DayTitle({super.key, required this.weekDay, required this.date});
 
   @override
   Widget build(BuildContext context) {

@@ -22,13 +22,26 @@ class StudentsAndGroupsState extends Equatable {
     if (searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
       result = result
-          .where((s) =>
-              s.name.toLowerCase().contains(query) ||
-              s.contact.toLowerCase().contains(query))
+          .where(
+            (s) =>
+                s.name.toLowerCase().contains(query) ||
+                s.contact.toLowerCase().contains(query),
+          )
           .toList();
     }
     if (filterGroupId != null) {
       result = result.where((s) => s.group?.id == filterGroupId).toList();
+    }
+    return result;
+  }
+
+  List<Group> get filteredGroups {
+    var result = groups;
+    if (searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      result = result
+          .where((g) => g.name.toLowerCase().contains(query))
+          .toList();
     }
     return result;
   }
@@ -47,11 +60,19 @@ class StudentsAndGroupsState extends Equatable {
       noMoreStudents: noMoreStudents ?? this.noMoreStudents,
       noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
-      filterGroupId: filterGroupId != null ? filterGroupId() : this.filterGroupId,
+      filterGroupId: filterGroupId != null
+          ? filterGroupId()
+          : this.filterGroupId,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [students, groups, noMoreStudents, noMoreGroups, searchQuery, filterGroupId];
+  List<Object?> get props => [
+    students,
+    groups,
+    noMoreStudents,
+    noMoreGroups,
+    searchQuery,
+    filterGroupId,
+  ];
 }

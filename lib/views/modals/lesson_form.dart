@@ -89,7 +89,8 @@ class _LessonFormState extends State<LessonForm> {
 
     final selected = await showDialog<List<Teachable>>(
       context: context,
-      builder: (context) => _SubjectSelectionDialog(
+      builder: (context) => TeachableSelectionDialog(
+        title: 'Select Students / Groups',
         available: allTeachables,
         selected: _selectedSubjects,
       ),
@@ -233,9 +234,7 @@ class _LessonFormState extends State<LessonForm> {
                         hint: '60',
                         icon: const Icon(Icons.timer),
                         textInputType: TextInputType.number,
-                        formatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
+                        formatters: [FilteringTextInputFormatter.digitsOnly],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter duration';
@@ -309,25 +308,24 @@ class _LessonFormState extends State<LessonForm> {
           prefixIcon: Icon(Icons.people),
         ),
         child: _selectedSubjects.isEmpty
-            ? const Text(
-                'Tap to select',
-                style: TextStyle(color: Colors.grey),
-              )
+            ? const Text('Tap to select', style: TextStyle(color: Colors.grey))
             : Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: _selectedSubjects
-                    .map((s) => Chip(
-                          label: Text(s.name),
-                          deleteIcon: const Icon(Icons.close, size: 18),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedSubjects = _selectedSubjects
-                                  .where((t) => t != s)
-                                  .toList();
-                            });
-                          },
-                        ))
+                    .map(
+                      (s) => Chip(
+                        label: Text(s.name),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () {
+                          setState(() {
+                            _selectedSubjects = _selectedSubjects
+                                .where((t) => t != s)
+                                .toList();
+                          });
+                        },
+                      ),
+                    )
                     .toList(),
               ),
       ),
@@ -361,75 +359,6 @@ class _LessonFormState extends State<LessonForm> {
         ),
         child: Text(_selectedTime.format(context)),
       ),
-    );
-  }
-}
-
-class _SubjectSelectionDialog extends StatefulWidget {
-  final List<Teachable> available;
-  final List<Teachable> selected;
-
-  const _SubjectSelectionDialog({
-    required this.available,
-    required this.selected,
-  });
-
-  @override
-  State<_SubjectSelectionDialog> createState() =>
-      _SubjectSelectionDialogState();
-}
-
-class _SubjectSelectionDialogState extends State<_SubjectSelectionDialog> {
-  late List<Teachable> _selected;
-
-  @override
-  void initState() {
-    super.initState();
-    _selected = List.from(widget.selected);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Select Students / Groups'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.available.length,
-          itemBuilder: (context, index) {
-            final teachable = widget.available[index];
-            final isSelected = _selected.any((t) => t.id == teachable.id);
-            final isGroup = teachable is Group;
-
-            return CheckboxListTile(
-              value: isSelected,
-              title: Text(teachable.name),
-              subtitle: Text(isGroup ? 'Group' : 'Student'),
-              secondary: Icon(isGroup ? Icons.groups : Icons.person),
-              onChanged: (checked) {
-                setState(() {
-                  if (checked == true) {
-                    _selected.add(teachable);
-                  } else {
-                    _selected.removeWhere((t) => t.id == teachable.id);
-                  }
-                });
-              },
-            );
-          },
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, _selected),
-          child: const Text('Confirm'),
-        ),
-      ],
     );
   }
 }

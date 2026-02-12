@@ -22,9 +22,7 @@ class SchedulePage extends StatelessWidget {
                 context: context,
                 builder: (_) => MultiBlocProvider(
                   providers: [
-                    BlocProvider.value(
-                      value: context.read<LessonsCubit>(),
-                    ),
+                    BlocProvider.value(value: context.read<LessonsCubit>()),
                     BlocProvider.value(
                       value: context.read<StudentsAndGroupsCubit>(),
                     ),
