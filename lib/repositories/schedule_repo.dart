@@ -55,10 +55,6 @@ class ScheduleRepo {
     );
   }
 
-  Future<void> removeLesson(int lessonId) async {
-    await dataProvider.deleteLesson(lessonId);
-  }
-
   // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) {

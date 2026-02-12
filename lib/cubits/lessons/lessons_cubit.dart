@@ -60,10 +60,4 @@ class LessonsCubit extends Cubit<LessonsState> {
     );
     emit(state.copyWith(lessons: stateLessons));
   }
-
-  Future<void> deleteLesson(int lessonId) async {
-    await _scheduleRepo.removeLesson(lessonId);
-    final updatedLessons = state.lessons.where((s) => s.id != lessonId);
-    emit(state.copyWith(lessons: updatedLessons.toList()));
-  }
 }

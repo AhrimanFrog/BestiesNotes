@@ -81,11 +81,6 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<void> deleteLesson(int lessonId) {
-    return (delete(dbLessons)..where((s) => s.id.equals(lessonId))).go();
-  }
-
-  @override
   Future<int> createOrUpdateStudent(DbStudentsCompanion student) {
     return into(dbStudents).insertOnConflictUpdate(student);
   }

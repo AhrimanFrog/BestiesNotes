@@ -8,8 +8,6 @@ abstract class DataProvider {
 
   Future<int> createOrUpdateLesson(DbLessonsCompanion lesson);
 
-  Future<void> deleteLesson(int lessonId);
-
   Future<int> createOrUpdateStudent(DbStudentsCompanion student);
 
   Future<void> deleteStudent(int studentId);
