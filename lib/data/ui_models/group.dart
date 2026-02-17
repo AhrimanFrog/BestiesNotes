@@ -1,15 +1,33 @@
+import 'package:besties_notes/data/ui_models/rate.dart';
+
 import 'student.dart';
 
 import 'teachable.dart';
 
 class Group extends Teachable {
-  Set<Student> students;
+  final Set<Student> students;
 
-  Group({
+  const Group({
     super.id,
     required super.name,
     required super.pricing,
     super.iconPath,
     Set<Student>? students,
-  }) : students = students ?? {};
+  }) : students = students ?? const {};
+
+  Group copyWith({
+    int? id,
+    String? name,
+    Rate? pricing,
+    String? iconPath,
+    Set<Student>? students,
+  }) {
+    return Group(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      pricing: pricing ?? this.pricing,
+      iconPath: iconPath ?? this.iconPath,
+      students: students ?? this.students,
+    );
+  }
 }

@@ -29,15 +29,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   Future<void> createOrUpdateStudent(Student student) async {
     final id = await _scheduleRepo.createOrUpdateStudent(student);
-    final studentWithId = Student(
-      id: id,
-      name: student.name,
-      contact: student.contact,
-      pricing: student.pricing,
-      note: student.note,
-      iconPath: student.iconPath,
-      group: student.group,
-    );
+    final studentWithId = student.copyWith(id: id);
     final studentExists = student.id != null;
 
     if (studentExists) {
@@ -64,13 +56,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
         .toList();
     await _scheduleRepo.syncGroupMemberships(id, studentIds);
 
-    final groupWithId = Group(
-      id: id,
-      name: group.name,
-      pricing: group.pricing,
-      iconPath: group.iconPath,
-      students: group.students,
-    );
+    final groupWithId = group.copyWith(id: id);
 
     final groupExists = group.id != null;
     if (groupExists) {
@@ -90,7 +76,8 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> fetchGroupMembers(int groupId) async {
-    emit(state.copyWith(groupMembers: await _scheduleRepo.getGroupMembers(groupId)));
+    final groupMembers = await _scheduleRepo.getGroupMembers(groupId);
+    emit(state.copyWith(groupMembers: groupMembers));
   }
 
   void setSearchQuery(String query) {

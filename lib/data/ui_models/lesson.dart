@@ -20,6 +20,34 @@ class Lesson {
     this.status = LessonStatus.scheduled,
   });
 
+  bool get isNow =>
+      DateTime.now().isAfter(start) &&
+      DateTime.now().isBefore(start.add(duration));
+
+  bool get isCancelled => status == LessonStatus.cancelled;
+
+  DateTime get end => start.add(duration);
+
+  Lesson copyWith({
+    int? id,
+    String? name,
+    List<Teachable>? subjects,
+    DateTime? start,
+    Duration? duration,
+    String? note,
+    LessonStatus? status,
+  }) {
+    return Lesson(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      subjects: subjects ?? this.subjects,
+      start: start ?? this.start,
+      duration: duration ?? this.duration,
+      note: note ?? this.note,
+      status: status ?? this.status,
+    );
+  }
+
   Lesson.demoActive()
     : id = null,
       name = "Present simple",
@@ -37,12 +65,4 @@ class Lesson {
       duration = Duration(minutes: 60),
       note = "Some note here",
       status = LessonStatus.scheduled;
-
-  bool get isNow =>
-      DateTime.now().isAfter(start) &&
-      DateTime.now().isBefore(start.add(duration));
-
-  bool get isCancelled => status == LessonStatus.cancelled;
-
-  DateTime get end => start.add(duration);
 }

@@ -1,12 +1,12 @@
 import 'rate.dart';
 
 abstract class Teachable {
-  int? id;
-  String name;
-  Rate pricing;
-  String? iconPath;
+  final int? id;
+  final String name;
+  final Rate pricing;
+  final String? iconPath;
 
-  Teachable({
+  const Teachable({
     this.id,
     required this.name,
     required this.pricing,

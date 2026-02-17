@@ -1,4 +1,3 @@
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:equatable/equatable.dart';
@@ -15,22 +14,13 @@ class LessonsCubit extends Cubit<LessonsState> {
     final lessons = await _scheduleRepo.getLessonsForAWeek();
     if (lessons.isEmpty) return emit(state.copyWith(noMoreLessons: true));
 
-    emit(state.copyWith(lessons: [...state.lessons, ...lessons]));
+    emit(state.copyWith(lessons: lessons));
   }
 
   Future<void> createOrUpdateLesson(Lesson lesson) async {
     final id = await _scheduleRepo.createOrUpdateLesson(lesson);
     final lessonExists = lesson.id != null;
-
-    final lessonWithId = Lesson(
-      id: id,
-      name: lesson.name,
-      subjects: lesson.subjects,
-      start: lesson.start,
-      duration: lesson.duration,
-      note: lesson.note,
-      status: lesson.status,
-    );
+    final lessonWithId = lesson.copyWith(id: id);
 
     if (lessonExists) {
       final lessonIndex = state.lessons.indexWhere((s) => s.id == lesson.id);
@@ -49,15 +39,7 @@ class LessonsCubit extends Cubit<LessonsState> {
 
     final stateLessons = [...state.lessons];
     final lesson = stateLessons[lessonIndex];
-    stateLessons[lessonIndex] = Lesson(
-      id: lesson.id,
-      name: lesson.name,
-      subjects: lesson.subjects,
-      start: lesson.start,
-      duration: lesson.duration,
-      note: lesson.note,
-      status: LessonStatus.cancelled,
-    );
+    stateLessons[lessonIndex] = lesson.copyWith(status: .cancelled);
     emit(state.copyWith(lessons: stateLessons));
   }
 }

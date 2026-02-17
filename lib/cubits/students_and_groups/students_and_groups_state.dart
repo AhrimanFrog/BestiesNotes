@@ -76,6 +76,7 @@ class StudentsAndGroupsState extends Equatable {
     groups,
     noMoreStudents,
     noMoreGroups,
+    groupMembers,
     searchQuery,
     filterGroupId,
   ];
