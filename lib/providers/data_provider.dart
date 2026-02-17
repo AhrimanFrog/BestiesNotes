@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/db_models/db_lesson_details.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/db_client.dart';
 
 abstract class DataProvider {
@@ -23,4 +24,6 @@ abstract class DataProvider {
   Future<List<DbStudent>> getGroupMembers(int groupId);
 
   Future<void> syncGroupMemberships(int groupId, List<int> studentIds);
+
+  Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects);
 }

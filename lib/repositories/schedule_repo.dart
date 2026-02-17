@@ -24,7 +24,7 @@ class ScheduleRepo {
 
   Future<int> createOrUpdateLesson(Lesson lesson) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    return dataProvider.createOrUpdateLesson(
+    final lessonId = await dataProvider.createOrUpdateLesson(
       .insert(
         id: lesson.id != null ? Value(lesson.id!) : .absent(),
         topic: lesson.name,
@@ -35,6 +35,8 @@ class ScheduleRepo {
         updatedAt: now
       )
     );
+    await dataProvider.syncLessonMembership(lessonId, lesson.subjects);
+    return lessonId;
   }
 
   Future<void> cancelLesson(int lessonId) async {

@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/common.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
@@ -137,6 +138,63 @@ class DbClient extends _$DbClient implements DataProvider {
             studentId: studentId,
           ),
         );
+      }
+    });
+  }
+
+  Future<void> _removeLessonParticipants(
+    int lessonId,
+    Set<int> toRemove,
+  ) async {
+    await (delete(dbLessonParticipants)..where(
+          (p) => p.lessonId.equals(lessonId) & p.studentId.isIn(toRemove),
+        ))
+        .go();
+  }
+
+  @override
+  Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects) {
+    return transaction(() async {
+      // Expand groups into individual students, tracking group origin
+      final Map<int, int?> desiredStudents = {}; // studentId -> groupId?
+      for (final subject in subjects) {
+        if (subject is Student && subject.id != null) {
+          desiredStudents[subject.id!] = null;
+        } else if (subject is Group && subject.id != null) {
+          final members = await getGroupMembers(subject.id!);
+          for (final member in members) {
+            desiredStudents[member.id] = subject.id;
+          }
+        }
+      }
+
+      final existing =
+          await (select(dbLessonParticipants)
+                ..where((p) => p.lessonId.equals(lessonId)))
+              .map((p) => p.studentId)
+              .get();
+      final existingIds = existing.toSet();
+      final desiredIds = desiredStudents.keys.toSet();
+
+      final toRemove = existingIds.difference(desiredIds);
+      if (toRemove.isNotEmpty) {
+        await _removeLessonParticipants(lessonId, toRemove);
+      }
+
+      final toAdd = desiredIds.difference(existingIds);
+      if (toAdd.isNotEmpty) {
+        await batch((batch) {
+          batch.insertAll(dbLessonParticipants, [
+            for (final studentId in toAdd)
+              DbLessonParticipantsCompanion.insert(
+                lessonId: lessonId,
+                studentId: studentId,
+                isPaid: false,
+                attended: false,
+                groupId: Value(desiredStudents[studentId]),
+              ),
+          ]);
+        });
       }
     });
   }
