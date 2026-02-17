@@ -199,6 +199,16 @@ class DbClient extends _$DbClient implements DataProvider {
     });
   }
 
+  @override
+  Future<void> updateLessonStatus(int lessonId, LessonStatus status) async {
+    (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
+      DbLessonsCompanion(
+        status: Value(status),
+        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
   JoinedSelectStatement _lessonsQuery() {
     return (select(dbLessons)).join([
       leftOuterJoin(
