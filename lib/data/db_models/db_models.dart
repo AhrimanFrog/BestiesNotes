@@ -51,8 +51,10 @@ class DbLessons extends Table {
 
 class DbLessonParticipants extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get lessonId => integer().references(DbLessons, #id)();
-  IntColumn get studentId => integer().references(DbStudents, #id)();
+  IntColumn get lessonId =>
+      integer().references(DbLessons, #id, onDelete: KeyAction.cascade)();
+  IntColumn get studentId =>
+      integer().references(DbStudents, #id, onDelete: KeyAction.cascade)();
   BoolColumn get isPaid => boolean()();
   BoolColumn get attended => boolean()();
   IntColumn get groupId => integer().references(DbGroups, #id).nullable()();

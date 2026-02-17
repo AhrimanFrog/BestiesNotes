@@ -1913,7 +1913,7 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_lessons (id)',
+      'REFERENCES db_lessons (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _studentIdMeta = const VerificationMeta(
@@ -1927,7 +1927,7 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_students (id)',
+      'REFERENCES db_students (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _isPaidMeta = const VerificationMeta('isPaid');
@@ -2340,6 +2340,20 @@ abstract class _$DbClient extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('group_memberships', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'db_lessons',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('db_lesson_participants', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'db_students',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('db_lesson_participants', kind: UpdateKind.delete)],
     ),
   ]);
 }

@@ -1,4 +1,3 @@
-// import 'schedule_view_model.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/lesson_form.dart';

@@ -9,7 +9,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   StudentsAndGroupsCubit(this._scheduleRepo) : super(StudentsAndGroupsState());
 
-  Future<void> fetchStudents({int offset = 0, limit = 100}) async {
+  Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
     if (state.noMoreStudents) return;
     final students = await _scheduleRepo.getStudents(
       offset: offset,
