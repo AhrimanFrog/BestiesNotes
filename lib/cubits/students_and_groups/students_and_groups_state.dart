@@ -5,6 +5,7 @@ class StudentsAndGroupsState extends Equatable {
   final List<Group> groups;
   final bool noMoreStudents;
   final bool noMoreGroups;
+  final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
 
@@ -13,6 +14,7 @@ class StudentsAndGroupsState extends Equatable {
     this.groups = const [],
     this.noMoreStudents = false,
     this.noMoreGroups = false,
+    this.groupMembers = const {},
     this.searchQuery = '',
     this.filterGroupId,
   });
@@ -51,6 +53,7 @@ class StudentsAndGroupsState extends Equatable {
     List<Group>? groups,
     bool? noMoreStudents,
     bool? noMoreGroups,
+    Set<Student>? groupMembers,
     String? searchQuery,
     int? Function()? filterGroupId,
   }) {
@@ -60,6 +63,7 @@ class StudentsAndGroupsState extends Equatable {
       noMoreStudents: noMoreStudents ?? this.noMoreStudents,
       noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
+      groupMembers: groupMembers ?? this.groupMembers,
       filterGroupId: filterGroupId != null
           ? filterGroupId()
           : this.filterGroupId,

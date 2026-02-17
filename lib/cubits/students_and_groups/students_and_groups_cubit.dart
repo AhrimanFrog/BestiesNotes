@@ -89,8 +89,8 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     emit(state.copyWith(groups: updatedGroups));
   }
 
-  Future<Set<Student>> fetchGroupMembers(int groupId) {
-    return _scheduleRepo.getGroupMembers(groupId);
+  Future<void> fetchGroupMembers(int groupId) async {
+    emit(state.copyWith(groupMembers: await _scheduleRepo.getGroupMembers(groupId)));
   }
 
   void setSearchQuery(String query) {

@@ -53,8 +53,8 @@ class _GroupFormState extends State<GroupForm> {
     setState(() => _isLoadingMembers = true);
     try {
       final cubit = context.read<StudentsAndGroupsCubit>();
-      final members = await cubit.fetchGroupMembers(group!.id!);
-      if (mounted) setState(() => _selectedStudents = members);
+      await cubit.fetchGroupMembers(group!.id!);
+      if (mounted) setState(() => _selectedStudents = cubit.state.groupMembers);
     } finally {
       if (mounted) setState(() => _isLoadingMembers = false);
     }
