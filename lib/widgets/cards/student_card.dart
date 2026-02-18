@@ -89,7 +89,9 @@ class StudentCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 4, right: 4, child: DeleteItemIcon(onDelete: onDelete,)
+            top: 4,
+            right: 4,
+            child: DeleteItemIcon(onDelete: onDelete),
           ),
         ],
       ),

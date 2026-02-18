@@ -123,7 +123,8 @@ class _StudentFormState extends State<StudentForm> {
                       RatePeriodField(
                         rateController: _rateController,
                         selectedPeriod: _selectedPeriod,
-                        onPeriodChanged: (val) => setState(() => _selectedPeriod = val),
+                        onPeriodChanged: (val) =>
+                            setState(() => _selectedPeriod = val),
                       ),
                       InputField(
                         _noteController,

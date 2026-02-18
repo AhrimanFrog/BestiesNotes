@@ -1,9 +1,5 @@
-import 'package:besties_notes/extensions/db_group_ext.dart';
-import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
-import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:drift/drift.dart';
 
 class ScheduleRepo {
   late final DataProvider dataProvider;
@@ -13,27 +9,15 @@ class ScheduleRepo {
   // ---------------- LESSONS CRUD -----------------
 
   Future<List<Lesson>> getLessonsForAWeek() async {
-    final dbLessons = await dataProvider.getLessonsForWeek();
-    return dbLessons.map((details) => details.toDomain()).toList();
+    return await dataProvider.getLessonsForWeek();
   }
 
   Future<Lesson> getLesson({required int lessonId}) async {
-    return (await dataProvider.getLesson(lessonId)).toDomain();
+    return await dataProvider.getLesson(lessonId);
   }
 
   Future<int> createOrUpdateLesson(Lesson lesson) async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final lessonId = await dataProvider.createOrUpdateLesson(
-      .insert(
-        id: lesson.id != null ? Value(lesson.id!) : .absent(),
-        topic: lesson.name,
-        start: lesson.start,
-        durationInMinutes: lesson.duration.inMinutes,
-        status: lesson.status,
-        createdAt: now,
-        updatedAt: now
-      )
-    );
+    final lessonId = await dataProvider.createOrUpdateLesson(lesson);
     await dataProvider.syncLessonMembership(lessonId, lesson.subjects);
     return lessonId;
   }
@@ -45,18 +29,7 @@ class ScheduleRepo {
   // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) {
-    return dataProvider.createOrUpdateStudent(
-      .insert(
-        id: student.id != null ? Value(student.id!) : .absent(),
-        name: student.name,
-        contact: student.contact,
-        payRate: student.pricing.rate,
-        period: student.pricing.period,
-        notes: student.note,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch
-      )
-     );
+    return dataProvider.createOrUpdateStudent(student);
   }
 
   Future<void> deleteStudent(int studentId) {
@@ -65,30 +38,21 @@ class ScheduleRepo {
 
   Future<List<Student>> getStudents({int offset = 0, limit = 100}) async {
     final dbStudents = await dataProvider.getStudents(
-      offset: offset, limit: limit
+      offset: offset,
+      limit: limit,
     );
-    return dbStudents.map((s) => s.toDomain()).toList();
+    return dbStudents.toList();
   }
 
   Future<List<Group>> getGroups({int offset = 0, limit = 100}) async {
     final dbGroups = await dataProvider.getGroups(offset: offset, limit: limit);
-    return dbGroups.map((g) => g.toDomain()).toList();
+    return dbGroups.toList();
   }
 
   // ---------------- GROUPS CRUD -----------------
 
   Future<int> createOrUpdateGroup(Group group) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return dataProvider.createOrUpdateGroup(
-      .insert(
-        id: group.id != null ? Value(group.id!) : .absent(),
-        name: group.name,
-        payRate: group.pricing.rate,
-        period: group.pricing.period,
-        createdAt: now,
-        updatedAt: now,
-      ),
-    );
+    return dataProvider.createOrUpdateGroup(group);
   }
 
   Future<void> deleteGroup(int groupId) {
@@ -101,6 +65,6 @@ class ScheduleRepo {
 
   Future<Set<Student>> getGroupMembers(int groupId) async {
     final dbStudents = await dataProvider.getGroupMembers(groupId);
-    return dbStudents.map((s) => s.toDomain()).toSet();
+    return dbStudents.toSet();
   }
 }

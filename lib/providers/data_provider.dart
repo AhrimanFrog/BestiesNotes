@@ -1,28 +1,26 @@
 import 'package:besties_notes/data/common.dart';
-import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/providers/db_client.dart';
 
 abstract class DataProvider {
-  Future<List<DbLessonDetails>> getLessonsForWeek();
+  Future<List<Lesson>> getLessonsForWeek();
 
-  Future<DbLessonDetails> getLesson(int lessonId);
+  Future<Lesson> getLesson(int lessonId);
 
-  Future<int> createOrUpdateLesson(DbLessonsCompanion lesson);
+  Future<int> createOrUpdateLesson(Lesson lesson);
 
-  Future<int> createOrUpdateStudent(DbStudentsCompanion student);
+  Future<int> createOrUpdateStudent(Student student);
 
   Future<void> deleteStudent(int studentId);
 
-  Future<List<DbStudent>> getStudents({int offset = 0, int limit = 100});
+  Future<List<Student>> getStudents({int offset = 0, int limit = 100});
 
-  Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100});
+  Future<List<Group>> getGroups({int offset = 0, int limit = 100});
 
-  Future<int> createOrUpdateGroup(DbGroupsCompanion group);
+  Future<int> createOrUpdateGroup(Group group);
 
   Future<void> deleteGroup(int groupId);
 
-  Future<List<DbStudent>> getGroupMembers(int groupId);
+  Future<List<Student>> getGroupMembers(int groupId);
 
   Future<void> syncGroupMemberships(int groupId, List<int> studentIds);
 

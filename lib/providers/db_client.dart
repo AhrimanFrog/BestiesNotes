@@ -1,5 +1,8 @@
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/db_group_ext.dart';
+import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
+import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
@@ -28,7 +31,7 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<DbLessonDetails>> getLessonsForWeek() async {
+  Future<List<Lesson>> getLessonsForWeek() async {
     final now = DateTime.now();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
@@ -56,11 +59,11 @@ class DbClient extends _$DbClient implements DataProvider {
       if (student != null) details.students[student.id] = student;
       if (group != null) details.groups[group.id] = group;
     }
-    return lessonDetails.values.toList();
+    return lessonDetails.values.map((d) => d.toDomain()).toList();
   }
 
   @override
-  Future<DbLessonDetails> getLesson(int lessonId) async {
+  Future<Lesson> getLesson(int lessonId) async {
     final query = _lessonsQuery()..where(dbLessons.id.equals(lessonId));
     final rows = await query.get();
     if (rows.isEmpty) throw Exception("Lesson not Found!");
@@ -73,17 +76,39 @@ class DbClient extends _$DbClient implements DataProvider {
       if (group != null) details.groups[group.id] = group;
     }
 
-    return details;
+    return details.toDomain();
   }
 
   @override
-  Future<int> createOrUpdateLesson(DbLessonsCompanion lesson) {
-    return into(dbLessons).insertOnConflictUpdate(lesson);
+  Future<int> createOrUpdateLesson(Lesson lesson) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return into(dbLessons).insertOnConflictUpdate(
+      DbLessonsCompanion.insert(
+        id: lesson.id != null ? Value(lesson.id!) : .absent(),
+        topic: lesson.name,
+        start: lesson.start,
+        durationInMinutes: lesson.duration.inMinutes,
+        status: lesson.status,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
   }
 
   @override
-  Future<int> createOrUpdateStudent(DbStudentsCompanion student) {
-    return into(dbStudents).insertOnConflictUpdate(student);
+  Future<int> createOrUpdateStudent(Student student) {
+    return into(dbStudents).insertOnConflictUpdate(
+      DbStudentsCompanion.insert(
+        id: student.id != null ? Value(student.id!) : .absent(),
+        name: student.name,
+        contact: student.contact,
+        payRate: student.pricing.rate,
+        period: student.pricing.period,
+        notes: student.note,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 
   @override
@@ -92,18 +117,32 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<DbStudent>> getStudents({int offset = 0, int limit = 100}) {
-    return (select(dbStudents)..limit(limit, offset: offset)).get();
+  Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
+    return (await (select(
+      dbStudents,
+    )..limit(limit, offset: offset)).get()).map((s) => s.toDomain()).toList();
   }
 
   @override
-  Future<List<DbGroup>> getGroups({int offset = 0, int limit = 100}) {
-    return (select(dbGroups)..limit(limit, offset: offset)).get();
+  Future<List<Group>> getGroups({int offset = 0, int limit = 100}) async {
+    return (await (select(
+      dbGroups,
+    )..limit(limit, offset: offset)).get()).map((g) => g.toDomain()).toList();
   }
 
   @override
-  Future<int> createOrUpdateGroup(DbGroupsCompanion group) {
-    return into(dbGroups).insertOnConflictUpdate(group);
+  Future<int> createOrUpdateGroup(Group group) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return into(dbGroups).insertOnConflictUpdate(
+      DbGroupsCompanion.insert(
+        id: group.id != null ? Value(group.id!) : .absent(),
+        name: group.name,
+        payRate: group.pricing.rate,
+        period: group.pricing.period,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
   }
 
   @override
@@ -112,7 +151,7 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<DbStudent>> getGroupMembers(int groupId) async {
+  Future<List<Student>> getGroupMembers(int groupId) async {
     final query = select(groupMemberships).join([
       innerJoin(
         dbStudents,
@@ -121,7 +160,7 @@ class DbClient extends _$DbClient implements DataProvider {
     ])..where(groupMemberships.groupId.equals(groupId));
 
     final rows = await query.get();
-    return rows.map((row) => row.readTable(dbStudents)).toList();
+    return rows.map((row) => row.readTable(dbStudents).toDomain()).toList();
   }
 
   @override
@@ -163,7 +202,7 @@ class DbClient extends _$DbClient implements DataProvider {
         } else if (subject is Group && subject.id != null) {
           final members = await getGroupMembers(subject.id!);
           for (final member in members) {
-            desiredStudents[member.id] = subject.id;
+            desiredStudents[member.id!] = subject.id;
           }
         }
       }

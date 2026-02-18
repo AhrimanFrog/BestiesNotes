@@ -28,8 +28,8 @@ class Student extends Teachable {
   }) {
     return Student(
       id: id ?? this.id,
-      name: name ?? this.name, 
-      pricing: pricing ?? this.pricing, 
+      name: name ?? this.name,
+      pricing: pricing ?? this.pricing,
       contact: contact ?? this.contact,
       iconPath: iconPath ?? this.iconPath,
       group: group ?? this.group,
@@ -38,12 +38,12 @@ class Student extends Teachable {
   }
 
   const Student.demo()
-      : group = null,
-        contact = "+380951112233",
-        note = "",
-        super(
-          name: "Denis Skvorzov",
-          pricing: const Rate(rate: 420, period: .daily),
-          iconPath: null,
-        );
+    : group = null,
+      contact = "+380951112233",
+      note = "",
+      super(
+        name: "Denis Skvorzov",
+        pricing: const Rate(rate: 420, period: .daily),
+        iconPath: null,
+      );
 }
