@@ -8,13 +8,10 @@ class ScheduleRepo {
 
   // ---------------- LESSONS CRUD -----------------
 
-  Future<List<Lesson>> getLessonsForAWeek() async {
-    return await dataProvider.getLessonsForWeek();
-  }
+  Future<List<Lesson>> getLessonsForAWeek() => dataProvider.getLessonsForWeek();
 
-  Future<Lesson> getLesson({required int lessonId}) async {
-    return await dataProvider.getLesson(lessonId);
-  }
+  Future<Lesson> getLesson({required int lessonId}) =>
+      dataProvider.getLesson(lessonId);
 
   Future<int> createOrUpdateLesson(Lesson lesson) async {
     final lessonId = await dataProvider.createOrUpdateLesson(lesson);
@@ -22,46 +19,32 @@ class ScheduleRepo {
     return lessonId;
   }
 
-  Future<void> cancelLesson(int lessonId) async {
-    await dataProvider.updateLessonStatus(lessonId, .cancelled);
-  }
+  Future<void> cancelLesson(int lessonId) =>
+      dataProvider.updateLessonStatus(lessonId, .cancelled);
 
   // ---------------- STUDENTS CRUD ----------------
 
-  Future<int> createOrUpdateStudent(Student student) {
-    return dataProvider.createOrUpdateStudent(student);
-  }
+  Future<int> createOrUpdateStudent(Student student) =>
+      dataProvider.createOrUpdateStudent(student);
 
-  Future<void> deleteStudent(int studentId) {
-    return dataProvider.deleteStudent(studentId);
-  }
+  Future<void> deleteStudent(int studentId) =>
+      dataProvider.deleteStudent(studentId);
 
-  Future<List<Student>> getStudents({int offset = 0, limit = 100}) async {
-    final dbStudents = await dataProvider.getStudents(
-      offset: offset,
-      limit: limit,
-    );
-    return dbStudents.toList();
-  }
+  Future<List<Student>> getStudents({int offset = 0, int limit = 100}) =>
+      dataProvider.getStudents(offset: offset, limit: limit);
 
-  Future<List<Group>> getGroups({int offset = 0, limit = 100}) async {
-    final dbGroups = await dataProvider.getGroups(offset: offset, limit: limit);
-    return dbGroups.toList();
-  }
+  Future<List<Group>> getGroups({int offset = 0, int limit = 100}) =>
+      dataProvider.getGroups(offset: offset, limit: limit);
 
   // ---------------- GROUPS CRUD -----------------
 
-  Future<int> createOrUpdateGroup(Group group) {
-    return dataProvider.createOrUpdateGroup(group);
-  }
+  Future<int> createOrUpdateGroup(Group group) =>
+      dataProvider.createOrUpdateGroup(group);
 
-  Future<void> deleteGroup(int groupId) {
-    return dataProvider.deleteGroup(groupId);
-  }
+  Future<void> deleteGroup(int groupId) => dataProvider.deleteGroup(groupId);
 
-  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) {
-    return dataProvider.syncGroupMemberships(groupId, studentIds);
-  }
+  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) =>
+      dataProvider.syncGroupMemberships(groupId, studentIds);
 
   Future<Set<Student>> getGroupMembers(int groupId) async {
     final dbStudents = await dataProvider.getGroupMembers(groupId);

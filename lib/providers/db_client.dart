@@ -82,31 +82,46 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   Future<int> createOrUpdateLesson(Lesson lesson) {
     final now = DateTime.now().millisecondsSinceEpoch;
-    return into(dbLessons).insertOnConflictUpdate(
-      DbLessonsCompanion.insert(
-        id: lesson.id != null ? Value(lesson.id!) : .absent(),
-        topic: lesson.name,
-        start: lesson.start,
-        durationInMinutes: lesson.duration.inMinutes,
-        status: lesson.status,
-        createdAt: now,
-        updatedAt: now,
+    final companion = DbLessonsCompanion.insert(
+      id: lesson.id != null ? Value(lesson.id!) : .absent(),
+      topic: lesson.name,
+      start: lesson.start,
+      durationInMinutes: lesson.duration.inMinutes,
+      status: lesson.status,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return into(dbLessons).insert(
+      companion,
+      onConflict: DoUpdate(
+        (_) => companion.copyWith(
+          createdAt: const Value.absent(),
+          updatedAt: Value(now),
+        ),
       ),
     );
   }
 
   @override
   Future<int> createOrUpdateStudent(Student student) {
-    return into(dbStudents).insertOnConflictUpdate(
-      DbStudentsCompanion.insert(
-        id: student.id != null ? Value(student.id!) : .absent(),
-        name: student.name,
-        contact: student.contact,
-        payRate: student.pricing.rate,
-        period: student.pricing.period,
-        notes: student.note,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final companion = DbStudentsCompanion.insert(
+      id: student.id != null ? Value(student.id!) : .absent(),
+      name: student.name,
+      contact: student.contact,
+      payRate: student.pricing.rate,
+      period: student.pricing.period,
+      notes: student.note,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return into(dbStudents).insert(
+      companion,
+      onConflict: DoUpdate(
+        (_) => companion.copyWith(
+          createdAt: const Value.absent(),
+          updatedAt: Value(now),
+        ),
       ),
     );
   }
@@ -240,7 +255,7 @@ class DbClient extends _$DbClient implements DataProvider {
 
   @override
   Future<void> updateLessonStatus(int lessonId, LessonStatus status) async {
-    (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
+    await (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
       DbLessonsCompanion(
         status: Value(status),
         updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
