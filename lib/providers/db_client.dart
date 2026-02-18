@@ -31,17 +31,9 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<Lesson>> getLessonsForWeek() async {
-    final now = DateTime.now();
-    final startOfToday = DateTime(now.year, now.month, now.day);
-
+  Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
     final queryRes = _lessonsQuery()
-      ..where(
-        dbLessons.start.isBetweenValues(
-          startOfToday,
-          startOfToday.add(Duration(days: 7)),
-        ),
-      )
+      ..where(dbLessons.start.isBetweenValues(from, to))
       ..orderBy([OrderingTerm.asc(dbLessons.start)]);
 
     final Map<int, DbLessonDetails> lessonDetails = {};

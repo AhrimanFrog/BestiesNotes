@@ -2,12 +2,24 @@ part of 'lessons_cubit.dart';
 
 class LessonsState extends Equatable {
   final List<Lesson> lessons;
-  final bool noMoreLessons;
+  final DateTime dateFrom;
+  final DateTime dateTo;
 
-  const LessonsState({this.lessons = const [], this.noMoreLessons = false});
+  LessonsState({this.lessons = const [], DateTime? dateFrom, DateTime? dateTo})
+    : dateFrom = dateFrom ?? defaultDateFrom(),
+      dateTo = dateTo ?? defaultDateTo();
+
+  static DateTime defaultDateFrom() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  static DateTime defaultDateTo() {
+    return defaultDateFrom().add(const Duration(days: 7));
+  }
 
   @override
-  List<Object?> get props => [lessons, noMoreLessons];
+  List<Object?> get props => [lessons, dateFrom, dateTo];
 
   Map<DateTime, List<Lesson>> getLessonsByDate() {
     Map<DateTime, List<Lesson>> lessonsMap = {};
@@ -19,10 +31,15 @@ class LessonsState extends Equatable {
     return lessonsMap;
   }
 
-  LessonsState copyWith({List<Lesson>? lessons, bool? noMoreLessons}) {
+  LessonsState copyWith({
+    List<Lesson>? lessons,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) {
     return LessonsState(
       lessons: lessons ?? this.lessons,
-      noMoreLessons: noMoreLessons ?? this.noMoreLessons,
+      dateFrom: dateFrom ?? this.dateFrom,
+      dateTo: dateTo ?? this.dateTo,
     );
   }
 }

@@ -8,7 +8,8 @@ class ScheduleRepo {
 
   // ---------------- LESSONS CRUD -----------------
 
-  Future<List<Lesson>> getLessonsForAWeek() => dataProvider.getLessonsForWeek();
+  Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) =>
+      dataProvider.getLessonsForRange(from, to);
 
   Future<Lesson> getLesson({required int lessonId}) =>
       dataProvider.getLesson(lessonId);

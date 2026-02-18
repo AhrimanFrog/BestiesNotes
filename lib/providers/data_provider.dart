@@ -2,7 +2,7 @@ import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 
 abstract class DataProvider {
-  Future<List<Lesson>> getLessonsForWeek();
+  Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to);
 
   Future<Lesson> getLesson(int lessonId);
 

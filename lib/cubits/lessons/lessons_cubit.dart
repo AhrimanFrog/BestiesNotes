@@ -1,5 +1,5 @@
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/data/ui_models/lesson.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'lessons_state.dart';
@@ -9,37 +9,35 @@ class LessonsCubit extends Cubit<LessonsState> {
 
   LessonsCubit(this._scheduleRepo) : super(LessonsState());
 
-  Future<void> fetchLessons() async {
-    if (state.noMoreLessons) return;
-    final lessons = await _scheduleRepo.getLessonsForAWeek();
-    if (lessons.isEmpty) return emit(state.copyWith(noMoreLessons: true));
-
-    emit(state.copyWith(lessons: lessons));
+  Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
+    final dateFrom = from ?? state.dateFrom;
+    final dateTo = to ?? state.dateTo;
+    final lessons = await _scheduleRepo.getLessonsForRange(dateFrom, dateTo);
+    emit(state.copyWith(lessons: lessons, dateFrom: dateFrom, dateTo: dateTo));
   }
 
+  Future<void> goToPreviousWeek() => fetchLessons(
+    from: state.dateFrom.subtract(const Duration(days: 7)),
+    to: state.dateTo.subtract(const Duration(days: 7)),
+  );
+
+  Future<void> goToNextWeek() => fetchLessons(
+    from: state.dateFrom.add(const Duration(days: 7)),
+    to: state.dateTo.add(const Duration(days: 7)),
+  );
+
+  Future<void> goToCurrentWeek() => fetchLessons(
+    from: LessonsState.defaultDateFrom(),
+    to: LessonsState.defaultDateTo(),
+  );
+
   Future<void> createOrUpdateLesson(Lesson lesson) async {
-    final id = await _scheduleRepo.createOrUpdateLesson(lesson);
-    final lessonExists = lesson.id != null;
-    final lessonWithId = lesson.copyWith(id: id);
-
-    if (lessonExists) {
-      final lessonIndex = state.lessons.indexWhere((s) => s.id == lesson.id);
-      final stateLessons = [...state.lessons];
-      stateLessons[lessonIndex] = lessonWithId;
-      return emit(state.copyWith(lessons: stateLessons));
-    }
-
-    emit(state.copyWith(lessons: [...state.lessons, lessonWithId]));
+    await _scheduleRepo.createOrUpdateLesson(lesson);
+    await fetchLessons();
   }
 
   Future<void> cancelLesson(int lessonId) async {
     await _scheduleRepo.cancelLesson(lessonId);
-    final lessonIndex = state.lessons.indexWhere((s) => s.id == lessonId);
-    if (lessonIndex == -1) return;
-
-    final stateLessons = [...state.lessons];
-    final lesson = stateLessons[lessonIndex];
-    stateLessons[lessonIndex] = lesson.copyWith(status: .cancelled);
-    emit(state.copyWith(lessons: stateLessons));
+    await fetchLessons();
   }
 }
