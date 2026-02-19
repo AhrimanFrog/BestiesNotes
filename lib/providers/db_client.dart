@@ -42,6 +42,7 @@ class DbClient extends _$DbClient implements DataProvider {
       final lesson = row.readTable(dbLessons);
       final student = row.readTableOrNull(dbStudents);
       final group = row.readTableOrNull(dbGroups);
+      final participant = row.readTableOrNull(dbLessonParticipants);
 
       final details = lessonDetails.putIfAbsent(
         lesson.id,
@@ -50,6 +51,9 @@ class DbClient extends _$DbClient implements DataProvider {
 
       if (student != null) details.students[student.id] = student;
       if (group != null) details.groups[group.id] = group;
+      if (participant != null) {
+        details.participantStatus[participant.studentId] = participant;
+      }
     }
     return lessonDetails.values.map((d) => d.toDomain()).toList();
   }
@@ -64,8 +68,12 @@ class DbClient extends _$DbClient implements DataProvider {
     for (final row in rows) {
       final student = row.readTableOrNull(dbStudents);
       final group = row.readTableOrNull(dbGroups);
+      final participant = row.readTableOrNull(dbLessonParticipants);
       if (student != null) details.students[student.id] = student;
       if (group != null) details.groups[group.id] = group;
+      if (participant != null) {
+        details.participantStatus[participant.studentId] = participant;
+      }
     }
 
     return details.toDomain();

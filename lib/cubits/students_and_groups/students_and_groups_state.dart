@@ -32,7 +32,7 @@ class StudentsAndGroupsState extends Equatable {
           .toList();
     }
     if (filterGroupId != null) {
-      result = result.where((s) => s.group?.id == filterGroupId).toList();
+      return result.where((s) => s.group?.id == filterGroupId).toList();
     }
     return result;
   }
