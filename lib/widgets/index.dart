@@ -16,3 +16,4 @@ export 'input_field.dart';
 export 'rate_period_field.dart';
 export 'teachable_selection_dialog.dart';
 export 'delete_item_icon.dart';
+export 'week_navigation_bar.dart';
