@@ -1,9 +1,11 @@
 import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/widgets/initials_circle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LessonCard extends StatefulWidget {
   final Lesson lesson;
@@ -18,9 +20,13 @@ class LessonCard extends StatefulWidget {
 class _LessonCardState extends State<LessonCard> {
   bool _expanded = false;
 
-  Lesson get lesson => widget.lesson;
+  // Pull the latest lesson from cubit state so optimistic updates are reflected
+  Lesson _currentLesson(LessonsState state) => state.lessons.firstWhere(
+    (l) => l.id == widget.lesson.id,
+    orElse: () => widget.lesson,
+  );
 
-  Color get cardMainColor {
+  Color _cardMainColor(Lesson lesson) {
     switch (lesson.status) {
       case LessonStatus.cancelled:
         return AppColors.softGrey;
@@ -31,7 +37,7 @@ class _LessonCardState extends State<LessonCard> {
     }
   }
 
-  Color get cardAccentColor {
+  Color _cardAccentColor(Lesson lesson) {
     switch (lesson.status) {
       case LessonStatus.cancelled:
         return AppColors.accentGrey;
@@ -42,7 +48,7 @@ class _LessonCardState extends State<LessonCard> {
     }
   }
 
-  String get statusLabel {
+  String _statusLabel(Lesson lesson) {
     switch (lesson.status) {
       case LessonStatus.cancelled:
         return 'Cancelled';
@@ -55,44 +61,55 @@ class _LessonCardState extends State<LessonCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isCancelled = lesson.isCancelled;
-    final opacity = isCancelled ? 0.55 : 1.0;
+    return BlocBuilder<LessonsCubit, LessonsState>(
+      builder: (context, state) {
+        final lesson = _currentLesson(state);
+        final isCancelled = lesson.isCancelled;
+        final opacity = isCancelled ? 0.55 : 1.0;
+        final accentColor = _cardAccentColor(lesson);
 
-    return Opacity(
-      opacity: opacity,
-      child: GestureDetector(
-        onTap: () => setState(() => _expanded = !_expanded),
-        child: Container(
-          decoration: BoxDecoration(
-            color: cardMainColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: isCancelled ? 0.2 : 0.5),
-                spreadRadius: isCancelled ? 2 : 5,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
+        return Opacity(
+          opacity: opacity,
+          child: Container(
+            decoration: BoxDecoration(
+              color: _cardMainColor(lesson),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: isCancelled ? 0.2 : 0.5),
+                  spreadRadius: isCancelled ? 2 : 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _expanded = !_expanded),
+                  child: _buildHeader(lesson, accentColor, isCancelled),
+                ),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  child: _expanded
+                      ? _buildParticipantList(
+                          context,
+                          lesson,
+                          accentColor,
+                          isCancelled,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            children: [
-              _buildHeader(isCancelled),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOut,
-                child: _expanded
-                    ? _buildParticipantList(isCancelled)
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(bool isCancelled) {
+  Widget _buildHeader(Lesson lesson, Color accentColor, bool isCancelled) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
@@ -106,19 +123,17 @@ class _LessonCardState extends State<LessonCard> {
                 lesson.start.toHoursAndMinsFormat(),
                 style: TextStyle(
                   fontSize: 14,
-                  color: cardAccentColor,
+                  color: accentColor,
                   fontWeight: FontWeight.bold,
-                  decoration:
-                      isCancelled ? TextDecoration.lineThrough : null,
+                  decoration: isCancelled ? TextDecoration.lineThrough : null,
                 ),
               ),
               Text(
                 lesson.end.toHoursAndMinsFormat(),
                 style: TextStyle(
                   fontSize: 13,
-                  color: cardAccentColor.withValues(alpha: 0.8),
-                  decoration:
-                      isCancelled ? TextDecoration.lineThrough : null,
+                  color: accentColor.withValues(alpha: 0.8),
+                  decoration: isCancelled ? TextDecoration.lineThrough : null,
                 ),
               ),
             ],
@@ -132,7 +147,7 @@ class _LessonCardState extends State<LessonCard> {
               children: [
                 InitialsCircle(
                   initials: lesson.subjects.first.initials,
-                  circleColor: cardAccentColor,
+                  circleColor: accentColor,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -147,8 +162,9 @@ class _LessonCardState extends State<LessonCard> {
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                           color: AppColors.mainText,
-                          decoration:
-                              isCancelled ? TextDecoration.lineThrough : null,
+                          decoration: isCancelled
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                       Text(
@@ -156,8 +172,9 @@ class _LessonCardState extends State<LessonCard> {
                         style: TextStyle(
                           color: AppColors.secondaryText,
                           fontSize: 13,
-                          decoration:
-                              isCancelled ? TextDecoration.lineThrough : null,
+                          decoration: isCancelled
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                     ],
@@ -171,15 +188,15 @@ class _LessonCardState extends State<LessonCard> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: cardAccentColor.withValues(alpha: 0.15),
+              color: accentColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              statusLabel,
+              _statusLabel(lesson),
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: cardAccentColor,
+                color: accentColor,
               ),
             ),
           ),
@@ -188,13 +205,18 @@ class _LessonCardState extends State<LessonCard> {
     );
   }
 
-  Widget _buildParticipantList(bool isCancelled) {
+  Widget _buildParticipantList(
+    BuildContext context,
+    Lesson lesson,
+    Color accentColor,
+    bool isCancelled,
+  ) {
     return Column(
       children: [
         Divider(
           height: 1,
           thickness: 1,
-          color: cardAccentColor.withValues(alpha: 0.2),
+          color: accentColor.withValues(alpha: 0.2),
           indent: 14,
           endIndent: 14,
         ),
@@ -215,13 +237,19 @@ class _LessonCardState extends State<LessonCard> {
                 )
               else
                 for (final p in lesson.participants)
-                  _buildParticipantRow(p, isCancelled),
+                  _buildParticipantRow(
+                    context,
+                    lesson,
+                    p,
+                    accentColor,
+                    isCancelled,
+                  ),
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
                   onPressed: widget.onClick,
                   icon: const Icon(Icons.edit_outlined, size: 18),
-                  color: cardAccentColor,
+                  color: accentColor,
                   padding: const EdgeInsets.all(4),
                   constraints: const BoxConstraints(),
                   tooltip: 'Edit lesson',
@@ -234,14 +262,20 @@ class _LessonCardState extends State<LessonCard> {
     );
   }
 
-  Widget _buildParticipantRow(LessonParticipant p, bool isCancelled) {
+  Widget _buildParticipantRow(
+    BuildContext context,
+    Lesson lesson,
+    LessonParticipant p,
+    Color accentColor,
+    bool isCancelled,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
           InitialsCircle(
             initials: p.student.initials,
-            circleColor: cardAccentColor,
+            circleColor: accentColor,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -263,12 +297,28 @@ class _LessonCardState extends State<LessonCard> {
                 activeColor: AppColors.accentGreen,
                 icon: Icons.payments_outlined,
                 label: 'Paid',
+                onTap: isCancelled
+                    ? null
+                    : () =>
+                          context.read<LessonsCubit>().updateParticipantStatus(
+                            lesson.id!,
+                            p.student.id!,
+                            isPaid: !p.isPaid,
+                          ),
               ),
               _glowDot(
                 active: p.attended,
-                activeColor: cardAccentColor,
+                activeColor: accentColor,
                 icon: Icons.check_circle_outline,
                 label: 'Here',
+                onTap: isCancelled
+                    ? null
+                    : () =>
+                          context.read<LessonsCubit>().updateParticipantStatus(
+                            lesson.id!,
+                            p.student.id!,
+                            attended: !p.attended,
+                          ),
               ),
             ],
           ),
@@ -282,40 +332,44 @@ class _LessonCardState extends State<LessonCard> {
     required Color activeColor,
     required IconData icon,
     required String label,
+    VoidCallback? onTap,
   }) {
     final color = active
         ? activeColor
         : AppColors.accentGrey.withValues(alpha: 0.4);
-    return Column(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: active ? 0.15 : 0.08),
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.55),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: active ? 0.15 : 0.08),
+              boxShadow: active
+                  ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.55),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(icon, size: 16, color: color),
           ),
-          child: Icon(icon, size: 16, color: color),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            color: active ? color : AppColors.secondaryText,
-            fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 9,
+              color: active ? color : AppColors.secondaryText,
+              fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

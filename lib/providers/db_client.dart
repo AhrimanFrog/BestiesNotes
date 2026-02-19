@@ -263,6 +263,24 @@ class DbClient extends _$DbClient implements DataProvider {
     );
   }
 
+  @override
+  Future<void> updateParticipantStatus(
+    int lessonId,
+    int studentId, {
+    bool? attended,
+    bool? isPaid,
+  }) async {
+    await (update(dbLessonParticipants)..where(
+          (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
+        ))
+        .write(
+          DbLessonParticipantsCompanion(
+            attended: attended != null ? Value(attended) : const Value.absent(),
+            isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
+          ),
+        );
+  }
+
   JoinedSelectStatement _lessonsQuery() {
     return (select(dbLessons)).join([
       leftOuterJoin(

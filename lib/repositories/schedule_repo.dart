@@ -23,6 +23,18 @@ class ScheduleRepo {
   Future<void> cancelLesson(int lessonId) =>
       dataProvider.updateLessonStatus(lessonId, .cancelled);
 
+  Future<void> updateParticipantStatus(
+    int lessonId,
+    int studentId, {
+    bool? attended,
+    bool? isPaid,
+  }) => dataProvider.updateParticipantStatus(
+    lessonId,
+    studentId,
+    attended: attended,
+    isPaid: isPaid,
+  );
+
   // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) =>

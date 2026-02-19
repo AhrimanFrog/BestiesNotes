@@ -40,4 +40,33 @@ class LessonsCubit extends Cubit<LessonsState> {
     await _scheduleRepo.cancelLesson(lessonId);
     await fetchLessons();
   }
+
+  Future<void> updateParticipantStatus(
+    int lessonId,
+    int studentId, {
+    bool? attended,
+    bool? isPaid,
+  }) async {
+    // Optimistic update so the dot responds instantly
+    final updatedLessons = state.lessons.map((lesson) {
+      if (lesson.id != lessonId) return lesson;
+      final updatedParticipants = lesson.participants.map((p) {
+        if (p.student.id != studentId) return p;
+        return LessonParticipant(
+          student: p.student,
+          attended: attended ?? p.attended,
+          isPaid: isPaid ?? p.isPaid,
+        );
+      }).toList();
+      return lesson.copyWith(participants: updatedParticipants);
+    }).toList();
+    emit(state.copyWith(lessons: updatedLessons));
+
+    await _scheduleRepo.updateParticipantStatus(
+      lessonId,
+      studentId,
+      attended: attended,
+      isPaid: isPaid,
+    );
+  }
 }

@@ -27,4 +27,11 @@ abstract class DataProvider {
   Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects);
 
   Future<void> updateLessonStatus(int lessonId, LessonStatus status);
+
+  Future<void> updateParticipantStatus(
+    int lessonId,
+    int studentId, {
+    bool? attended,
+    bool? isPaid,
+  });
 }
