@@ -30,16 +30,14 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   Future<void> createOrUpdateStudent(Student student) async {
     final id = await _scheduleRepo.createOrUpdateStudent(student);
     final studentWithId = student.copyWith(id: id);
-    final studentExists = student.id != null;
 
-    if (studentExists) {
-      final studentIndex = state.students.indexWhere((s) => s.id == student.id);
-      final stateStudents = [...state.students];
-      stateStudents[studentIndex] = studentWithId;
-      return emit(state.copyWith(students: stateStudents));
-    }
+    final updatedStudents = student.id != null
+        ? state.students
+              .map((s) => s.id == student.id ? studentWithId : s)
+              .toList()
+        : [...state.students, studentWithId];
 
-    emit(state.copyWith(students: [...state.students, studentWithId]));
+    emit(state.copyWith(students: updatedStudents));
   }
 
   Future<void> deleteStudent(int studentId) async {
@@ -50,29 +48,74 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   Future<void> createOrUpdateGroup(Group group) async {
     final id = await _scheduleRepo.createOrUpdateGroup(group);
-    final studentIds = group.students
+    final newMemberIds = group.students
         .where((s) => s.id != null)
-        .map((s) => s.id!)
-        .toList();
-    await _scheduleRepo.syncGroupMemberships(id, studentIds);
+        .map((s) => s.id!);
+    await _scheduleRepo.syncGroupMemberships(id, newMemberIds);
 
     final groupWithId = group.copyWith(id: id);
 
-    final groupExists = group.id != null;
-    if (groupExists) {
-      final groupIndex = state.groups.indexWhere((g) => g.id == group.id);
-      final stateGroups = [...state.groups];
-      stateGroups[groupIndex] = groupWithId;
-      return emit(state.copyWith(groups: stateGroups));
-    }
+    // Reflect new memberships on the student objects already in state so that
+    // group-based filtering works immediately without a refetch.
+    final updatedStudents = state.students.map((s) {
+      if (s.id == null) return s;
+      if (newMemberIds.contains(s.id)) {
+        return Student(
+          id: s.id,
+          name: s.name,
+          pricing: s.pricing,
+          contact: s.contact,
+          iconPath: s.iconPath,
+          group: groupWithId,
+          note: s.note,
+        );
+      } else if (s.group?.id == id) {
+        // Student was removed from this group.
+        return Student(
+          id: s.id,
+          name: s.name,
+          pricing: s.pricing,
+          contact: s.contact,
+          iconPath: s.iconPath,
+          note: s.note,
+        );
+      }
+      return s;
+    }).toList();
 
-    emit(state.copyWith(groups: [...state.groups, groupWithId]));
+    final updatedGroups = group.id != null
+        ? state.groups.map((g) => g.id == group.id ? groupWithId : g).toList()
+        : [...state.groups, groupWithId];
+
+    emit(state.copyWith(groups: updatedGroups, students: updatedStudents));
   }
 
   Future<void> deleteGroup(int groupId) async {
     await _scheduleRepo.deleteGroup(groupId);
     final updatedGroups = state.groups.where((g) => g.id != groupId).toList();
-    emit(state.copyWith(groups: updatedGroups));
+
+    // Clear the group reference from students that belonged to the deleted group.
+    final updatedStudents = state.students.map((s) {
+      return (s.group?.id != groupId)
+          ? s
+          : Student(
+              id: s.id,
+              name: s.name,
+              pricing: s.pricing,
+              contact: s.contact,
+              iconPath: s.iconPath,
+              note: s.note,
+            );
+    }).toList();
+
+    emit(
+      state.copyWith(
+        groups: updatedGroups,
+        students: updatedStudents,
+        // If the deleted group was the active filter, reset it so students appear.
+        filterGroupId: state.filterGroupId == groupId ? () => null : null,
+      ),
+    );
   }
 
   Future<void> fetchGroupMembers(int groupId) async {

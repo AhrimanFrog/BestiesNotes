@@ -56,7 +56,7 @@ class ScheduleRepo {
 
   Future<void> deleteGroup(int groupId) => dataProvider.deleteGroup(groupId);
 
-  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) =>
+  Future<void> syncGroupMemberships(int groupId, Iterable<int> studentIds) =>
       dataProvider.syncGroupMemberships(groupId, studentIds);
 
   Future<Set<Student>> getGroupMembers(int groupId) async {

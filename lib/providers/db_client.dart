@@ -133,9 +133,23 @@ class DbClient extends _$DbClient implements DataProvider {
 
   @override
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
-    return (await (select(
-      dbStudents,
-    )..limit(limit, offset: offset)).get()).map((s) => s.toDomain()).toList();
+    final query = (select(dbStudents)..limit(limit, offset: offset)).join([
+      leftOuterJoin(
+        groupMemberships,
+        groupMemberships.studentId.equalsExp(dbStudents.id),
+      ),
+      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(groupMemberships.groupId)),
+    ]);
+
+    final Map<int, Student> seen = {};
+    for (final row in await query.get()) {
+      final dbStudent = row.readTable(dbStudents);
+      if (!seen.containsKey(dbStudent.id)) {
+        final dbGroup = row.readTableOrNull(dbGroups);
+        seen[dbStudent.id] = dbStudent.toDomain(group: dbGroup?.toDomain());
+      }
+    }
+    return seen.values.toList();
   }
 
   @override
@@ -179,7 +193,7 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<void> syncGroupMemberships(int groupId, List<int> studentIds) {
+  Future<void> syncGroupMemberships(int groupId, Iterable<int> studentIds) {
     return transaction(() async {
       await (delete(
         groupMemberships,

@@ -22,7 +22,7 @@ abstract class DataProvider {
 
   Future<List<Student>> getGroupMembers(int groupId);
 
-  Future<void> syncGroupMemberships(int groupId, List<int> studentIds);
+  Future<void> syncGroupMemberships(int groupId, Iterable<int> studentIds);
 
   Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects);
 
