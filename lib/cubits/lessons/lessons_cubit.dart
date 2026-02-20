@@ -12,8 +12,18 @@ class LessonsCubit extends Cubit<LessonsState> {
   Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
     final dateFrom = from ?? state.dateFrom;
     final dateTo = to ?? state.dateTo;
-    final lessons = await _scheduleRepo.getLessonsForRange(dateFrom, dateTo);
-    emit(state.copyWith(lessons: lessons, dateFrom: dateFrom, dateTo: dateTo));
+    emit(state.copyWith(isLoading: true, error: () => null));
+    try {
+      final lessons = await _scheduleRepo.getLessonsForRange(dateFrom, dateTo);
+      emit(state.copyWith(
+        lessons: lessons,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+    }
   }
 
   Future<void> goToPreviousWeek() => fetchLessons(
@@ -47,26 +57,29 @@ class LessonsCubit extends Cubit<LessonsState> {
     bool? attended,
     bool? isPaid,
   }) async {
+    final previousLessons = state.lessons;
+
     // Optimistic update so the dot responds instantly
     final updatedLessons = state.lessons.map((lesson) {
       if (lesson.id != lessonId) return lesson;
       final updatedParticipants = lesson.participants.map((p) {
-        if (p.student.id != studentId) return p;
-        return LessonParticipant(
-          student: p.student,
-          attended: attended ?? p.attended,
-          isPaid: isPaid ?? p.isPaid,
-        );
+        return (p.student.id != studentId)
+            ? p
+            : p.copyWith(attended: attended, isPaid: isPaid);
       }).toList();
       return lesson.copyWith(participants: updatedParticipants);
     }).toList();
     emit(state.copyWith(lessons: updatedLessons));
 
-    await _scheduleRepo.updateParticipantStatus(
-      lessonId,
-      studentId,
-      attended: attended,
-      isPaid: isPaid,
-    );
+    try {
+      await _scheduleRepo.updateParticipantStatus(
+        lessonId,
+        studentId,
+        attended: attended,
+        isPaid: isPaid,
+      );
+    } catch (e) {
+      emit(state.copyWith(lessons: previousLessons, error: () => e.toString()));
+    }
   }
 }

@@ -4,10 +4,17 @@ class LessonsState extends Equatable {
   final List<Lesson> lessons;
   final DateTime dateFrom;
   final DateTime dateTo;
+  final bool isLoading;
+  final String? error;
 
-  LessonsState({this.lessons = const [], DateTime? dateFrom, DateTime? dateTo})
-    : dateFrom = dateFrom ?? defaultDateFrom(),
-      dateTo = dateTo ?? defaultDateTo();
+  LessonsState({
+    this.lessons = const [],
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    this.isLoading = false,
+    this.error,
+  }) : dateFrom = dateFrom ?? defaultDateFrom(),
+       dateTo = dateTo ?? defaultDateTo();
 
   static DateTime defaultDateFrom() {
     final now = DateTime.now();
@@ -19,7 +26,7 @@ class LessonsState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [lessons, dateFrom, dateTo];
+  List<Object?> get props => [lessons, dateFrom, dateTo, isLoading, error];
 
   Map<DateTime, List<Lesson>> getLessonsByDate() {
     Map<DateTime, List<Lesson>> lessonsMap = {};
@@ -35,11 +42,15 @@ class LessonsState extends Equatable {
     List<Lesson>? lessons,
     DateTime? dateFrom,
     DateTime? dateTo,
+    bool? isLoading,
+    String? Function()? error,
   }) {
     return LessonsState(
       lessons: lessons ?? this.lessons,
       dateFrom: dateFrom ?? this.dateFrom,
       dateTo: dateTo ?? this.dateTo,
+      isLoading: isLoading ?? this.isLoading,
+      error: error != null ? error() : this.error,
     );
   }
 }

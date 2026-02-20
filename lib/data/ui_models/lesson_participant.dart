@@ -10,4 +10,12 @@ class LessonParticipant {
     required this.attended,
     required this.isPaid,
   });
+
+  LessonParticipant copyWith({Student? student, bool? attended, bool? isPaid}) {
+    return LessonParticipant(
+      student: student ?? this.student,
+      attended: attended ?? this.attended,
+      isPaid: isPaid ?? this.isPaid,
+    );
+  }
 }

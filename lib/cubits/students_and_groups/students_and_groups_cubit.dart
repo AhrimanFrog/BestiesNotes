@@ -11,20 +11,42 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
     if (state.noMoreStudents) return;
-    final students = await _scheduleRepo.getStudents(
-      offset: offset,
-      limit: limit,
-    );
-    if (students.isEmpty) return emit(state.copyWith(noMoreStudents: true));
-
-    emit(state.copyWith(students: [...state.students, ...students]));
+    emit(state.copyWith(isLoading: true, error: () => null));
+    try {
+      final students = await _scheduleRepo.getStudents(
+        offset: offset,
+        limit: limit,
+      );
+      if (students.isEmpty) {
+        return emit(state.copyWith(noMoreStudents: true, isLoading: false));
+      }
+      emit(state.copyWith(
+        students: [...state.students, ...students],
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+    }
   }
 
   Future<void> fetchGroups({int offset = 0, limit = 100}) async {
     if (state.noMoreGroups) return;
-    final groups = await _scheduleRepo.getGroups(offset: offset, limit: limit);
-    if (groups.isEmpty) return emit(state.copyWith(noMoreGroups: true));
-    emit(state.copyWith(groups: [...state.groups, ...groups]));
+    emit(state.copyWith(isLoading: true, error: () => null));
+    try {
+      final groups = await _scheduleRepo.getGroups(
+        offset: offset,
+        limit: limit,
+      );
+      if (groups.isEmpty) {
+        return emit(state.copyWith(noMoreGroups: true, isLoading: false));
+      }
+      emit(state.copyWith(
+        groups: [...state.groups, ...groups],
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+    }
   }
 
   Future<void> createOrUpdateStudent(Student student) async {
@@ -58,17 +80,8 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     // Reflect new memberships on the student objects already in state so that
     // group-based filtering works immediately without a refetch.
     final updatedStudents = state.students.map((s) {
-      if (s.id == null) return s;
       if (newMemberIds.contains(s.id)) {
-        return Student(
-          id: s.id,
-          name: s.name,
-          pricing: s.pricing,
-          contact: s.contact,
-          iconPath: s.iconPath,
-          group: groupWithId,
-          note: s.note,
-        );
+        return s.copyWith(group: groupWithId);
       } else if (s.group?.id == id) {
         // Student was removed from this group.
         return Student(

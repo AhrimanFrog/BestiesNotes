@@ -237,6 +237,13 @@ class _StudentsPageState extends State<StudentsPage>
     StudentsAndGroupsState state,
     StudentsAndGroupsCubit cubit,
   ) {
+    if (state.isLoading && state.students.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.error != null && state.students.isEmpty) {
+      return Center(child: Text(state.error!));
+    }
+
     final filtered = state.filteredStudents;
 
     return Column(
@@ -313,6 +320,13 @@ class _StudentsPageState extends State<StudentsPage>
   }
 
   Widget _buildGroupsTab(StudentsAndGroupsState state) {
+    if (state.isLoading && state.groups.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.error != null && state.groups.isEmpty) {
+      return Center(child: Text(state.error!));
+    }
+
     final filtered = state.filteredGroups;
 
     return filtered.isEmpty

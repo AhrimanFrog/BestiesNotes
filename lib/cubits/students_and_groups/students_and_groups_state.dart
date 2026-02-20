@@ -8,6 +8,8 @@ class StudentsAndGroupsState extends Equatable {
   final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
+  final bool isLoading;
+  final String? error;
 
   const StudentsAndGroupsState({
     this.students = const [],
@@ -17,6 +19,8 @@ class StudentsAndGroupsState extends Equatable {
     this.groupMembers = const {},
     this.searchQuery = '',
     this.filterGroupId,
+    this.isLoading = false,
+    this.error,
   });
 
   List<Student> get filteredStudents {
@@ -56,6 +60,8 @@ class StudentsAndGroupsState extends Equatable {
     Set<Student>? groupMembers,
     String? searchQuery,
     int? Function()? filterGroupId,
+    bool? isLoading,
+    String? Function()? error,
   }) {
     return StudentsAndGroupsState(
       students: students ?? this.students,
@@ -64,9 +70,9 @@ class StudentsAndGroupsState extends Equatable {
       noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
       groupMembers: groupMembers ?? this.groupMembers,
-      filterGroupId: filterGroupId != null
-          ? filterGroupId()
-          : this.filterGroupId,
+      filterGroupId: filterGroupId != null ? filterGroupId() : this.filterGroupId,
+      isLoading: isLoading ?? this.isLoading,
+      error: error != null ? error() : this.error,
     );
   }
 
@@ -79,5 +85,7 @@ class StudentsAndGroupsState extends Equatable {
     groupMembers,
     searchQuery,
     filterGroupId,
+    isLoading,
+    error,
   ];
 }
