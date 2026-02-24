@@ -24,11 +24,27 @@ class DbClient extends _$DbClient implements DataProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
   }
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 3) {
+        await m.addColumn(
+          dbLessonParticipants,
+          dbLessonParticipants.homeworkDone,
+        );
+
+        await customStatement(
+          'UPDATE db_lesson_participants SET homework_done = 0',
+        );
+      }
+    },
+  );
 
   @override
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
@@ -259,6 +275,7 @@ class DbClient extends _$DbClient implements DataProvider {
                 studentId: studentId,
                 isPaid: false,
                 attended: false,
+                homeworkDone: Value(false),
                 groupId: Value(desiredStudents[studentId]),
               ),
           ]);
@@ -283,6 +300,7 @@ class DbClient extends _$DbClient implements DataProvider {
     int studentId, {
     bool? attended,
     bool? isPaid,
+    bool? homeworkDone,
   }) async {
     await (update(dbLessonParticipants)..where(
           (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
@@ -291,6 +309,9 @@ class DbClient extends _$DbClient implements DataProvider {
           DbLessonParticipantsCompanion(
             attended: attended != null ? Value(attended) : const Value.absent(),
             isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
+            homeworkDone: homeworkDone != null
+                ? Value(homeworkDone)
+                : const Value.absent(),
           ),
         );
   }

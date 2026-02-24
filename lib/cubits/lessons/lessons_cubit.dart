@@ -15,12 +15,14 @@ class LessonsCubit extends Cubit<LessonsState> {
     emit(state.copyWith(isLoading: true, error: () => null));
     try {
       final lessons = await _scheduleRepo.getLessonsForRange(dateFrom, dateTo);
-      emit(state.copyWith(
-        lessons: lessons,
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-        isLoading: false,
-      ));
+      emit(
+        state.copyWith(
+          lessons: lessons,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+          isLoading: false,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: () => e.toString()));
     }
@@ -56,6 +58,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     int studentId, {
     bool? attended,
     bool? isPaid,
+    bool? homeworkDone,
   }) async {
     final previousLessons = state.lessons;
 
@@ -65,7 +68,11 @@ class LessonsCubit extends Cubit<LessonsState> {
       final updatedParticipants = lesson.participants.map((p) {
         return (p.student.id != studentId)
             ? p
-            : p.copyWith(attended: attended, isPaid: isPaid);
+            : p.copyWith(
+                attended: attended,
+                isPaid: isPaid,
+                homeworkDone: homeworkDone,
+              );
       }).toList();
       return lesson.copyWith(participants: updatedParticipants);
     }).toList();
@@ -77,6 +84,7 @@ class LessonsCubit extends Cubit<LessonsState> {
         studentId,
         attended: attended,
         isPaid: isPaid,
+        homeworkDone: homeworkDone,
       );
     } catch (e) {
       emit(state.copyWith(lessons: previousLessons, error: () => e.toString()));

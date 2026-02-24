@@ -57,6 +57,7 @@ class DbLessonParticipants extends Table {
       integer().references(DbStudents, #id, onDelete: KeyAction.cascade)();
   BoolColumn get isPaid => boolean()();
   BoolColumn get attended => boolean()();
+  BoolColumn get homeworkDone => boolean().withDefault(const Constant(false))();
   IntColumn get groupId => integer().references(DbGroups, #id).nullable()();
 
   @override

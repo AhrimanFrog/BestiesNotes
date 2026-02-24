@@ -17,6 +17,7 @@ extension DbLessonDetailsExt on DbLessonDetails {
         student: s.toDomain(),
         attended: status?.attended ?? false,
         isPaid: status?.isPaid ?? false,
+        homeworkDone: status?.homeworkDone ?? false,
       );
     }).toList();
 

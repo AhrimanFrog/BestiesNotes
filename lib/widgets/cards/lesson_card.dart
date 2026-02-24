@@ -320,6 +320,20 @@ class _LessonCardState extends State<LessonCard> {
                             attended: !p.attended,
                           ),
               ),
+              _glowDot(
+                active: p.homeworkDone,
+                activeColor: accentColor,
+                icon: Icons.edit_document,
+                label: 'Homework',
+                onTap: isCancelled
+                    ? null
+                    : () =>
+                          context.read<LessonsCubit>().updateParticipantStatus(
+                            lesson.id!,
+                            p.student.id!,
+                            homeworkDone: !p.homeworkDone,
+                          ),
+              ),
             ],
           ),
         ],

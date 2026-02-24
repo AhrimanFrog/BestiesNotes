@@ -33,5 +33,6 @@ abstract class DataProvider {
     int studentId, {
     bool? attended,
     bool? isPaid,
+    bool? homeworkDone,
   });
 }

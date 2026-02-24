@@ -28,11 +28,13 @@ class ScheduleRepo {
     int studentId, {
     bool? attended,
     bool? isPaid,
+    bool? homeworkDone,
   }) => dataProvider.updateParticipantStatus(
     lessonId,
     studentId,
     attended: attended,
     isPaid: isPaid,
+    homeworkDone: homeworkDone,
   );
 
   // ---------------- STUDENTS CRUD ----------------
