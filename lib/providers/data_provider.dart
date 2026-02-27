@@ -6,6 +6,8 @@ abstract class DataProvider {
 
   Future<Lesson> getLesson(int lessonId);
 
+  Future<List<Lesson>> getLessonsForStudent(int studentID);
+
   Future<int> createOrUpdateLesson(Lesson lesson);
 
   Future<int> createOrUpdateStudent(Student student);
@@ -34,5 +36,11 @@ abstract class DataProvider {
     bool? attended,
     bool? isPaid,
     bool? homeworkDone,
+  });
+
+  Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
+    required DateTime from,
+    required DateTime to,
+    required int studentID,
   });
 }

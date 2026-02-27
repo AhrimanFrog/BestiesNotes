@@ -21,35 +21,7 @@ class AvatarPickerField extends StatelessWidget {
   Future<void> _pickAvatar(BuildContext context) async {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            if (avatarPath != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text(
-                  'Remove Photo',
-                  style: TextStyle(color: Colors.red),
-                ),
-                onTap: () {
-                  onChanged(null);
-                  Navigator.pop(ctx);
-                },
-              ),
-          ],
-        ),
-      ),
+      builder: (ctx) => _imageSourceModal(ctx),
     );
     if (source == null) return;
 
@@ -117,6 +89,38 @@ class AvatarPickerField extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _imageSourceModal(BuildContext ctx) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Choose from Gallery'),
+            onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Take a Photo'),
+            onTap: () => Navigator.pop(ctx, ImageSource.camera),
+          ),
+          if (avatarPath != null)
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
+                'Remove Photo',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                onChanged(null);
+                Navigator.pop(ctx);
+              },
+            ),
+        ],
       ),
     );
   }

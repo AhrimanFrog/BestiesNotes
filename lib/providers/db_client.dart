@@ -52,9 +52,30 @@ class DbClient extends _$DbClient implements DataProvider {
       ..where(dbLessons.start.isBetweenValues(from, to))
       ..orderBy([OrderingTerm.asc(dbLessons.start)]);
 
+    return await _gatherLessonDetailsIntoLesson(queryRes);
+  }
+
+  @override
+  Future<Lesson> getLesson(int lessonId) async {
+    final query = _lessonsQuery()..where(dbLessons.id.equals(lessonId));
+    final details = await _gatherLessonDetailsIntoLesson(query);
+    if (details.isEmpty) throw Exception("Lesson not Found!");
+    return details.first;
+  }
+
+  @override
+  Future<List<Lesson>> getLessonsForStudent(int studentID) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.studentId.equals(studentID));
+    return await _gatherLessonDetailsIntoLesson(query);
+  }
+
+  Future<List<Lesson>> _gatherLessonDetailsIntoLesson(
+    JoinedSelectStatement query,
+  ) async {
     final Map<int, DbLessonDetails> lessonDetails = {};
 
-    for (final row in await queryRes.get()) {
+    for (final row in await query.get()) {
       final lesson = row.readTable(dbLessons);
       final student = row.readTableOrNull(dbStudents);
       final group = row.readTableOrNull(dbGroups);
@@ -72,27 +93,6 @@ class DbClient extends _$DbClient implements DataProvider {
       }
     }
     return lessonDetails.values.map((d) => d.toDomain()).toList();
-  }
-
-  @override
-  Future<Lesson> getLesson(int lessonId) async {
-    final query = _lessonsQuery()..where(dbLessons.id.equals(lessonId));
-    final rows = await query.get();
-    if (rows.isEmpty) throw Exception("Lesson not Found!");
-    final details = DbLessonDetails(lesson: rows.first.readTable(dbLessons));
-
-    for (final row in rows) {
-      final student = row.readTableOrNull(dbStudents);
-      final group = row.readTableOrNull(dbGroups);
-      final participant = row.readTableOrNull(dbLessonParticipants);
-      if (student != null) details.students[student.id] = student;
-      if (group != null) details.groups[group.id] = group;
-      if (participant != null) {
-        details.participantStatus[participant.studentId] = participant;
-      }
-    }
-
-    return details.toDomain();
   }
 
   @override
@@ -314,6 +314,29 @@ class DbClient extends _$DbClient implements DataProvider {
                 : const Value.absent(),
           ),
         );
+  }
+
+  @override
+  Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
+    required DateTime from,
+    required DateTime to,
+    required int studentID,
+  }) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.studentId.equals(studentID))
+      ..where(dbLessons.start.isBetweenValues(from, to));
+    final result = await query.get();
+
+    if (result.isEmpty) throw Exception('No such student!');
+
+    final int paid = result.fold(
+      0,
+      (count, row) => row.readTableOrNull(dbLessonParticipants)?.isPaid == true
+          ? count + 1
+          : count,
+    );
+
+    return (paidLessons: paid, totalLessons: result.length);
   }
 
   JoinedSelectStatement _lessonsQuery() {
