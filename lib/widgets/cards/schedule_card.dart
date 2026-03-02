@@ -20,10 +20,7 @@ class ScheduleCard extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          DayTitle(
-            weekDay: date.capsWeekday(),
-            date: "${date.day}.${date.month}",
-          ),
+          DayTitle(weekDay: date.capsWeekday(), date: date.toDateFormat()),
           const SizedBox(width: 20),
           Expanded(
             child: Column(

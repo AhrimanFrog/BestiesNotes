@@ -360,20 +360,9 @@ class _CompactLessonTile extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                lesson.status.label(isNow: lesson.isNow),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
+            StatusBadge(
+              label: lesson.status.label(isNow: lesson.isNow),
+              accentColor: color
             ),
           ],
         ),

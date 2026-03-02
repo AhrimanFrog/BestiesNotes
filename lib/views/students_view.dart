@@ -1,10 +1,9 @@
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/data/ui_models/student.dart';
-import 'package:besties_notes/data/ui_models/group.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -38,77 +37,24 @@ class _StudentsPageState extends State<StudentsPage>
     super.dispose();
   }
 
-  void _showDeleteStudentConfirmation(BuildContext context, Student student) {
+  void _showDeletionConfirmation(BuildContext context, Teachable teachable) {
+    final cubit = context.read<StudentsAndGroupsCubit>();
+    final del = teachable is Group ? cubit.deleteGroup : cubit.deleteStudent;
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Student'),
-        content: Text('Are you sure you want to delete ${student.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              if (student.id != null) {
-                final cubit = context.read<StudentsAndGroupsCubit>();
-                cubit.deleteStudent(student.id!);
-              }
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+      builder: (_) => DeletionDialog(
+        entryName: teachable.name,
+        onDelete: () => del(teachable.id!),
       ),
     );
   }
 
-  void _showDeleteGroupConfirmation(BuildContext context, Group group) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Group'),
-        content: Text('Are you sure you want to delete ${group.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              if (group.id != null) {
-                final cubit = context.read<StudentsAndGroupsCubit>();
-                cubit.deleteGroup(group.id!);
-              }
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showStudentForm(BuildContext context, Student? student) {
+  void _showForm(BuildContext context, Group? group) {
     showModalBottomSheet(
       context: context,
       builder: (_) => BlocProvider.value(
         value: context.read<StudentsAndGroupsCubit>(),
-        child: StudentForm(student),
-      ),
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-    );
-  }
-
-  void _showGroupForm(BuildContext context, Group? group) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => BlocProvider.value(
-        value: context.read<StudentsAndGroupsCubit>(),
-        child: GroupForm(group),
+        child: _tabController.index == 0 ? StudentForm(null) : GroupForm(group),
       ),
       backgroundColor: Colors.transparent,
       useSafeArea: true,
@@ -127,13 +73,7 @@ class _StudentsPageState extends State<StudentsPage>
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              if (_tabController.index == 0) {
-                _showStudentForm(context, null);
-              } else {
-                _showGroupForm(context, null);
-              }
-            },
+            onPressed: () => _showForm(context, null),
           ),
         ],
       ),
@@ -316,7 +256,7 @@ class _StudentsPageState extends State<StudentsPage>
                           child: StudentDetailsView(student: student),
                         ),
                         onDelete: () =>
-                            _showDeleteStudentConfirmation(context, student),
+                            _showDeletionConfirmation(context, student),
                       ),
                   ],
                 ),
@@ -356,8 +296,8 @@ class _StudentsPageState extends State<StudentsPage>
               for (final group in filtered)
                 ParticipantCard(
                   participant: group,
-                  onTap: () => _showGroupForm(context, group),
-                  onDelete: () => _showDeleteGroupConfirmation(context, group),
+                  onTap: () => _showForm(context, group),
+                  onDelete: () => _showDeletionConfirmation(context, group),
                 ),
             ],
           );

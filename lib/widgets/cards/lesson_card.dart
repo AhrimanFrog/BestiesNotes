@@ -4,6 +4,7 @@ import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
 import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -150,21 +151,9 @@ class _LessonCardState extends State<LessonCard> {
             ),
           ),
 
-          // Status badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              lesson.status.label(isNow: lesson.isNow),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: accentColor,
-              ),
-            ),
+          StatusBadge(
+            label: lesson.status.label(isNow: lesson.isNow),
+            accentColor: accentColor,
           ),
         ],
       ),
