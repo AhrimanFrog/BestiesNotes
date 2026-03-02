@@ -10,14 +10,27 @@ class SchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lessonCubit = context.read<LessonsCubit>();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         actions: [
-          WeekNavigationBar(),
+          WeekNavigationBar(
+            timeRange: DateTimeRange(
+              start: lessonCubit.state.dateFrom,
+              end: lessonCubit.state.dateTo,
+            ),
+            onRangeSelection: (range) => lessonCubit.fetchLessons(
+              from: range.start,
+              to: range.end.add(const Duration(days: 1)),
+            ),
+            onTapLeft: lessonCubit.goToPreviousWeek,
+            onTapRight: lessonCubit.goToNextWeek,
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_today),
-            onPressed: () => context.read<LessonsCubit>().goToCurrentWeek(),
+            onPressed: lessonCubit.goToCurrentWeek,
           ),
           IconButton(
             icon: const Icon(Icons.add),
@@ -25,7 +38,7 @@ class SchedulePage extends StatelessWidget {
               context: context,
               builder: (_) => MultiBlocProvider(
                 providers: [
-                  BlocProvider.value(value: context.read<LessonsCubit>()),
+                  BlocProvider.value(value: lessonCubit),
                   BlocProvider.value(
                     value: context.read<StudentsAndGroupsCubit>(),
                   ),
