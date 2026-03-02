@@ -5,4 +5,7 @@ class Rate {
   final RatePeriod period;
 
   const Rate({required this.rate, required this.period});
+
+  @override
+  String toString() => "$rate / ${period.name}";
 }

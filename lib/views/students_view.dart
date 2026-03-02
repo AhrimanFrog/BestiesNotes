@@ -7,7 +7,6 @@ import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/group.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/views/modals/group_form.dart';
-import 'package:besties_notes/widgets/cards/student_card.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -309,8 +308,8 @@ class _StudentsPageState extends State<StudentsPage>
                   childAspectRatio: 0.75,
                   children: [
                     for (final student in filtered)
-                      StudentCard(
-                        student: student,
+                      ParticipantCard(
+                        participant: student,
                         onTap: () => BlocProvider(
                           create: (_) =>
                               StudentDetailsCubit(context.read<ScheduleRepo>()),
@@ -355,8 +354,8 @@ class _StudentsPageState extends State<StudentsPage>
             childAspectRatio: 0.75,
             children: [
               for (final group in filtered)
-                GroupCard(
-                  group: group,
+                ParticipantCard(
+                  participant: group,
                   onTap: () => _showGroupForm(context, group),
                   onDelete: () => _showDeleteGroupConfirmation(context, group),
                 ),

@@ -32,11 +32,10 @@ class _LessonCardState extends State<LessonCard> {
       builder: (context, state) {
         final lesson = _currentLesson(state);
         final isCancelled = lesson.isCancelled;
-        final opacity = isCancelled ? 0.55 : 1.0;
         final accentColor = lesson.accentColor;
 
         return Opacity(
-          opacity: opacity,
+          opacity: isCancelled ? 0.55 : 1.0,
           child: Container(
             decoration: BoxDecoration(
               color: lesson.mainColor,

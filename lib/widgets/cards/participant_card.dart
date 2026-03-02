@@ -1,25 +1,35 @@
+import 'package:besties_notes/data/ui_models/student.dart';
+import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/data/ui_models/group.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/widgets/index.dart';
 
-class GroupCard extends StatelessWidget {
-  final Group group;
+class ParticipantCard extends StatelessWidget {
+  final Teachable participant;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
-  const GroupCard({super.key, required this.group, this.onTap, this.onDelete});
+  const ParticipantCard({
+    super.key,
+    required this.participant,
+    this.onTap,
+    this.onDelete,
+  });
+
+  String get additionalInfo => (participant is Student)
+      ? (participant as Student).group?.name ?? (participant as Student).contact
+      : 'Group';
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        fit: StackFit.expand,
+        fit: .expand,
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.white, // clean card background
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.softPink, width: 2),
               boxShadow: [
@@ -35,9 +45,12 @@ class GroupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 6,
               children: [
-                UserAvatar(teachable: group),
+                // Avatar Section
+                UserAvatar(teachable: participant),
+
+                // Name Section
                 Text(
-                  group.name,
+                  participant.name,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.mainText,
@@ -47,8 +60,9 @@ class GroupCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+
                 Text(
-                  'Group',
+                  additionalInfo,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.secondaryText,
@@ -56,6 +70,7 @@ class GroupCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                // Action / Status Pill
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -66,7 +81,7 @@ class GroupCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    "${group.pricing.rate} / ${group.pricing.period.name}",
+                    participant.pricing.toString(),
                     style: const TextStyle(
                       color: AppColors.accentPink,
                       fontSize: 11,

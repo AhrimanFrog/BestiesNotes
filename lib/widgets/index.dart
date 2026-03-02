@@ -1,7 +1,7 @@
 export 'avatar_picker_field.dart';
-export 'cards/group_card.dart';
 export 'cards/lesson_card.dart';
 export 'cards/schedule_card.dart';
+export 'cards/participant_card.dart';
 export 'initials_circle.dart';
 export 'texts/day_title.dart';
 export 'gradient_background.dart';
