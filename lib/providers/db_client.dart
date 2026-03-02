@@ -66,7 +66,8 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   Future<List<Lesson>> getLessonsForStudent(int studentID) async {
     final query = _lessonsQuery()
-      ..where(dbLessonParticipants.studentId.equals(studentID));
+      ..where(dbLessonParticipants.studentId.equals(studentID))
+      ..orderBy([.desc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
   }
 

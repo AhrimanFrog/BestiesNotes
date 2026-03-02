@@ -1,8 +1,8 @@
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/extensions/lesson_ui_ext.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -280,17 +280,12 @@ class _RecentLessonsSection extends StatelessWidget {
               );
             }
 
-            final sorted = [...state.lessons]
-              ..sort((a, b) => b.start.compareTo(a.start));
-            final preview = sorted.take(3).toList();
-
             return Column(
               children: [
-                for (final lesson in preview)
+                for (final lesson in state.lessons.take(3))
                   _CompactLessonTile(lesson: lesson),
-                if (sorted.length > 3)
+                if (state.lessons.length > 3)
                   SeeAllRow(
-                    count: sorted.length,
                     onTap: () {}, // TODO: navigate to lesson history
                   ),
               ],
@@ -307,31 +302,9 @@ class _CompactLessonTile extends StatelessWidget {
 
   const _CompactLessonTile({required this.lesson});
 
-  Color get _accentColor {
-    switch (lesson.status) {
-      case LessonStatus.cancelled:
-        return AppColors.accentGrey;
-      case LessonStatus.completed:
-        return AppColors.accentGreen;
-      case LessonStatus.scheduled:
-        return lesson.isNow ? AppColors.accentPink : AppColors.pastelBlue;
-    }
-  }
-
-  String get _statusLabel {
-    switch (lesson.status) {
-      case LessonStatus.cancelled:
-        return 'Cancelled';
-      case LessonStatus.completed:
-        return 'Completed';
-      case LessonStatus.scheduled:
-        return lesson.isNow ? 'In Progress' : 'Scheduled';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _accentColor;
+    final color = lesson.accentColor;
     final isCancelled = lesson.isCancelled;
 
     return Padding(
@@ -394,7 +367,7 @@ class _CompactLessonTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                _statusLabel,
+                lesson.status.label(isNow: lesson.isNow),
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,

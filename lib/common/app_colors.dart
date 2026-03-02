@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -13,8 +12,4 @@ class AppColors {
   static const accentGrey = Color(0xFF9E9E9E);
   static const secondaryText = Color(0xFF9C9C9C);
   static const mainText = Color(0xFF2E2E2E);
-}
-
-Color randomColor() {
-  return Color((Random().nextDouble() * 0xFFFFFF).toInt()).withValues(alpha: 1);
 }
