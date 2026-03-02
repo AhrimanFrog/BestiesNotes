@@ -56,6 +56,7 @@ class MyApp extends StatelessWidget {
                 ..fetchStudents()
                 ..fetchGroups(),
             ),
+            RepositoryProvider<ScheduleRepo>(create: (_) => scheduleRepo),
           ],
           child: TabBarView(children: [SchedulePage(), StudentsPage()]),
         ),

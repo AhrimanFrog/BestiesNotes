@@ -11,6 +11,9 @@ class ScheduleRepo {
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) =>
       dataProvider.getLessonsForRange(from, to);
 
+  Future<List<Lesson>> getLessonsForStudent(int studentId) =>
+      dataProvider.getLessonsForStudent(studentId);
+
   Future<Lesson> getLesson({required int lessonId}) =>
       dataProvider.getLesson(lessonId);
 

@@ -1,3 +1,6 @@
+import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
+import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/views/student_details_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
@@ -308,7 +311,11 @@ class _StudentsPageState extends State<StudentsPage>
                     for (final student in filtered)
                       StudentCard(
                         student: student,
-                        onTap: () => _showStudentForm(context, student),
+                        onTap: () => BlocProvider(
+                          create: (_) =>
+                              StudentDetailsCubit(context.read<ScheduleRepo>()),
+                          child: StudentDetailsView(student: student),
+                        ),
                         onDelete: () =>
                             _showDeleteStudentConfirmation(context, student),
                       ),
