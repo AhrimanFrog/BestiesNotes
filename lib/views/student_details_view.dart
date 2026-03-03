@@ -63,20 +63,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.softPink, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.softPink.withValues(alpha: 0.5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return CardContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -115,23 +102,9 @@ class _HeaderCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.softWarmPink,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${student.pricing.rate.toStringAsFixed(0)} / ${student.pricing.period.name}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.accentPink,
-                        ),
-                      ),
+                    StatusBadge(
+                      label: student.pricing.toString(),
+                      accentColor: AppColors.accentPink,
                     ),
                   ],
                 ),
@@ -362,7 +335,7 @@ class _CompactLessonTile extends StatelessWidget {
             ),
             StatusBadge(
               label: lesson.status.label(isNow: lesson.isNow),
-              accentColor: color
+              accentColor: color,
             ),
           ],
         ),

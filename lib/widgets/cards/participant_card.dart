@@ -27,19 +27,7 @@ class ParticipantCard extends StatelessWidget {
       child: Stack(
         fit: .expand,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white, // clean card background
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.softPink, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.softPink.withValues(alpha: 0.5),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          CardContainer(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -71,23 +59,9 @@ class ParticipantCard extends StatelessWidget {
                   ),
                 ),
                 // Action / Status Pill
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.softWarmPink,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    participant.pricing.toString(),
-                    style: const TextStyle(
-                      color: AppColors.accentPink,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                StatusBadge(
+                  label: participant.pricing.toString(),
+                  accentColor: AppColors.accentPink,
                 ),
               ],
             ),
