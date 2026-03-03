@@ -57,7 +57,7 @@ class WeekNavigationBar extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.mainText,
             ),
