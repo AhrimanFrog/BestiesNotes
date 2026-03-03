@@ -1,4 +1,5 @@
 import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -235,8 +236,7 @@ class _LessonFormState extends State<LessonForm> {
                           Expanded(
                             child: InkWellSelector(
                               title: 'Date',
-                              body:
-                                  '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                              body: _selectedDate.toDateFormat(),
                               onTap: _selectDate,
                             ),
                           ),
