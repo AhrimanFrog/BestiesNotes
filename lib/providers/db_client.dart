@@ -149,6 +149,26 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
+  Future<Student> getStudent(int studentId) async {
+    final query = (select(dbStudents)..where((s) => s.id.equals(studentId)))
+        .join([
+          leftOuterJoin(
+            groupMemberships,
+            groupMemberships.studentId.equalsExp(dbStudents.id),
+          ),
+          leftOuterJoin(
+            dbGroups,
+            dbGroups.id.equalsExp(groupMemberships.groupId),
+          ),
+        ]);
+    final result = await query.getSingle();
+    return result
+        .readTable(dbStudents)
+        .toDomain()
+        .copyWith(group: result.readTableOrNull(dbGroups)?.toDomain());
+  }
+
+  @override
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
     final query = (select(dbStudents)..limit(limit, offset: offset)).join([
       leftOuterJoin(

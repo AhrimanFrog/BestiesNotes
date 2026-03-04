@@ -1,66 +1,21 @@
-import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/views/schedule_view.dart';
-import 'package:besties_notes/views/students_view.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  final dbClient = DbClient();
   runApp(
-    MaterialApp(
-      title: 'Besties Notes',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accentPink),
+    RepositoryProvider(
+      create: (_) => ScheduleRepo(dataProvider: DbClient()),
+      child: MaterialApp.router(
+        title: 'Besties Notes',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accentPink),
+        ),
+        routerConfig: router,
       ),
-      home: MyApp(dbClient: dbClient),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  final ScheduleRepo scheduleRepo;
-
-  MyApp({super.key, required DbClient dbClient})
-    : scheduleRepo = ScheduleRepo(dataProvider: dbClient);
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        bottomNavigationBar: Container(
-          color: Colors.white,
-          child: const TabBar(
-            padding: EdgeInsets.only(bottom: 20),
-            dividerHeight: 0,
-            indicator: BoxDecoration(),
-            labelColor: AppColors.accentPink,
-            unselectedLabelColor: AppColors.softPink,
-            tabs: [
-              Tab(icon: Icon(Icons.calendar_month, size: 50)),
-              Tab(icon: Icon(Icons.school, size: 50)),
-            ],
-          ),
-        ),
-        body: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) => LessonsCubit(scheduleRepo)..fetchLessons(),
-            ),
-            BlocProvider(
-              create: (_) => StudentsAndGroupsCubit(scheduleRepo)
-                ..fetchStudents()
-                ..fetchGroups(),
-            ),
-            RepositoryProvider<ScheduleRepo>(create: (_) => scheduleRepo),
-          ],
-          child: TabBarView(children: [SchedulePage(), StudentsPage()]),
-        ),
-      ),
-    );
-  }
 }

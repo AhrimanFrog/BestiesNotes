@@ -1,7 +1,4 @@
-import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
-import 'package:besties_notes/views/student_details_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
@@ -9,6 +6,7 @@ import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class StudentsPage extends StatefulWidget {
   const StudentsPage({super.key});
@@ -250,10 +248,9 @@ class _StudentsPageState extends State<StudentsPage>
                     for (final student in filtered)
                       ParticipantCard(
                         participant: student,
-                        onTap: () => BlocProvider(
-                          create: (_) =>
-                              StudentDetailsCubit(context.read<ScheduleRepo>()),
-                          child: StudentDetailsView(student: student),
+                        onTap: () => context.pushNamed(
+                          'student',
+                          pathParameters: {'id': '${student.id!}'},
                         ),
                         onDelete: () =>
                             _showDeletionConfirmation(context, student),

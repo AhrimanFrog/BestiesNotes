@@ -12,10 +12,20 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
   Future<void> loadStudent(int studentId) async {
     emit(const StudentDetailsState(isLoading: true));
     try {
-      final lessons = await _repo.getLessonsForStudent(studentId);
-      emit(StudentDetailsState(lessons: lessons));
+      final student = await _repo.getStudent(studentId);
+      emit(state.copyWith(student: student));
     } catch (e) {
-      emit(StudentDetailsState(error: e.toString()));
+      emit(state.copyWith(error: e.toString()));
+    }
+  }
+
+  Future<void> loadLessons(int studentId) async {
+    emit(const StudentDetailsState(isLoading: true));
+    try {
+      final lessons = await _repo.getLessonsForStudent(studentId);
+      emit(state.copyWith(lessons: lessons, isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
     }
   }
 }

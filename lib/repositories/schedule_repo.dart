@@ -48,6 +48,9 @@ class ScheduleRepo {
   Future<void> deleteStudent(int studentId) =>
       dataProvider.deleteStudent(studentId);
 
+  Future<Student> getStudent(int studentId) =>
+      dataProvider.getStudent(studentId);
+
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) =>
       dataProvider.getStudents(offset: offset, limit: limit);
 

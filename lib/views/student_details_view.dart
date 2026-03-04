@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StudentDetailsView extends StatefulWidget {
-  final Student student;
+  final int studentId;
 
-  const StudentDetailsView({super.key, required this.student});
+  const StudentDetailsView({super.key, required this.studentId});
 
   @override
   State<StudentDetailsView> createState() => _StudentDetailsViewState();
@@ -20,36 +20,39 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
   @override
   void initState() {
     super.initState();
-    if (widget.student.id != null) {
-      context.read<StudentDetailsCubit>().loadStudent(widget.student.id!);
-    }
+    final cubit = context.read<StudentDetailsCubit>();
+    cubit.loadStudent(widget.studentId);
+    cubit.loadLessons(widget.studentId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final student = widget.student;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(student.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () {}, // TODO: open student edit form
+    return BlocBuilder<StudentDetailsCubit, StudentDetailsState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(state.student.name),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () {}, // TODO: open student edit form
+              ),
+            ],
           ),
-        ],
-      ),
-      body: GradientBackground(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          children: [
-            _HeaderCard(student: student),
-            const SizedBox(height: 12),
-            _NavigationChipsRow(student: student),
-            const SizedBox(height: 20),
-            _RecentLessonsSection(),
-          ],
-        ),
-      ),
+          body: GradientBackground(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                _HeaderCard(student: state.student),
+                const SizedBox(height: 12),
+                _NavigationChipsRow(student: state.student),
+                const SizedBox(height: 20),
+                _RecentLessonsSection(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

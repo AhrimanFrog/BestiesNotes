@@ -23,3 +23,4 @@ export 'texts/status_badge.dart';
 export 'ink_well_selector.dart';
 export 'cards/card_container.dart';
 export 'scholars_selector.dart';
+export 'main_bottom_bar.dart';

@@ -14,6 +14,8 @@ abstract class DataProvider {
 
   Future<void> deleteStudent(int studentId);
 
+  Future<Student> getStudent(int studentId);
+
   Future<List<Student>> getStudents({int offset = 0, int limit = 100});
 
   Future<List<Group>> getGroups({int offset = 0, int limit = 100});
