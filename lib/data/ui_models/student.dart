@@ -39,11 +39,11 @@ class Student extends Teachable {
 
   const Student.demo()
     : group = null,
-      contact = "+380951112233",
+      contact = "Loading...",
       note = "",
       super(
-        name: "Denis Skvorzov",
-        pricing: const Rate(rate: 420, period: .daily),
+        name: "Loading...",
+        pricing: const Rate(rate: 0, period: .daily),
         iconPath: null,
       );
 }

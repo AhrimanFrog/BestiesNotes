@@ -11,6 +11,9 @@ class ScheduleRepo {
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) =>
       dataProvider.getLessonsForRange(from, to);
 
+  Future<List<Lesson>> getLessonsForStudent(int studentId) =>
+      dataProvider.getLessonsForStudent(studentId);
+
   Future<Lesson> getLesson({required int lessonId}) =>
       dataProvider.getLesson(lessonId);
 
@@ -44,6 +47,9 @@ class ScheduleRepo {
 
   Future<void> deleteStudent(int studentId) =>
       dataProvider.deleteStudent(studentId);
+
+  Future<Student> getStudent(int studentId) =>
+      dataProvider.getStudent(studentId);
 
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) =>
       dataProvider.getStudents(offset: offset, limit: limit);

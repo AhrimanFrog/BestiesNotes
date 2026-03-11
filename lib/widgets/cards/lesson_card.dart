@@ -1,9 +1,10 @@
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/extensions/lesson_ui_ext.dart';
 import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,53 +27,19 @@ class _LessonCardState extends State<LessonCard> {
     orElse: () => widget.lesson,
   );
 
-  Color _cardMainColor(Lesson lesson) {
-    switch (lesson.status) {
-      case LessonStatus.cancelled:
-        return AppColors.softGrey;
-      case LessonStatus.completed:
-        return AppColors.softGreen;
-      case LessonStatus.scheduled:
-        return lesson.isNow ? AppColors.softWarmPink : AppColors.softPastelBlue;
-    }
-  }
-
-  Color _cardAccentColor(Lesson lesson) {
-    switch (lesson.status) {
-      case LessonStatus.cancelled:
-        return AppColors.accentGrey;
-      case LessonStatus.completed:
-        return AppColors.accentGreen;
-      case LessonStatus.scheduled:
-        return lesson.isNow ? AppColors.accentPink : AppColors.pastelBlue;
-    }
-  }
-
-  String _statusLabel(Lesson lesson) {
-    switch (lesson.status) {
-      case LessonStatus.cancelled:
-        return 'Cancelled';
-      case LessonStatus.completed:
-        return 'Completed';
-      case LessonStatus.scheduled:
-        return lesson.isNow ? 'In Progress' : 'Scheduled';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LessonsCubit, LessonsState>(
       builder: (context, state) {
         final lesson = _currentLesson(state);
         final isCancelled = lesson.isCancelled;
-        final opacity = isCancelled ? 0.55 : 1.0;
-        final accentColor = _cardAccentColor(lesson);
+        final accentColor = lesson.accentColor;
 
         return Opacity(
-          opacity: opacity,
+          opacity: isCancelled ? 0.55 : 1.0,
           child: Container(
             decoration: BoxDecoration(
-              color: _cardMainColor(lesson),
+              color: lesson.mainColor,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -184,21 +151,9 @@ class _LessonCardState extends State<LessonCard> {
             ),
           ),
 
-          // Status badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              _statusLabel(lesson),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: accentColor,
-              ),
-            ),
+          StatusBadge(
+            label: lesson.status.label(isNow: lesson.isNow),
+            accentColor: accentColor,
           ),
         ],
       ),

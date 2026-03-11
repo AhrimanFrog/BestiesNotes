@@ -167,7 +167,15 @@ class _GroupFormState extends State<GroupForm> {
                         onPeriodChanged: (val) =>
                             setState(() => _selectedPeriod = val),
                       ),
-                      _buildStudentSelector(),
+                      ScholarsSelector(
+                        label: 'Members',
+                        selectedSubjects: _selectedStudents,
+                        onTap: _isLoadingMembers ? null : _selectStudents,
+                        onDeleted: (s) => setState(() {
+                          _selectedStudents = Set.from(_selectedStudents)
+                            ..remove(s);
+                        }),
+                      ),
                     ],
                   ),
                 ),
@@ -196,48 +204,6 @@ class _GroupFormState extends State<GroupForm> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStudentSelector() {
-    return InkWell(
-      onTap: _isLoadingMembers ? null : _selectStudents,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Members',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.people),
-        ),
-        child: _isLoadingMembers
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : _selectedStudents.isEmpty
-            ? const Text(
-                'Tap to select students',
-                style: TextStyle(color: Colors.grey),
-              )
-            : Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: _selectedStudents
-                    .map(
-                      (s) => Chip(
-                        label: Text(s.name),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () {
-                          setState(() {
-                            _selectedStudents = Set.from(_selectedStudents)
-                              ..remove(s);
-                          });
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
       ),
     );
   }

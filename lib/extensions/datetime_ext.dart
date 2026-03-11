@@ -1,10 +1,14 @@
 extension DatetimeExt on DateTime {
   String toHoursAndMinsFormat() {
-    return '$hour:$minute';
+    final h = hour.toString().padLeft(2, '0');
+    final m = minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
 
   String toDateFormat() {
-    return "$day.$month.$year";
+    final d = day.toString().padLeft(2, '0');
+    final m = month.toString().padLeft(2, '0');
+    return '$d.$m.$year';
   }
 
   String capsWeekday() {

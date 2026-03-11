@@ -1,19 +1,24 @@
-import 'package:flutter/material.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
+import 'package:besties_notes/data/ui_models/teachable.dart';
+import 'package:flutter/material.dart';
 import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/widgets/index.dart';
 
-class StudentCard extends StatelessWidget {
-  final Student student;
+class ParticipantCard extends StatelessWidget {
+  final Teachable participant;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
-  const StudentCard({
+  const ParticipantCard({
     super.key,
-    required this.student,
+    required this.participant,
     this.onTap,
     this.onDelete,
   });
+
+  String get additionalInfo => (participant is Student)
+      ? (participant as Student).group?.name ?? (participant as Student).contact
+      : 'Group';
 
   @override
   Widget build(BuildContext context) {
@@ -22,30 +27,18 @@ class StudentCard extends StatelessWidget {
       child: Stack(
         fit: .expand,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white, // clean card background
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.softPink, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.softPink.withValues(alpha: 0.5),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          CardContainer(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 6,
               children: [
                 // Avatar Section
-                UserAvatar(teachable: student),
+                UserAvatar(teachable: participant),
 
                 // Name Section
                 Text(
-                  student.name,
+                  participant.name,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.mainText,
@@ -56,9 +49,8 @@ class StudentCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                // Subtitle (Location/Price/Group)
                 Text(
-                  student.group?.name ?? student.contact,
+                  additionalInfo,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.secondaryText,
@@ -67,23 +59,9 @@ class StudentCard extends StatelessWidget {
                   ),
                 ),
                 // Action / Status Pill
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.softWarmPink,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    "${student.pricing.rate} / ${student.pricing.period.name}",
-                    style: const TextStyle(
-                      color: AppColors.accentPink,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                StatusBadge(
+                  label: participant.pricing.toString(),
+                  accentColor: AppColors.accentPink,
                 ),
               ],
             ),

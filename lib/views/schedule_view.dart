@@ -14,10 +14,26 @@ class SchedulePage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         actions: [
-          WeekNavigationBar(),
+          BlocBuilder<LessonsCubit, LessonsState>(
+            builder: (ctx, state) {
+              final lessonCubit = ctx.read<LessonsCubit>();
+              return WeekNavigationBar(
+                timeRange: DateTimeRange(
+                  start: state.dateFrom,
+                  end: state.dateTo,
+                ),
+                onRangeSelection: (range) => lessonCubit.fetchLessons(
+                  from: range.start,
+                  to: range.end.add(const Duration(days: 1)),
+                ),
+                onTapLeft: lessonCubit.goToPreviousWeek,
+                onTapRight: lessonCubit.goToNextWeek,
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_today),
-            onPressed: () => context.read<LessonsCubit>().goToCurrentWeek(),
+            onPressed: context.read<LessonsCubit>().goToCurrentWeek,
           ),
           IconButton(
             icon: const Icon(Icons.add),

@@ -1,4 +1,5 @@
 import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -220,12 +221,33 @@ class _LessonFormState extends State<LessonForm> {
                         hint: 'E.g. Present Simple',
                         icon: const Icon(Icons.book),
                       ),
-                      _buildSubjectSelector(),
+                      ScholarsSelector(
+                        label: 'Students / Groups',
+                        selectedSubjects: _selectedSubjects,
+                        onTap: _selectSubjects,
+                        onDeleted: (s) => setState(() {
+                          _selectedSubjects = _selectedSubjects
+                              .where((t) => t != s)
+                              .toList();
+                        }),
+                      ),
                       Row(
                         children: [
-                          Expanded(child: _buildDateSelector()),
+                          Expanded(
+                            child: InkWellSelector(
+                              title: 'Date',
+                              body: _selectedDate.toDateFormat(),
+                              onTap: _selectDate,
+                            ),
+                          ),
                           const SizedBox(width: 16),
-                          Expanded(child: _buildTimeSelector()),
+                          Expanded(
+                            child: InkWellSelector(
+                              title: 'Time',
+                              body: _selectedTime.format(context),
+                              onTap: _selectTime,
+                            ),
+                          ),
                         ],
                       ),
                       InputField(
@@ -294,70 +316,6 @@ class _LessonFormState extends State<LessonForm> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSubjectSelector() {
-    return InkWell(
-      onTap: _selectSubjects,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Students / Groups',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.people),
-        ),
-        child: _selectedSubjects.isEmpty
-            ? const Text('Tap to select', style: TextStyle(color: Colors.grey))
-            : Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: _selectedSubjects
-                    .map(
-                      (s) => Chip(
-                        label: Text(s.name),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () {
-                          setState(() {
-                            _selectedSubjects = _selectedSubjects
-                                .where((t) => t != s)
-                                .toList();
-                          });
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildDateSelector() {
-    return InkWell(
-      onTap: _selectDate,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Date',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.calendar_today),
-        ),
-        child: Text(
-          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimeSelector() {
-    return InkWell(
-      onTap: _selectTime,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Time',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.access_time),
-        ),
-        child: Text(_selectedTime.format(context)),
       ),
     );
   }
