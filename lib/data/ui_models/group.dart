@@ -2,7 +2,6 @@ import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
 
 import 'student.dart';
-
 import 'teachable.dart';
 
 class Group extends Teachable {
