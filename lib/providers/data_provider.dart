@@ -39,10 +39,4 @@ abstract class DataProvider {
     bool? isPaid,
     bool? homeworkDone,
   });
-
-  Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
-    required DateTime from,
-    required DateTime to,
-    required int studentID,
-  });
 }

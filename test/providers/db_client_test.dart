@@ -58,7 +58,9 @@ void main() {
 
     test('update preserves id and changes name', () async {
       final id = await db.createOrUpdateStudent(makeStudent(name: 'Alice'));
-      await db.createOrUpdateStudent(makeStudent(id: id, name: 'Alice Updated'));
+      await db.createOrUpdateStudent(
+        makeStudent(id: id, name: 'Alice Updated'),
+      );
       final student = await db.getStudent(id);
       expect(student.name, 'Alice Updated');
       expect(student.id, id);
@@ -354,16 +356,19 @@ void main() {
       expect(lesson.participants.length, 2);
     });
 
-    test('participants default to not attended, not paid, homework not done', () async {
-      final studentId = await db.createOrUpdateStudent(makeStudent());
-      final lessonId = await db.createOrUpdateLesson(makeLesson());
-      await db.syncLessonMembership(lessonId, [makeStudent(id: studentId)]);
-      final lesson = await db.getLesson(lessonId);
-      final p = lesson.participants.first;
-      expect(p.attended, isFalse);
-      expect(p.isPaid, isFalse);
-      expect(p.homeworkDone, isFalse);
-    });
+    test(
+      'participants default to not attended, not paid, homework not done',
+      () async {
+        final studentId = await db.createOrUpdateStudent(makeStudent());
+        final lessonId = await db.createOrUpdateLesson(makeLesson());
+        await db.syncLessonMembership(lessonId, [makeStudent(id: studentId)]);
+        final lesson = await db.getLesson(lessonId);
+        final p = lesson.participants.first;
+        expect(p.attended, isFalse);
+        expect(p.isPaid, isFalse);
+        expect(p.homeworkDone, isFalse);
+      },
+    );
   });
 
   group('getLessonsForStudent', () {
@@ -478,16 +483,15 @@ void main() {
       expect(stats.totalLessons, 1);
     });
 
-    test('throws when student has no lessons in the period', () async {
+    test('no lessons in the period returns zeroes', () async {
       final studentId = await db.createOrUpdateStudent(makeStudent());
-      expect(
-        () => db.getPaymentStatForPeriod(
-          from: DateTime(2025, 1, 1),
-          to: DateTime(2025, 1, 31),
-          studentID: studentId,
-        ),
-        throwsException,
+      final stats = await db.getPaymentStatForPeriod(
+        from: DateTime(2025, 1, 1),
+        to: DateTime(2025, 1, 31),
+        studentID: studentId,
       );
+      expect(stats.paidLessons, 0);
+      expect(stats.totalLessons, 0);
     });
 
     test('only counts lessons within the period', () async {
