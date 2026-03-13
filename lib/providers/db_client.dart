@@ -23,28 +23,6 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-    onUpgrade: (m, from, to) async {
-      if (from < 3) {
-        await m.addColumn(
-          dbLessonParticipants,
-          dbLessonParticipants.homeworkDone,
-        );
-        await customStatement(
-          'UPDATE db_lesson_participants SET homework_done = 0',
-        );
-      }
-      if (from < 4) {
-        await m.addColumn(dbStudents, dbStudents.groupId);
-        await customStatement(
-          'UPDATE db_students SET group_id = (SELECT group_id FROM group_memberships WHERE student_id = db_students.id LIMIT 1)',
-        );
-        await customStatement('DROP TABLE group_memberships');
-      }
-    },
-  );
-
-  @override
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
     final queryRes = _lessonsQuery()
       ..where(dbLessons.start.isBetweenValues(from, to))
