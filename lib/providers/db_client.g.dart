@@ -508,607 +508,6 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
   }
 }
 
-class $DbStudentsTable extends DbStudents
-    with TableInfo<$DbStudentsTable, DbStudent> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $DbStudentsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _contactMeta = const VerificationMeta(
-    'contact',
-  );
-  @override
-  late final GeneratedColumn<String> contact = GeneratedColumn<String>(
-    'contact',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _emailMeta = const VerificationMeta('email');
-  @override
-  late final GeneratedColumn<String> email = GeneratedColumn<String>(
-    'email',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
-    'avatarPath',
-  );
-  @override
-  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
-    'avatar_path',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _payRateMeta = const VerificationMeta(
-    'payRate',
-  );
-  @override
-  late final GeneratedColumn<double> payRate = GeneratedColumn<double>(
-    'pay_rate',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<RatePeriod, String> period =
-      GeneratedColumn<String>(
-        'period',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<RatePeriod>($DbStudentsTable.$converterperiod);
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    contact,
-    email,
-    avatarPath,
-    payRate,
-    period,
-    notes,
-    createdAt,
-    updatedAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'db_students';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<DbStudent> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('contact')) {
-      context.handle(
-        _contactMeta,
-        contact.isAcceptableOrUnknown(data['contact']!, _contactMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_contactMeta);
-    }
-    if (data.containsKey('email')) {
-      context.handle(
-        _emailMeta,
-        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
-      );
-    }
-    if (data.containsKey('avatar_path')) {
-      context.handle(
-        _avatarPathMeta,
-        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
-      );
-    }
-    if (data.containsKey('pay_rate')) {
-      context.handle(
-        _payRateMeta,
-        payRate.isAcceptableOrUnknown(data['pay_rate']!, _payRateMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_payRateMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_notesMeta);
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  DbStudent map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DbStudent(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      contact: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}contact'],
-      )!,
-      email: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}email'],
-      ),
-      avatarPath: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}avatar_path'],
-      ),
-      payRate: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}pay_rate'],
-      )!,
-      period: $DbStudentsTable.$converterperiod.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}period'],
-        )!,
-      ),
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}updated_at'],
-      )!,
-    );
-  }
-
-  @override
-  $DbStudentsTable createAlias(String alias) {
-    return $DbStudentsTable(attachedDatabase, alias);
-  }
-
-  static JsonTypeConverter2<RatePeriod, String, String> $converterperiod =
-      const EnumNameConverter<RatePeriod>(RatePeriod.values);
-}
-
-class DbStudent extends DataClass implements Insertable<DbStudent> {
-  final int id;
-  final String name;
-  final String contact;
-  final String? email;
-  final String? avatarPath;
-  final double payRate;
-  final RatePeriod period;
-  final String notes;
-  final int createdAt;
-  final int updatedAt;
-  const DbStudent({
-    required this.id,
-    required this.name,
-    required this.contact,
-    this.email,
-    this.avatarPath,
-    required this.payRate,
-    required this.period,
-    required this.notes,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    map['contact'] = Variable<String>(contact);
-    if (!nullToAbsent || email != null) {
-      map['email'] = Variable<String>(email);
-    }
-    if (!nullToAbsent || avatarPath != null) {
-      map['avatar_path'] = Variable<String>(avatarPath);
-    }
-    map['pay_rate'] = Variable<double>(payRate);
-    {
-      map['period'] = Variable<String>(
-        $DbStudentsTable.$converterperiod.toSql(period),
-      );
-    }
-    map['notes'] = Variable<String>(notes);
-    map['created_at'] = Variable<int>(createdAt);
-    map['updated_at'] = Variable<int>(updatedAt);
-    return map;
-  }
-
-  DbStudentsCompanion toCompanion(bool nullToAbsent) {
-    return DbStudentsCompanion(
-      id: Value(id),
-      name: Value(name),
-      contact: Value(contact),
-      email: email == null && nullToAbsent
-          ? const Value.absent()
-          : Value(email),
-      avatarPath: avatarPath == null && nullToAbsent
-          ? const Value.absent()
-          : Value(avatarPath),
-      payRate: Value(payRate),
-      period: Value(period),
-      notes: Value(notes),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory DbStudent.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DbStudent(
-      id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      contact: serializer.fromJson<String>(json['contact']),
-      email: serializer.fromJson<String?>(json['email']),
-      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
-      payRate: serializer.fromJson<double>(json['payRate']),
-      period: $DbStudentsTable.$converterperiod.fromJson(
-        serializer.fromJson<String>(json['period']),
-      ),
-      notes: serializer.fromJson<String>(json['notes']),
-      createdAt: serializer.fromJson<int>(json['createdAt']),
-      updatedAt: serializer.fromJson<int>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'contact': serializer.toJson<String>(contact),
-      'email': serializer.toJson<String?>(email),
-      'avatarPath': serializer.toJson<String?>(avatarPath),
-      'payRate': serializer.toJson<double>(payRate),
-      'period': serializer.toJson<String>(
-        $DbStudentsTable.$converterperiod.toJson(period),
-      ),
-      'notes': serializer.toJson<String>(notes),
-      'createdAt': serializer.toJson<int>(createdAt),
-      'updatedAt': serializer.toJson<int>(updatedAt),
-    };
-  }
-
-  DbStudent copyWith({
-    int? id,
-    String? name,
-    String? contact,
-    Value<String?> email = const Value.absent(),
-    Value<String?> avatarPath = const Value.absent(),
-    double? payRate,
-    RatePeriod? period,
-    String? notes,
-    int? createdAt,
-    int? updatedAt,
-  }) => DbStudent(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    contact: contact ?? this.contact,
-    email: email.present ? email.value : this.email,
-    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
-    payRate: payRate ?? this.payRate,
-    period: period ?? this.period,
-    notes: notes ?? this.notes,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-  DbStudent copyWithCompanion(DbStudentsCompanion data) {
-    return DbStudent(
-      id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
-      contact: data.contact.present ? data.contact.value : this.contact,
-      email: data.email.present ? data.email.value : this.email,
-      avatarPath: data.avatarPath.present
-          ? data.avatarPath.value
-          : this.avatarPath,
-      payRate: data.payRate.present ? data.payRate.value : this.payRate,
-      period: data.period.present ? data.period.value : this.period,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DbStudent(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('contact: $contact, ')
-          ..write('email: $email, ')
-          ..write('avatarPath: $avatarPath, ')
-          ..write('payRate: $payRate, ')
-          ..write('period: $period, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    contact,
-    email,
-    avatarPath,
-    payRate,
-    period,
-    notes,
-    createdAt,
-    updatedAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is DbStudent &&
-          other.id == this.id &&
-          other.name == this.name &&
-          other.contact == this.contact &&
-          other.email == this.email &&
-          other.avatarPath == this.avatarPath &&
-          other.payRate == this.payRate &&
-          other.period == this.period &&
-          other.notes == this.notes &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
-}
-
-class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
-  final Value<int> id;
-  final Value<String> name;
-  final Value<String> contact;
-  final Value<String?> email;
-  final Value<String?> avatarPath;
-  final Value<double> payRate;
-  final Value<RatePeriod> period;
-  final Value<String> notes;
-  final Value<int> createdAt;
-  final Value<int> updatedAt;
-  const DbStudentsCompanion({
-    this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.contact = const Value.absent(),
-    this.email = const Value.absent(),
-    this.avatarPath = const Value.absent(),
-    this.payRate = const Value.absent(),
-    this.period = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  DbStudentsCompanion.insert({
-    this.id = const Value.absent(),
-    required String name,
-    required String contact,
-    this.email = const Value.absent(),
-    this.avatarPath = const Value.absent(),
-    required double payRate,
-    required RatePeriod period,
-    required String notes,
-    required int createdAt,
-    required int updatedAt,
-  }) : name = Value(name),
-       contact = Value(contact),
-       payRate = Value(payRate),
-       period = Value(period),
-       notes = Value(notes),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
-  static Insertable<DbStudent> custom({
-    Expression<int>? id,
-    Expression<String>? name,
-    Expression<String>? contact,
-    Expression<String>? email,
-    Expression<String>? avatarPath,
-    Expression<double>? payRate,
-    Expression<String>? period,
-    Expression<String>? notes,
-    Expression<int>? createdAt,
-    Expression<int>? updatedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (contact != null) 'contact': contact,
-      if (email != null) 'email': email,
-      if (avatarPath != null) 'avatar_path': avatarPath,
-      if (payRate != null) 'pay_rate': payRate,
-      if (period != null) 'period': period,
-      if (notes != null) 'notes': notes,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-    });
-  }
-
-  DbStudentsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? name,
-    Value<String>? contact,
-    Value<String?>? email,
-    Value<String?>? avatarPath,
-    Value<double>? payRate,
-    Value<RatePeriod>? period,
-    Value<String>? notes,
-    Value<int>? createdAt,
-    Value<int>? updatedAt,
-  }) {
-    return DbStudentsCompanion(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      contact: contact ?? this.contact,
-      email: email ?? this.email,
-      avatarPath: avatarPath ?? this.avatarPath,
-      payRate: payRate ?? this.payRate,
-      period: period ?? this.period,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (contact.present) {
-      map['contact'] = Variable<String>(contact.value);
-    }
-    if (email.present) {
-      map['email'] = Variable<String>(email.value);
-    }
-    if (avatarPath.present) {
-      map['avatar_path'] = Variable<String>(avatarPath.value);
-    }
-    if (payRate.present) {
-      map['pay_rate'] = Variable<double>(payRate.value);
-    }
-    if (period.present) {
-      map['period'] = Variable<String>(
-        $DbStudentsTable.$converterperiod.toSql(period.value),
-      );
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<int>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<int>(updatedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DbStudentsCompanion(')
-          ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('contact: $contact, ')
-          ..write('email: $email, ')
-          ..write('avatarPath: $avatarPath, ')
-          ..write('payRate: $payRate, ')
-          ..write('period: $period, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $DbGroupsTable extends DbGroups with TableInfo<$DbGroupsTable, DbGroup> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -1622,12 +1021,12 @@ class DbGroupsCompanion extends UpdateCompanion<DbGroup> {
   }
 }
 
-class $GroupMembershipsTable extends GroupMemberships
-    with TableInfo<$GroupMembershipsTable, GroupMembership> {
+class $DbStudentsTable extends DbStudents
+    with TableInfo<$DbStudentsTable, DbStudent> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $GroupMembershipsTable(this.attachedDatabase, [this._alias]);
+  $DbStudentsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1641,6 +1040,75 @@ class $GroupMembershipsTable extends GroupMemberships
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contactMeta = const VerificationMeta(
+    'contact',
+  );
+  @override
+  late final GeneratedColumn<String> contact = GeneratedColumn<String>(
+    'contact',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
+    'avatarPath',
+  );
+  @override
+  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
+    'avatar_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payRateMeta = const VerificationMeta(
+    'payRate',
+  );
+  @override
+  late final GeneratedColumn<double> payRate = GeneratedColumn<double>(
+    'pay_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RatePeriod, String> period =
+      GeneratedColumn<String>(
+        'period',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RatePeriod>($DbStudentsTable.$converterperiod);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _groupIdMeta = const VerificationMeta(
     'groupId',
   );
@@ -1648,37 +1116,57 @@ class $GroupMembershipsTable extends GroupMemberships
   late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
     'group_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_groups (id) ON DELETE CASCADE',
+      'REFERENCES db_groups (id) ON DELETE SET NULL',
     ),
   );
-  static const VerificationMeta _studentIdMeta = const VerificationMeta(
-    'studentId',
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
   );
   @override
-  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
-    'student_id',
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_students (id) ON DELETE CASCADE',
-    ),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, groupId, studentId];
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    contact,
+    email,
+    avatarPath,
+    payRate,
+    period,
+    notes,
+    groupId,
+    createdAt,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'group_memberships';
+  static const String $name = 'db_students';
   @override
   VerificationContext validateIntegrity(
-    Insertable<GroupMembership> instance, {
+    Insertable<DbStudent> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -1686,21 +1174,71 @@ class $GroupMembershipsTable extends GroupMemberships
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('contact')) {
+      context.handle(
+        _contactMeta,
+        contact.isAcceptableOrUnknown(data['contact']!, _contactMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contactMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('avatar_path')) {
+      context.handle(
+        _avatarPathMeta,
+        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
+      );
+    }
+    if (data.containsKey('pay_rate')) {
+      context.handle(
+        _payRateMeta,
+        payRate.isAcceptableOrUnknown(data['pay_rate']!, _payRateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payRateMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_notesMeta);
+    }
     if (data.containsKey('group_id')) {
       context.handle(
         _groupIdMeta,
         groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_groupIdMeta);
     }
-    if (data.containsKey('student_id')) {
+    if (data.containsKey('created_at')) {
       context.handle(
-        _studentIdMeta,
-        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     } else if (isInserting) {
-      context.missing(_studentIdMeta);
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -1708,69 +1246,160 @@ class $GroupMembershipsTable extends GroupMemberships
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {groupId, studentId},
-  ];
-  @override
-  GroupMembership map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbStudent map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return GroupMembership(
+    return DbStudent(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      contact: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact'],
+      )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
+      avatarPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_path'],
+      ),
+      payRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pay_rate'],
+      )!,
+      period: $DbStudentsTable.$converterperiod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}period'],
+        )!,
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
       groupId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}group_id'],
-      )!,
-      studentId: attachedDatabase.typeMapping.read(
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}student_id'],
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
       )!,
     );
   }
 
   @override
-  $GroupMembershipsTable createAlias(String alias) {
-    return $GroupMembershipsTable(attachedDatabase, alias);
+  $DbStudentsTable createAlias(String alias) {
+    return $DbStudentsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<RatePeriod, String, String> $converterperiod =
+      const EnumNameConverter<RatePeriod>(RatePeriod.values);
 }
 
-class GroupMembership extends DataClass implements Insertable<GroupMembership> {
+class DbStudent extends DataClass implements Insertable<DbStudent> {
   final int id;
-  final int groupId;
-  final int studentId;
-  const GroupMembership({
+  final String name;
+  final String contact;
+  final String? email;
+  final String? avatarPath;
+  final double payRate;
+  final RatePeriod period;
+  final String notes;
+  final int? groupId;
+  final int createdAt;
+  final int updatedAt;
+  const DbStudent({
     required this.id,
-    required this.groupId,
-    required this.studentId,
+    required this.name,
+    required this.contact,
+    this.email,
+    this.avatarPath,
+    required this.payRate,
+    required this.period,
+    required this.notes,
+    this.groupId,
+    required this.createdAt,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['group_id'] = Variable<int>(groupId);
-    map['student_id'] = Variable<int>(studentId);
+    map['name'] = Variable<String>(name);
+    map['contact'] = Variable<String>(contact);
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || avatarPath != null) {
+      map['avatar_path'] = Variable<String>(avatarPath);
+    }
+    map['pay_rate'] = Variable<double>(payRate);
+    {
+      map['period'] = Variable<String>(
+        $DbStudentsTable.$converterperiod.toSql(period),
+      );
+    }
+    map['notes'] = Variable<String>(notes);
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<int>(groupId);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
     return map;
   }
 
-  GroupMembershipsCompanion toCompanion(bool nullToAbsent) {
-    return GroupMembershipsCompanion(
+  DbStudentsCompanion toCompanion(bool nullToAbsent) {
+    return DbStudentsCompanion(
       id: Value(id),
-      groupId: Value(groupId),
-      studentId: Value(studentId),
+      name: Value(name),
+      contact: Value(contact),
+      email: email == null && nullToAbsent
+          ? const Value.absent()
+          : Value(email),
+      avatarPath: avatarPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarPath),
+      payRate: Value(payRate),
+      period: Value(period),
+      notes: Value(notes),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
-  factory GroupMembership.fromJson(
+  factory DbStudent.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return GroupMembership(
+    return DbStudent(
       id: serializer.fromJson<int>(json['id']),
-      groupId: serializer.fromJson<int>(json['groupId']),
-      studentId: serializer.fromJson<int>(json['studentId']),
+      name: serializer.fromJson<String>(json['name']),
+      contact: serializer.fromJson<String>(json['contact']),
+      email: serializer.fromJson<String?>(json['email']),
+      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
+      payRate: serializer.fromJson<double>(json['payRate']),
+      period: $DbStudentsTable.$converterperiod.fromJson(
+        serializer.fromJson<String>(json['period']),
+      ),
+      notes: serializer.fromJson<String>(json['notes']),
+      groupId: serializer.fromJson<int?>(json['groupId']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
   }
   @override
@@ -1778,82 +1407,210 @@ class GroupMembership extends DataClass implements Insertable<GroupMembership> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'groupId': serializer.toJson<int>(groupId),
-      'studentId': serializer.toJson<int>(studentId),
+      'name': serializer.toJson<String>(name),
+      'contact': serializer.toJson<String>(contact),
+      'email': serializer.toJson<String?>(email),
+      'avatarPath': serializer.toJson<String?>(avatarPath),
+      'payRate': serializer.toJson<double>(payRate),
+      'period': serializer.toJson<String>(
+        $DbStudentsTable.$converterperiod.toJson(period),
+      ),
+      'notes': serializer.toJson<String>(notes),
+      'groupId': serializer.toJson<int?>(groupId),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
     };
   }
 
-  GroupMembership copyWith({int? id, int? groupId, int? studentId}) =>
-      GroupMembership(
-        id: id ?? this.id,
-        groupId: groupId ?? this.groupId,
-        studentId: studentId ?? this.studentId,
-      );
-  GroupMembership copyWithCompanion(GroupMembershipsCompanion data) {
-    return GroupMembership(
+  DbStudent copyWith({
+    int? id,
+    String? name,
+    String? contact,
+    Value<String?> email = const Value.absent(),
+    Value<String?> avatarPath = const Value.absent(),
+    double? payRate,
+    RatePeriod? period,
+    String? notes,
+    Value<int?> groupId = const Value.absent(),
+    int? createdAt,
+    int? updatedAt,
+  }) => DbStudent(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    contact: contact ?? this.contact,
+    email: email.present ? email.value : this.email,
+    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
+    payRate: payRate ?? this.payRate,
+    period: period ?? this.period,
+    notes: notes ?? this.notes,
+    groupId: groupId.present ? groupId.value : this.groupId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  DbStudent copyWithCompanion(DbStudentsCompanion data) {
+    return DbStudent(
       id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      contact: data.contact.present ? data.contact.value : this.contact,
+      email: data.email.present ? data.email.value : this.email,
+      avatarPath: data.avatarPath.present
+          ? data.avatarPath.value
+          : this.avatarPath,
+      payRate: data.payRate.present ? data.payRate.value : this.payRate,
+      period: data.period.present ? data.period.value : this.period,
+      notes: data.notes.present ? data.notes.value : this.notes,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
-      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('GroupMembership(')
+    return (StringBuffer('DbStudent(')
           ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('contact: $contact, ')
+          ..write('email: $email, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('payRate: $payRate, ')
+          ..write('period: $period, ')
+          ..write('notes: $notes, ')
           ..write('groupId: $groupId, ')
-          ..write('studentId: $studentId')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, groupId, studentId);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    contact,
+    email,
+    avatarPath,
+    payRate,
+    period,
+    notes,
+    groupId,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is GroupMembership &&
+      (other is DbStudent &&
           other.id == this.id &&
+          other.name == this.name &&
+          other.contact == this.contact &&
+          other.email == this.email &&
+          other.avatarPath == this.avatarPath &&
+          other.payRate == this.payRate &&
+          other.period == this.period &&
+          other.notes == this.notes &&
           other.groupId == this.groupId &&
-          other.studentId == this.studentId);
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
-class GroupMembershipsCompanion extends UpdateCompanion<GroupMembership> {
+class DbStudentsCompanion extends UpdateCompanion<DbStudent> {
   final Value<int> id;
-  final Value<int> groupId;
-  final Value<int> studentId;
-  const GroupMembershipsCompanion({
+  final Value<String> name;
+  final Value<String> contact;
+  final Value<String?> email;
+  final Value<String?> avatarPath;
+  final Value<double> payRate;
+  final Value<RatePeriod> period;
+  final Value<String> notes;
+  final Value<int?> groupId;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  const DbStudentsCompanion({
     this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.contact = const Value.absent(),
+    this.email = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    this.payRate = const Value.absent(),
+    this.period = const Value.absent(),
+    this.notes = const Value.absent(),
     this.groupId = const Value.absent(),
-    this.studentId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
-  GroupMembershipsCompanion.insert({
+  DbStudentsCompanion.insert({
     this.id = const Value.absent(),
-    required int groupId,
-    required int studentId,
-  }) : groupId = Value(groupId),
-       studentId = Value(studentId);
-  static Insertable<GroupMembership> custom({
+    required String name,
+    required String contact,
+    this.email = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    required double payRate,
+    required RatePeriod period,
+    required String notes,
+    this.groupId = const Value.absent(),
+    required int createdAt,
+    required int updatedAt,
+  }) : name = Value(name),
+       contact = Value(contact),
+       payRate = Value(payRate),
+       period = Value(period),
+       notes = Value(notes),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<DbStudent> custom({
     Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? contact,
+    Expression<String>? email,
+    Expression<String>? avatarPath,
+    Expression<double>? payRate,
+    Expression<String>? period,
+    Expression<String>? notes,
     Expression<int>? groupId,
-    Expression<int>? studentId,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (contact != null) 'contact': contact,
+      if (email != null) 'email': email,
+      if (avatarPath != null) 'avatar_path': avatarPath,
+      if (payRate != null) 'pay_rate': payRate,
+      if (period != null) 'period': period,
+      if (notes != null) 'notes': notes,
       if (groupId != null) 'group_id': groupId,
-      if (studentId != null) 'student_id': studentId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
-  GroupMembershipsCompanion copyWith({
+  DbStudentsCompanion copyWith({
     Value<int>? id,
-    Value<int>? groupId,
-    Value<int>? studentId,
+    Value<String>? name,
+    Value<String>? contact,
+    Value<String?>? email,
+    Value<String?>? avatarPath,
+    Value<double>? payRate,
+    Value<RatePeriod>? period,
+    Value<String>? notes,
+    Value<int?>? groupId,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
   }) {
-    return GroupMembershipsCompanion(
+    return DbStudentsCompanion(
       id: id ?? this.id,
+      name: name ?? this.name,
+      contact: contact ?? this.contact,
+      email: email ?? this.email,
+      avatarPath: avatarPath ?? this.avatarPath,
+      payRate: payRate ?? this.payRate,
+      period: period ?? this.period,
+      notes: notes ?? this.notes,
       groupId: groupId ?? this.groupId,
-      studentId: studentId ?? this.studentId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -1863,21 +1620,55 @@ class GroupMembershipsCompanion extends UpdateCompanion<GroupMembership> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (contact.present) {
+      map['contact'] = Variable<String>(contact.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (avatarPath.present) {
+      map['avatar_path'] = Variable<String>(avatarPath.value);
+    }
+    if (payRate.present) {
+      map['pay_rate'] = Variable<double>(payRate.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(
+        $DbStudentsTable.$converterperiod.toSql(period.value),
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
     if (groupId.present) {
       map['group_id'] = Variable<int>(groupId.value);
     }
-    if (studentId.present) {
-      map['student_id'] = Variable<int>(studentId.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('GroupMembershipsCompanion(')
+    return (StringBuffer('DbStudentsCompanion(')
           ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('contact: $contact, ')
+          ..write('email: $email, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('payRate: $payRate, ')
+          ..write('period: $period, ')
+          ..write('notes: $notes, ')
           ..write('groupId: $groupId, ')
-          ..write('studentId: $studentId')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -2367,11 +2158,8 @@ abstract class _$DbClient extends GeneratedDatabase {
   _$DbClient(QueryExecutor e) : super(e);
   $DbClientManager get managers => $DbClientManager(this);
   late final $DbLessonsTable dbLessons = $DbLessonsTable(this);
-  late final $DbStudentsTable dbStudents = $DbStudentsTable(this);
   late final $DbGroupsTable dbGroups = $DbGroupsTable(this);
-  late final $GroupMembershipsTable groupMemberships = $GroupMembershipsTable(
-    this,
-  );
+  late final $DbStudentsTable dbStudents = $DbStudentsTable(this);
   late final $DbLessonParticipantsTable dbLessonParticipants =
       $DbLessonParticipantsTable(this);
   @override
@@ -2380,9 +2168,8 @@ abstract class _$DbClient extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     dbLessons,
-    dbStudents,
     dbGroups,
-    groupMemberships,
+    dbStudents,
     dbLessonParticipants,
   ];
   @override
@@ -2392,14 +2179,7 @@ abstract class _$DbClient extends GeneratedDatabase {
         'db_groups',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('group_memberships', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'db_students',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('group_memberships', kind: UpdateKind.delete)],
+      result: [TableUpdate('db_students', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -2786,519 +2566,6 @@ typedef $$DbLessonsTableProcessedTableManager =
       DbLesson,
       PrefetchHooks Function({bool dbLessonParticipantsRefs})
     >;
-typedef $$DbStudentsTableCreateCompanionBuilder =
-    DbStudentsCompanion Function({
-      Value<int> id,
-      required String name,
-      required String contact,
-      Value<String?> email,
-      Value<String?> avatarPath,
-      required double payRate,
-      required RatePeriod period,
-      required String notes,
-      required int createdAt,
-      required int updatedAt,
-    });
-typedef $$DbStudentsTableUpdateCompanionBuilder =
-    DbStudentsCompanion Function({
-      Value<int> id,
-      Value<String> name,
-      Value<String> contact,
-      Value<String?> email,
-      Value<String?> avatarPath,
-      Value<double> payRate,
-      Value<RatePeriod> period,
-      Value<String> notes,
-      Value<int> createdAt,
-      Value<int> updatedAt,
-    });
-
-final class $$DbStudentsTableReferences
-    extends BaseReferences<_$DbClient, $DbStudentsTable, DbStudent> {
-  $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
-  _groupMembershipsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
-    db.groupMemberships,
-    aliasName: $_aliasNameGenerator(
-      db.dbStudents.id,
-      db.groupMemberships.studentId,
-    ),
-  );
-
-  $$GroupMembershipsTableProcessedTableManager get groupMembershipsRefs {
-    final manager = $$GroupMembershipsTableTableManager(
-      $_db,
-      $_db.groupMemberships,
-    ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _groupMembershipsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<
-    $DbLessonParticipantsTable,
-    List<DbLessonParticipant>
-  >
-  _dbLessonParticipantsRefsTable(_$DbClient db) =>
-      MultiTypedResultKey.fromTable(
-        db.dbLessonParticipants,
-        aliasName: $_aliasNameGenerator(
-          db.dbStudents.id,
-          db.dbLessonParticipants.studentId,
-        ),
-      );
-
-  $$DbLessonParticipantsTableProcessedTableManager
-  get dbLessonParticipantsRefs {
-    final manager = $$DbLessonParticipantsTableTableManager(
-      $_db,
-      $_db.dbLessonParticipants,
-    ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _dbLessonParticipantsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$DbStudentsTableFilterComposer
-    extends Composer<_$DbClient, $DbStudentsTable> {
-  $$DbStudentsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get contact => $composableBuilder(
-    column: $table.contact,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get email => $composableBuilder(
-    column: $table.email,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get avatarPath => $composableBuilder(
-    column: $table.avatarPath,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get payRate => $composableBuilder(
-    column: $table.payRate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<RatePeriod, RatePeriod, String> get period =>
-      $composableBuilder(
-        column: $table.period,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> groupMembershipsRefs(
-    Expression<bool> Function($$GroupMembershipsTableFilterComposer f) f,
-  ) {
-    final $$GroupMembershipsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.groupMemberships,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GroupMembershipsTableFilterComposer(
-            $db: $db,
-            $table: $db.groupMemberships,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> dbLessonParticipantsRefs(
-    Expression<bool> Function($$DbLessonParticipantsTableFilterComposer f) f,
-  ) {
-    final $$DbLessonParticipantsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.dbLessonParticipants,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbLessonParticipantsTableFilterComposer(
-            $db: $db,
-            $table: $db.dbLessonParticipants,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$DbStudentsTableOrderingComposer
-    extends Composer<_$DbClient, $DbStudentsTable> {
-  $$DbStudentsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get contact => $composableBuilder(
-    column: $table.contact,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get email => $composableBuilder(
-    column: $table.email,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get avatarPath => $composableBuilder(
-    column: $table.avatarPath,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get payRate => $composableBuilder(
-    column: $table.payRate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get period => $composableBuilder(
-    column: $table.period,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$DbStudentsTableAnnotationComposer
-    extends Composer<_$DbClient, $DbStudentsTable> {
-  $$DbStudentsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get contact =>
-      $composableBuilder(column: $table.contact, builder: (column) => column);
-
-  GeneratedColumn<String> get email =>
-      $composableBuilder(column: $table.email, builder: (column) => column);
-
-  GeneratedColumn<String> get avatarPath => $composableBuilder(
-    column: $table.avatarPath,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get payRate =>
-      $composableBuilder(column: $table.payRate, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
-      $composableBuilder(column: $table.period, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<int> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<int> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  Expression<T> groupMembershipsRefs<T extends Object>(
-    Expression<T> Function($$GroupMembershipsTableAnnotationComposer a) f,
-  ) {
-    final $$GroupMembershipsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.groupMemberships,
-      getReferencedColumn: (t) => t.studentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GroupMembershipsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.groupMemberships,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> dbLessonParticipantsRefs<T extends Object>(
-    Expression<T> Function($$DbLessonParticipantsTableAnnotationComposer a) f,
-  ) {
-    final $$DbLessonParticipantsTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.dbLessonParticipants,
-          getReferencedColumn: (t) => t.studentId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$DbLessonParticipantsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.dbLessonParticipants,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-}
-
-class $$DbStudentsTableTableManager
-    extends
-        RootTableManager<
-          _$DbClient,
-          $DbStudentsTable,
-          DbStudent,
-          $$DbStudentsTableFilterComposer,
-          $$DbStudentsTableOrderingComposer,
-          $$DbStudentsTableAnnotationComposer,
-          $$DbStudentsTableCreateCompanionBuilder,
-          $$DbStudentsTableUpdateCompanionBuilder,
-          (DbStudent, $$DbStudentsTableReferences),
-          DbStudent,
-          PrefetchHooks Function({
-            bool groupMembershipsRefs,
-            bool dbLessonParticipantsRefs,
-          })
-        > {
-  $$DbStudentsTableTableManager(_$DbClient db, $DbStudentsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$DbStudentsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$DbStudentsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$DbStudentsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String> contact = const Value.absent(),
-                Value<String?> email = const Value.absent(),
-                Value<String?> avatarPath = const Value.absent(),
-                Value<double> payRate = const Value.absent(),
-                Value<RatePeriod> period = const Value.absent(),
-                Value<String> notes = const Value.absent(),
-                Value<int> createdAt = const Value.absent(),
-                Value<int> updatedAt = const Value.absent(),
-              }) => DbStudentsCompanion(
-                id: id,
-                name: name,
-                contact: contact,
-                email: email,
-                avatarPath: avatarPath,
-                payRate: payRate,
-                period: period,
-                notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required String contact,
-                Value<String?> email = const Value.absent(),
-                Value<String?> avatarPath = const Value.absent(),
-                required double payRate,
-                required RatePeriod period,
-                required String notes,
-                required int createdAt,
-                required int updatedAt,
-              }) => DbStudentsCompanion.insert(
-                id: id,
-                name: name,
-                contact: contact,
-                email: email,
-                avatarPath: avatarPath,
-                payRate: payRate,
-                period: period,
-                notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$DbStudentsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({
-                groupMembershipsRefs = false,
-                dbLessonParticipantsRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (groupMembershipsRefs) db.groupMemberships,
-                    if (dbLessonParticipantsRefs) db.dbLessonParticipants,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (groupMembershipsRefs)
-                        await $_getPrefetchedData<
-                          DbStudent,
-                          $DbStudentsTable,
-                          GroupMembership
-                        >(
-                          currentTable: table,
-                          referencedTable: $$DbStudentsTableReferences
-                              ._groupMembershipsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$DbStudentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).groupMembershipsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (dbLessonParticipantsRefs)
-                        await $_getPrefetchedData<
-                          DbStudent,
-                          $DbStudentsTable,
-                          DbLessonParticipant
-                        >(
-                          currentTable: table,
-                          referencedTable: $$DbStudentsTableReferences
-                              ._dbLessonParticipantsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$DbStudentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).dbLessonParticipantsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$DbStudentsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$DbClient,
-      $DbStudentsTable,
-      DbStudent,
-      $$DbStudentsTableFilterComposer,
-      $$DbStudentsTableOrderingComposer,
-      $$DbStudentsTableAnnotationComposer,
-      $$DbStudentsTableCreateCompanionBuilder,
-      $$DbStudentsTableUpdateCompanionBuilder,
-      (DbStudent, $$DbStudentsTableReferences),
-      DbStudent,
-      PrefetchHooks Function({
-        bool groupMembershipsRefs,
-        bool dbLessonParticipantsRefs,
-      })
-    >;
 typedef $$DbGroupsTableCreateCompanionBuilder =
     DbGroupsCompanion Function({
       Value<int> id,
@@ -3326,24 +2593,19 @@ final class $$DbGroupsTableReferences
     extends BaseReferences<_$DbClient, $DbGroupsTable, DbGroup> {
   $$DbGroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$GroupMembershipsTable, List<GroupMembership>>
-  _groupMembershipsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
-    db.groupMemberships,
-    aliasName: $_aliasNameGenerator(
-      db.dbGroups.id,
-      db.groupMemberships.groupId,
-    ),
+  static MultiTypedResultKey<$DbStudentsTable, List<DbStudent>>
+  _dbStudentsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
+    db.dbStudents,
+    aliasName: $_aliasNameGenerator(db.dbGroups.id, db.dbStudents.groupId),
   );
 
-  $$GroupMembershipsTableProcessedTableManager get groupMembershipsRefs {
-    final manager = $$GroupMembershipsTableTableManager(
+  $$DbStudentsTableProcessedTableManager get dbStudentsRefs {
+    final manager = $$DbStudentsTableTableManager(
       $_db,
-      $_db.groupMemberships,
+      $_db.dbStudents,
     ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(
-      _groupMembershipsRefsTable($_db),
-    );
+    final cache = $_typedResult.readTableOrNull(_dbStudentsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3428,22 +2690,22 @@ class $$DbGroupsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> groupMembershipsRefs(
-    Expression<bool> Function($$GroupMembershipsTableFilterComposer f) f,
+  Expression<bool> dbStudentsRefs(
+    Expression<bool> Function($$DbStudentsTableFilterComposer f) f,
   ) {
-    final $$GroupMembershipsTableFilterComposer composer = $composerBuilder(
+    final $$DbStudentsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.groupMemberships,
+      referencedTable: $db.dbStudents,
       getReferencedColumn: (t) => t.groupId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$GroupMembershipsTableFilterComposer(
+          }) => $$DbStudentsTableFilterComposer(
             $db: $db,
-            $table: $db.groupMemberships,
+            $table: $db.dbStudents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3566,22 +2828,22 @@ class $$DbGroupsTableAnnotationComposer
   GeneratedColumn<int> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  Expression<T> groupMembershipsRefs<T extends Object>(
-    Expression<T> Function($$GroupMembershipsTableAnnotationComposer a) f,
+  Expression<T> dbStudentsRefs<T extends Object>(
+    Expression<T> Function($$DbStudentsTableAnnotationComposer a) f,
   ) {
-    final $$GroupMembershipsTableAnnotationComposer composer = $composerBuilder(
+    final $$DbStudentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.groupMemberships,
+      referencedTable: $db.dbStudents,
       getReferencedColumn: (t) => t.groupId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$GroupMembershipsTableAnnotationComposer(
+          }) => $$DbStudentsTableAnnotationComposer(
             $db: $db,
-            $table: $db.groupMemberships,
+            $table: $db.dbStudents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3632,7 +2894,7 @@ class $$DbGroupsTableTableManager
           (DbGroup, $$DbGroupsTableReferences),
           DbGroup,
           PrefetchHooks Function({
-            bool groupMembershipsRefs,
+            bool dbStudentsRefs,
             bool dbLessonParticipantsRefs,
           })
         > {
@@ -3696,34 +2958,31 @@ class $$DbGroupsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                groupMembershipsRefs = false,
-                dbLessonParticipantsRefs = false,
-              }) {
+              ({dbStudentsRefs = false, dbLessonParticipantsRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (groupMembershipsRefs) db.groupMemberships,
+                    if (dbStudentsRefs) db.dbStudents,
                     if (dbLessonParticipantsRefs) db.dbLessonParticipants,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (groupMembershipsRefs)
+                      if (dbStudentsRefs)
                         await $_getPrefetchedData<
                           DbGroup,
                           $DbGroupsTable,
-                          GroupMembership
+                          DbStudent
                         >(
                           currentTable: table,
                           referencedTable: $$DbGroupsTableReferences
-                              ._groupMembershipsRefsTable(db),
+                              ._dbStudentsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$DbGroupsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).groupMembershipsRefs,
+                              ).dbStudentsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.groupId == item.id,
@@ -3772,39 +3031,50 @@ typedef $$DbGroupsTableProcessedTableManager =
       (DbGroup, $$DbGroupsTableReferences),
       DbGroup,
       PrefetchHooks Function({
-        bool groupMembershipsRefs,
+        bool dbStudentsRefs,
         bool dbLessonParticipantsRefs,
       })
     >;
-typedef $$GroupMembershipsTableCreateCompanionBuilder =
-    GroupMembershipsCompanion Function({
+typedef $$DbStudentsTableCreateCompanionBuilder =
+    DbStudentsCompanion Function({
       Value<int> id,
-      required int groupId,
-      required int studentId,
+      required String name,
+      required String contact,
+      Value<String?> email,
+      Value<String?> avatarPath,
+      required double payRate,
+      required RatePeriod period,
+      required String notes,
+      Value<int?> groupId,
+      required int createdAt,
+      required int updatedAt,
     });
-typedef $$GroupMembershipsTableUpdateCompanionBuilder =
-    GroupMembershipsCompanion Function({
+typedef $$DbStudentsTableUpdateCompanionBuilder =
+    DbStudentsCompanion Function({
       Value<int> id,
-      Value<int> groupId,
-      Value<int> studentId,
+      Value<String> name,
+      Value<String> contact,
+      Value<String?> email,
+      Value<String?> avatarPath,
+      Value<double> payRate,
+      Value<RatePeriod> period,
+      Value<String> notes,
+      Value<int?> groupId,
+      Value<int> createdAt,
+      Value<int> updatedAt,
     });
 
-final class $$GroupMembershipsTableReferences
-    extends
-        BaseReferences<_$DbClient, $GroupMembershipsTable, GroupMembership> {
-  $$GroupMembershipsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+final class $$DbStudentsTableReferences
+    extends BaseReferences<_$DbClient, $DbStudentsTable, DbStudent> {
+  $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $DbGroupsTable _groupIdTable(_$DbClient db) => db.dbGroups.createAlias(
-    $_aliasNameGenerator(db.groupMemberships.groupId, db.dbGroups.id),
+    $_aliasNameGenerator(db.dbStudents.groupId, db.dbGroups.id),
   );
 
-  $$DbGroupsTableProcessedTableManager get groupId {
-    final $_column = $_itemColumn<int>('group_id')!;
-
+  $$DbGroupsTableProcessedTableManager? get groupId {
+    final $_column = $_itemColumn<int>('group_id');
+    if ($_column == null) return null;
     final manager = $$DbGroupsTableTableManager(
       $_db,
       $_db.dbGroups,
@@ -3816,29 +3086,38 @@ final class $$GroupMembershipsTableReferences
     );
   }
 
-  static $DbStudentsTable _studentIdTable(_$DbClient db) =>
-      db.dbStudents.createAlias(
-        $_aliasNameGenerator(db.groupMemberships.studentId, db.dbStudents.id),
+  static MultiTypedResultKey<
+    $DbLessonParticipantsTable,
+    List<DbLessonParticipant>
+  >
+  _dbLessonParticipantsRefsTable(_$DbClient db) =>
+      MultiTypedResultKey.fromTable(
+        db.dbLessonParticipants,
+        aliasName: $_aliasNameGenerator(
+          db.dbStudents.id,
+          db.dbLessonParticipants.studentId,
+        ),
       );
 
-  $$DbStudentsTableProcessedTableManager get studentId {
-    final $_column = $_itemColumn<int>('student_id')!;
-
-    final manager = $$DbStudentsTableTableManager(
+  $$DbLessonParticipantsTableProcessedTableManager
+  get dbLessonParticipantsRefs {
+    final manager = $$DbLessonParticipantsTableTableManager(
       $_db,
-      $_db.dbStudents,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_studentIdTable($_db));
-    if (item == null) return manager;
+      $_db.dbLessonParticipants,
+    ).filter((f) => f.studentId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _dbLessonParticipantsRefsTable($_db),
+    );
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
 
-class $$GroupMembershipsTableFilterComposer
-    extends Composer<_$DbClient, $GroupMembershipsTable> {
-  $$GroupMembershipsTableFilterComposer({
+class $$DbStudentsTableFilterComposer
+    extends Composer<_$DbClient, $DbStudentsTable> {
+  $$DbStudentsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3847,6 +3126,52 @@ class $$GroupMembershipsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contact => $composableBuilder(
+    column: $table.contact,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<RatePeriod, RatePeriod, String> get period =>
+      $composableBuilder(
+        column: $table.period,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3873,33 +3198,35 @@ class $$GroupMembershipsTableFilterComposer
     return composer;
   }
 
-  $$DbStudentsTableFilterComposer get studentId {
-    final $$DbStudentsTableFilterComposer composer = $composerBuilder(
+  Expression<bool> dbLessonParticipantsRefs(
+    Expression<bool> Function($$DbLessonParticipantsTableFilterComposer f) f,
+  ) {
+    final $$DbLessonParticipantsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.dbStudents,
-      getReferencedColumn: (t) => t.id,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.dbLessonParticipants,
+      getReferencedColumn: (t) => t.studentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DbStudentsTableFilterComposer(
+          }) => $$DbLessonParticipantsTableFilterComposer(
             $db: $db,
-            $table: $db.dbStudents,
+            $table: $db.dbLessonParticipants,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
                 $removeJoinBuilderFromRootComposer,
           ),
     );
-    return composer;
+    return f(composer);
   }
 }
 
-class $$GroupMembershipsTableOrderingComposer
-    extends Composer<_$DbClient, $GroupMembershipsTable> {
-  $$GroupMembershipsTableOrderingComposer({
+class $$DbStudentsTableOrderingComposer
+    extends Composer<_$DbClient, $DbStudentsTable> {
+  $$DbStudentsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3908,6 +3235,51 @@ class $$GroupMembershipsTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contact => $composableBuilder(
+    column: $table.contact,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3933,34 +3305,11 @@ class $$GroupMembershipsTableOrderingComposer
     );
     return composer;
   }
-
-  $$DbStudentsTableOrderingComposer get studentId {
-    final $$DbStudentsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.dbStudents,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbStudentsTableOrderingComposer(
-            $db: $db,
-            $table: $db.dbStudents,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
-class $$GroupMembershipsTableAnnotationComposer
-    extends Composer<_$DbClient, $GroupMembershipsTable> {
-  $$GroupMembershipsTableAnnotationComposer({
+class $$DbStudentsTableAnnotationComposer
+    extends Composer<_$DbClient, $DbStudentsTable> {
+  $$DbStudentsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3969,6 +3318,35 @@ class $$GroupMembershipsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get contact =>
+      $composableBuilder(column: $table.contact, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get payRate =>
+      $composableBuilder(column: $table.payRate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$DbGroupsTableAnnotationComposer get groupId {
     final $$DbGroupsTableAnnotationComposer composer = $composerBuilder(
@@ -3993,161 +3371,203 @@ class $$GroupMembershipsTableAnnotationComposer
     return composer;
   }
 
-  $$DbStudentsTableAnnotationComposer get studentId {
-    final $$DbStudentsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.studentId,
-      referencedTable: $db.dbStudents,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DbStudentsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.dbStudents,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
+  Expression<T> dbLessonParticipantsRefs<T extends Object>(
+    Expression<T> Function($$DbLessonParticipantsTableAnnotationComposer a) f,
+  ) {
+    final $$DbLessonParticipantsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.dbLessonParticipants,
+          getReferencedColumn: (t) => t.studentId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
+              }) => $$DbLessonParticipantsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.dbLessonParticipants,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
   }
 }
 
-class $$GroupMembershipsTableTableManager
+class $$DbStudentsTableTableManager
     extends
         RootTableManager<
           _$DbClient,
-          $GroupMembershipsTable,
-          GroupMembership,
-          $$GroupMembershipsTableFilterComposer,
-          $$GroupMembershipsTableOrderingComposer,
-          $$GroupMembershipsTableAnnotationComposer,
-          $$GroupMembershipsTableCreateCompanionBuilder,
-          $$GroupMembershipsTableUpdateCompanionBuilder,
-          (GroupMembership, $$GroupMembershipsTableReferences),
-          GroupMembership,
-          PrefetchHooks Function({bool groupId, bool studentId})
+          $DbStudentsTable,
+          DbStudent,
+          $$DbStudentsTableFilterComposer,
+          $$DbStudentsTableOrderingComposer,
+          $$DbStudentsTableAnnotationComposer,
+          $$DbStudentsTableCreateCompanionBuilder,
+          $$DbStudentsTableUpdateCompanionBuilder,
+          (DbStudent, $$DbStudentsTableReferences),
+          DbStudent,
+          PrefetchHooks Function({bool groupId, bool dbLessonParticipantsRefs})
         > {
-  $$GroupMembershipsTableTableManager(
-    _$DbClient db,
-    $GroupMembershipsTable table,
-  ) : super(
+  $$DbStudentsTableTableManager(_$DbClient db, $DbStudentsTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$GroupMembershipsTableFilterComposer($db: db, $table: table),
+              $$DbStudentsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$GroupMembershipsTableOrderingComposer($db: db, $table: table),
+              $$DbStudentsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$GroupMembershipsTableAnnotationComposer($db: db, $table: table),
+              $$DbStudentsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> groupId = const Value.absent(),
-                Value<int> studentId = const Value.absent(),
-              }) => GroupMembershipsCompanion(
+                Value<String> name = const Value.absent(),
+                Value<String> contact = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                Value<double> payRate = const Value.absent(),
+                Value<RatePeriod> period = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+              }) => DbStudentsCompanion(
                 id: id,
+                name: name,
+                contact: contact,
+                email: email,
+                avatarPath: avatarPath,
+                payRate: payRate,
+                period: period,
+                notes: notes,
                 groupId: groupId,
-                studentId: studentId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int groupId,
-                required int studentId,
-              }) => GroupMembershipsCompanion.insert(
+                required String name,
+                required String contact,
+                Value<String?> email = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                required double payRate,
+                required RatePeriod period,
+                required String notes,
+                Value<int?> groupId = const Value.absent(),
+                required int createdAt,
+                required int updatedAt,
+              }) => DbStudentsCompanion.insert(
                 id: id,
+                name: name,
+                contact: contact,
+                email: email,
+                avatarPath: avatarPath,
+                payRate: payRate,
+                period: period,
+                notes: notes,
                 groupId: groupId,
-                studentId: studentId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$GroupMembershipsTableReferences(db, table, e),
+                  $$DbStudentsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({groupId = false, studentId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (groupId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.groupId,
-                                referencedTable:
-                                    $$GroupMembershipsTableReferences
+          prefetchHooksCallback:
+              ({groupId = false, dbLessonParticipantsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (dbLessonParticipantsRefs) db.dbLessonParticipants,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (groupId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.groupId,
+                                    referencedTable: $$DbStudentsTableReferences
                                         ._groupIdTable(db),
-                                referencedColumn:
-                                    $$GroupMembershipsTableReferences
-                                        ._groupIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-                    if (studentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.studentId,
-                                referencedTable:
-                                    $$GroupMembershipsTableReferences
-                                        ._studentIdTable(db),
-                                referencedColumn:
-                                    $$GroupMembershipsTableReferences
-                                        ._studentIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
+                                    referencedColumn:
+                                        $$DbStudentsTableReferences
+                                            ._groupIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (dbLessonParticipantsRefs)
+                        await $_getPrefetchedData<
+                          DbStudent,
+                          $DbStudentsTable,
+                          DbLessonParticipant
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DbStudentsTableReferences
+                              ._dbLessonParticipantsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DbStudentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dbLessonParticipantsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.studentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
 
-typedef $$GroupMembershipsTableProcessedTableManager =
+typedef $$DbStudentsTableProcessedTableManager =
     ProcessedTableManager<
       _$DbClient,
-      $GroupMembershipsTable,
-      GroupMembership,
-      $$GroupMembershipsTableFilterComposer,
-      $$GroupMembershipsTableOrderingComposer,
-      $$GroupMembershipsTableAnnotationComposer,
-      $$GroupMembershipsTableCreateCompanionBuilder,
-      $$GroupMembershipsTableUpdateCompanionBuilder,
-      (GroupMembership, $$GroupMembershipsTableReferences),
-      GroupMembership,
-      PrefetchHooks Function({bool groupId, bool studentId})
+      $DbStudentsTable,
+      DbStudent,
+      $$DbStudentsTableFilterComposer,
+      $$DbStudentsTableOrderingComposer,
+      $$DbStudentsTableAnnotationComposer,
+      $$DbStudentsTableCreateCompanionBuilder,
+      $$DbStudentsTableUpdateCompanionBuilder,
+      (DbStudent, $$DbStudentsTableReferences),
+      DbStudent,
+      PrefetchHooks Function({bool groupId, bool dbLessonParticipantsRefs})
     >;
 typedef $$DbLessonParticipantsTableCreateCompanionBuilder =
     DbLessonParticipantsCompanion Function({
@@ -4710,12 +4130,10 @@ class $DbClientManager {
   $DbClientManager(this._db);
   $$DbLessonsTableTableManager get dbLessons =>
       $$DbLessonsTableTableManager(_db, _db.dbLessons);
-  $$DbStudentsTableTableManager get dbStudents =>
-      $$DbStudentsTableTableManager(_db, _db.dbStudents);
   $$DbGroupsTableTableManager get dbGroups =>
       $$DbGroupsTableTableManager(_db, _db.dbGroups);
-  $$GroupMembershipsTableTableManager get groupMemberships =>
-      $$GroupMembershipsTableTableManager(_db, _db.groupMemberships);
+  $$DbStudentsTableTableManager get dbStudents =>
+      $$DbStudentsTableTableManager(_db, _db.dbStudents);
   $$DbLessonParticipantsTableTableManager get dbLessonParticipants =>
       $$DbLessonParticipantsTableTableManager(_db, _db.dbLessonParticipants);
 }

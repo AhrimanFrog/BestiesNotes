@@ -11,20 +11,12 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'db_client.g.dart';
 
-@DriftDatabase(
-  tables: [
-    DbLessons,
-    DbStudents,
-    DbGroups,
-    GroupMemberships,
-    DbLessonParticipants,
-  ],
-)
+@DriftDatabase(tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants])
 class DbClient extends _$DbClient implements DataProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
@@ -33,15 +25,12 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
-      if (from < 3) {
-        await m.addColumn(
-          dbLessonParticipants,
-          dbLessonParticipants.homeworkDone,
-        );
-
+      if (from < 4) {
+        await m.addColumn(dbStudents, dbLessonParticipants.groupId);
         await customStatement(
-          'UPDATE db_lesson_participants SET homework_done = 0',
+          'UPDATE db_students SET group_id = (SELECT group_id FROM group_membership WHERE student_id = db_students.id LIMIT 1)',
         );
+        await customStatement('DROP TABLE group_membership');
       }
     },
   );
@@ -152,14 +141,7 @@ class DbClient extends _$DbClient implements DataProvider {
   Future<Student> getStudent(int studentId) async {
     final query = (select(dbStudents)..where((s) => s.id.equals(studentId)))
         .join([
-          leftOuterJoin(
-            groupMemberships,
-            groupMemberships.studentId.equalsExp(dbStudents.id),
-          ),
-          leftOuterJoin(
-            dbGroups,
-            dbGroups.id.equalsExp(groupMemberships.groupId),
-          ),
+          leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
         ]);
     final result = await query.getSingle();
     return result
@@ -171,11 +153,7 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
     final query = (select(dbStudents)..limit(limit, offset: offset)).join([
-      leftOuterJoin(
-        groupMemberships,
-        groupMemberships.studentId.equalsExp(dbStudents.id),
-      ),
-      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(groupMemberships.groupId)),
+      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
     ]);
 
     final Map<int, Student> seen = {};
@@ -218,33 +196,24 @@ class DbClient extends _$DbClient implements DataProvider {
 
   @override
   Future<List<Student>> getGroupMembers(int groupId) async {
-    final query = select(groupMemberships).join([
-      innerJoin(
-        dbStudents,
-        dbStudents.id.equalsExp(groupMemberships.studentId),
-      ),
-    ])..where(groupMemberships.groupId.equals(groupId));
-
-    final rows = await query.get();
-    return rows.map((row) => row.readTable(dbStudents).toDomain()).toList();
+    final query = select(dbStudents)..where((s) => s.groupId.equals(groupId));
+    return (await query.get()).map((dbs) => dbs.toDomain()).toList();
   }
 
   @override
-  Future<void> syncGroupMemberships(int groupId, Iterable<int> studentIds) {
-    return transaction(() async {
-      await (delete(
-        groupMemberships,
-      )..where((m) => m.groupId.equals(groupId))).go();
+  Future<void> syncGroupMemberships(
+    int groupId,
+    Iterable<int> studentIds,
+  ) async {
+    await (update(dbStudents)
+          ..where((s) => s.groupId.equals(groupId) & s.id.isNotIn(studentIds)))
+        .write(DbStudentsCompanion(groupId: Value(null)));
 
-      for (final studentId in studentIds) {
-        await into(groupMemberships).insert(
-          GroupMembershipsCompanion.insert(
-            groupId: groupId,
-            studentId: studentId,
-          ),
-        );
-      }
-    });
+    if (studentIds.isNotEmpty) {
+      await (update(dbStudents)..where((s) => s.id.isIn(studentIds))).write(
+        DbStudentsCompanion(groupId: Value(groupId)),
+      );
+    }
   }
 
   Future<void> _removeLessonParticipants(

@@ -10,6 +10,9 @@ class DbStudents extends Table {
   RealColumn get payRate => real()();
   TextColumn get period => textEnum<RatePeriod>()();
   TextColumn get notes => text()();
+  IntColumn get groupId => integer()
+      .references(DbGroups, #id, onDelete: KeyAction.setNull)
+      .nullable()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
 }
@@ -23,19 +26,6 @@ class DbGroups extends Table {
   TextColumn get period => textEnum<RatePeriod>()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
-}
-
-class GroupMemberships extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  IntColumn get groupId =>
-      integer().references(DbGroups, #id, onDelete: KeyAction.cascade)();
-  IntColumn get studentId =>
-      integer().references(DbStudents, #id, onDelete: KeyAction.cascade)();
-
-  @override
-  List<Set<Column<Object>>>? get uniqueKeys => [
-    {groupId, studentId},
-  ];
 }
 
 class DbLessons extends Table {
