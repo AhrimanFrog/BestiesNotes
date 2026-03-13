@@ -18,6 +18,9 @@ extension DbLessonDetailsExt on DbLessonDetails {
         attended: status?.attended ?? false,
         isPaid: status?.isPaid ?? false,
         homeworkDone: status?.homeworkDone ?? false,
+        group: status?.groupId != null
+            ? groups[status!.groupId]?.toDomain()
+            : null,
       );
     }).toList();
 

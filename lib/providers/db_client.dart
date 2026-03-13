@@ -11,40 +11,16 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'db_client.g.dart';
 
-@DriftDatabase(
-  tables: [
-    DbLessons,
-    DbStudents,
-    DbGroups,
-    GroupMemberships,
-    DbLessonParticipants,
-  ],
-)
+@DriftDatabase(tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants])
 class DbClient extends _$DbClient implements DataProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
   }
-
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-    onUpgrade: (m, from, to) async {
-      if (from < 3) {
-        await m.addColumn(
-          dbLessonParticipants,
-          dbLessonParticipants.homeworkDone,
-        );
-
-        await customStatement(
-          'UPDATE db_lesson_participants SET homework_done = 0',
-        );
-      }
-    },
-  );
 
   @override
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
@@ -152,14 +128,7 @@ class DbClient extends _$DbClient implements DataProvider {
   Future<Student> getStudent(int studentId) async {
     final query = (select(dbStudents)..where((s) => s.id.equals(studentId)))
         .join([
-          leftOuterJoin(
-            groupMemberships,
-            groupMemberships.studentId.equalsExp(dbStudents.id),
-          ),
-          leftOuterJoin(
-            dbGroups,
-            dbGroups.id.equalsExp(groupMemberships.groupId),
-          ),
+          leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
         ]);
     final result = await query.getSingle();
     return result
@@ -171,29 +140,22 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
     final query = (select(dbStudents)..limit(limit, offset: offset)).join([
-      leftOuterJoin(
-        groupMemberships,
-        groupMemberships.studentId.equalsExp(dbStudents.id),
-      ),
-      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(groupMemberships.groupId)),
+      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
     ]);
 
-    final Map<int, Student> seen = {};
-    for (final row in await query.get()) {
-      final dbStudent = row.readTable(dbStudents);
-      if (!seen.containsKey(dbStudent.id)) {
-        final dbGroup = row.readTableOrNull(dbGroups);
-        seen[dbStudent.id] = dbStudent.toDomain(group: dbGroup?.toDomain());
-      }
-    }
-    return seen.values.toList();
+    return (await query.get())
+        .map(
+          (r) => r
+              .readTable(dbStudents)
+              .toDomain(group: r.readTableOrNull(dbGroups)?.toDomain()),
+        )
+        .toList();
   }
 
   @override
   Future<List<Group>> getGroups({int offset = 0, int limit = 100}) async {
-    return (await (select(
-      dbGroups,
-    )..limit(limit, offset: offset)).get()).map((g) => g.toDomain()).toList();
+    final query = select(dbGroups)..limit(limit, offset: offset);
+    return (await query.get()).map((g) => g.toDomain()).toList();
   }
 
   @override
@@ -218,33 +180,24 @@ class DbClient extends _$DbClient implements DataProvider {
 
   @override
   Future<List<Student>> getGroupMembers(int groupId) async {
-    final query = select(groupMemberships).join([
-      innerJoin(
-        dbStudents,
-        dbStudents.id.equalsExp(groupMemberships.studentId),
-      ),
-    ])..where(groupMemberships.groupId.equals(groupId));
-
-    final rows = await query.get();
-    return rows.map((row) => row.readTable(dbStudents).toDomain()).toList();
+    final query = select(dbStudents)..where((s) => s.groupId.equals(groupId));
+    return (await query.get()).map((dbs) => dbs.toDomain()).toList();
   }
 
   @override
-  Future<void> syncGroupMemberships(int groupId, Iterable<int> studentIds) {
-    return transaction(() async {
-      await (delete(
-        groupMemberships,
-      )..where((m) => m.groupId.equals(groupId))).go();
+  Future<void> syncGroupMemberships(
+    int groupId,
+    Iterable<int> studentIds,
+  ) async {
+    await (update(dbStudents)
+          ..where((s) => s.groupId.equals(groupId) & s.id.isNotIn(studentIds)))
+        .write(DbStudentsCompanion(groupId: Value(null)));
 
-      for (final studentId in studentIds) {
-        await into(groupMemberships).insert(
-          GroupMembershipsCompanion.insert(
-            groupId: groupId,
-            studentId: studentId,
-          ),
-        );
-      }
-    });
+    if (studentIds.isNotEmpty) {
+      await (update(dbStudents)..where((s) => s.id.isIn(studentIds))).write(
+        DbStudentsCompanion(groupId: Value(groupId)),
+      );
+    }
   }
 
   Future<void> _removeLessonParticipants(
@@ -325,6 +278,28 @@ class DbClient extends _$DbClient implements DataProvider {
   }) async {
     await (update(dbLessonParticipants)..where(
           (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
+        ))
+        .write(
+          DbLessonParticipantsCompanion(
+            attended: attended != null ? Value(attended) : const Value.absent(),
+            isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
+            homeworkDone: homeworkDone != null
+                ? Value(homeworkDone)
+                : const Value.absent(),
+          ),
+        );
+  }
+
+  @override
+  Future<void> updateGroupStatuses(
+    int lessonId,
+    int groupId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) async {
+    await (update(dbLessonParticipants)..where(
+          (p) => p.lessonId.equals(lessonId) & p.groupId.equals(groupId),
         ))
         .write(
           DbLessonParticipantsCompanion(
