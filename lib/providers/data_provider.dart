@@ -40,6 +40,14 @@ abstract class DataProvider {
     bool? homeworkDone,
   });
 
+  Future<void> updateGroupStatuses(
+    int lessonId,
+    int groupId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  });
+
   Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
     required DateTime from,
     required DateTime to,

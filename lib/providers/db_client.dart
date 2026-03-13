@@ -25,12 +25,21 @@ class DbClient extends _$DbClient implements DataProvider {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
-      if (from < 4) {
-        await m.addColumn(dbStudents, dbLessonParticipants.groupId);
-        await customStatement(
-          'UPDATE db_students SET group_id = (SELECT group_id FROM group_membership WHERE student_id = db_students.id LIMIT 1)',
+      if (from < 3) {
+        await m.addColumn(
+          dbLessonParticipants,
+          dbLessonParticipants.homeworkDone,
         );
-        await customStatement('DROP TABLE group_membership');
+        await customStatement(
+          'UPDATE db_lesson_participants SET homework_done = 0',
+        );
+      }
+      if (from < 4) {
+        await m.addColumn(dbStudents, dbStudents.groupId);
+        await customStatement(
+          'UPDATE db_students SET group_id = (SELECT group_id FROM group_memberships WHERE student_id = db_students.id LIMIT 1)',
+        );
+        await customStatement('DROP TABLE group_memberships');
       }
     },
   );
@@ -156,22 +165,19 @@ class DbClient extends _$DbClient implements DataProvider {
       leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
     ]);
 
-    final Map<int, Student> seen = {};
-    for (final row in await query.get()) {
-      final dbStudent = row.readTable(dbStudents);
-      if (!seen.containsKey(dbStudent.id)) {
-        final dbGroup = row.readTableOrNull(dbGroups);
-        seen[dbStudent.id] = dbStudent.toDomain(group: dbGroup?.toDomain());
-      }
-    }
-    return seen.values.toList();
+    return (await query.get())
+        .map(
+          (r) => r
+              .readTable(dbStudents)
+              .toDomain(group: r.readTableOrNull(dbGroups)?.toDomain()),
+        )
+        .toList();
   }
 
   @override
   Future<List<Group>> getGroups({int offset = 0, int limit = 100}) async {
-    return (await (select(
-      dbGroups,
-    )..limit(limit, offset: offset)).get()).map((g) => g.toDomain()).toList();
+    final query = select(dbGroups)..limit(limit, offset: offset);
+    return (await query.get()).map((g) => g.toDomain()).toList();
   }
 
   @override
@@ -294,6 +300,28 @@ class DbClient extends _$DbClient implements DataProvider {
   }) async {
     await (update(dbLessonParticipants)..where(
           (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
+        ))
+        .write(
+          DbLessonParticipantsCompanion(
+            attended: attended != null ? Value(attended) : const Value.absent(),
+            isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
+            homeworkDone: homeworkDone != null
+                ? Value(homeworkDone)
+                : const Value.absent(),
+          ),
+        );
+  }
+
+  @override
+  Future<void> updateGroupStatuses(
+    int lessonId,
+    int groupId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) async {
+    await (update(dbLessonParticipants)..where(
+          (p) => p.lessonId.equals(lessonId) & p.groupId.equals(groupId),
         ))
         .write(
           DbLessonParticipantsCompanion(

@@ -40,6 +40,20 @@ class ScheduleRepo {
     homeworkDone: homeworkDone,
   );
 
+  Future<void> updateGroupStatuses(
+    int lessonId,
+    int groupId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) => dataProvider.updateGroupStatuses(
+    lessonId,
+    groupId,
+    attended: attended,
+    isPaid: isPaid,
+    homeworkDone: homeworkDone,
+  );
+
   // ---------------- STUDENTS CRUD ----------------
 
   Future<int> createOrUpdateStudent(Student student) =>
