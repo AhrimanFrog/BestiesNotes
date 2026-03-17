@@ -1,9 +1,11 @@
 part of 'student_details_cubit.dart';
 
-class StudentDetailsState extends Equatable {
+class StudentDetailsState extends Equatable implements CubitState {
   final Student student;
   final List<Lesson> lessons;
+  @override
   final bool isLoading;
+  @override
   final String? error;
 
   const StudentDetailsState({

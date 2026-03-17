@@ -1,3 +1,4 @@
+import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:equatable/equatable.dart';

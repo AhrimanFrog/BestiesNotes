@@ -58,17 +58,14 @@ class SchedulePage extends StatelessWidget {
       body: GradientBackground(
         child: BlocBuilder<LessonsCubit, LessonsState>(
           builder: (context, state) {
-            if (state.isLoading && state.lessons.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state.error != null && state.lessons.isEmpty) {
-              return Center(child: Text(state.error!));
-            }
-            return ListView(
-              children: [
-                for (final entry in state.getLessonsByDate().entries)
-                  ScheduleCard(date: entry.key, lessons: entry.value),
-              ],
+            return StateTransitionWidget(
+              state: state,
+              child: ListView(
+                children: [
+                  for (final entry in state.getLessonsByDate().entries)
+                    ScheduleCard(date: entry.key, lessons: entry.value),
+                ],
+              ),
             );
           },
         ),

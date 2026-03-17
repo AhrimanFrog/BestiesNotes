@@ -1,6 +1,6 @@
 part of 'students_and_groups_cubit.dart';
 
-class StudentsAndGroupsState extends Equatable {
+class StudentsAndGroupsState extends Equatable implements CubitState {
   final List<Student> students;
   final List<Group> groups;
   final bool noMoreStudents;
@@ -8,7 +8,9 @@ class StudentsAndGroupsState extends Equatable {
   final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
+  @override
   final bool isLoading;
+  @override
   final String? error;
 
   const StudentsAndGroupsState({
@@ -70,7 +72,9 @@ class StudentsAndGroupsState extends Equatable {
       noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
       groupMembers: groupMembers ?? this.groupMembers,
-      filterGroupId: filterGroupId != null ? filterGroupId() : this.filterGroupId,
+      filterGroupId: filterGroupId != null
+          ? filterGroupId()
+          : this.filterGroupId,
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
     );

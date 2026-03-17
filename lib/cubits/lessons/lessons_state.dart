@@ -1,10 +1,12 @@
 part of 'lessons_cubit.dart';
 
-class LessonsState extends Equatable {
+class LessonsState extends Equatable implements CubitState {
   final List<Lesson> lessons;
   final DateTime dateFrom;
   final DateTime dateTo;
+  @override
   final bool isLoading;
+  @override
   final String? error;
 
   LessonsState({
