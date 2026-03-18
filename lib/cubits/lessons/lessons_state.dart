@@ -30,6 +30,9 @@ class LessonsState extends Equatable implements CubitState {
   @override
   List<Object?> get props => [lessons, dateFrom, dateTo, isLoading, error];
 
+  @override
+  bool get isEmpty => lessons.isEmpty;
+
   Map<DateTime, List<Lesson>> getLessonsByDate() {
     Map<DateTime, List<Lesson>> lessonsMap = {};
     for (final lesson in lessons) {

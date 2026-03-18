@@ -1,3 +1,4 @@
+import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:flutter/material.dart';
 
@@ -17,14 +18,27 @@ class StateTransitionWidget extends StatelessWidget {
       children: [
         child,
         if (state.isLoading)
-          const ColoredBox(
-            color: Colors.black12,
-            child: Center(child: CircularProgressIndicator()),
+          const Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black12,
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
         if (state.error != null)
-          ColoredBox(
-            color: Colors.black12,
-            child: Center(child: Text(state.error!)),
+          Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black12,
+              child: Center(child: Text(state.error!)),
+            ),
+          ),
+        if (state.isEmpty && !state.isLoading && state.error == null)
+          Positioned.fill(
+            child: Center(
+              child: const Text(
+                'No entries yet',
+                style: TextStyle(color: AppColors.secondaryText, fontSize: 16),
+              ),
+            ),
           ),
       ],
     );

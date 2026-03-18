@@ -31,4 +31,7 @@ class StudentDetailsState extends Equatable implements CubitState {
 
   @override
   List<Object?> get props => [student, lessons, isLoading, error];
+
+  @override
+  bool get isEmpty => lessons.isEmpty;
 }

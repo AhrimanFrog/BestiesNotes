@@ -144,4 +144,6 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   void setFilterGroup(int? groupId) {
     emit(state.copyWith(filterGroupId: () => groupId));
   }
+
+  void setActiveTab(int index) => emit(state.copyWith(activeDataIndex: index));
 }

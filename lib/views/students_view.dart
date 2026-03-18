@@ -25,7 +25,10 @@ class _StudentsPageState extends State<StudentsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _tabController.addListener(() {
+      setState(() {});
+      context.read<StudentsAndGroupsCubit>().setActiveTab(_tabController.index);
+    });
   }
 
   @override
@@ -222,36 +225,23 @@ class _StudentsPageState extends State<StudentsPage>
 
           // Student grid
           Expanded(
-            child: filtered.isEmpty
-                ? Center(
-                    child: Text(
-                      state.students.isEmpty
-                          ? 'No students yet'
-                          : 'No students match your search',
-                      style: const TextStyle(
-                        color: AppColors.secondaryText,
-                        fontSize: 16,
-                      ),
+            child: GridView.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: inset,
+              crossAxisSpacing: inset,
+              childAspectRatio: 0.75,
+              children: [
+                for (final student in filtered)
+                  ParticipantCard(
+                    participant: student,
+                    onTap: () => context.pushNamed(
+                      'student',
+                      pathParameters: {'id': '${student.id!}'},
                     ),
-                  )
-                : GridView.count(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: inset,
-                    crossAxisSpacing: inset,
-                    childAspectRatio: 0.75,
-                    children: [
-                      for (final student in filtered)
-                        ParticipantCard(
-                          participant: student,
-                          onTap: () => context.pushNamed(
-                            'student',
-                            pathParameters: {'id': '${student.id!}'},
-                          ),
-                          onDelete: () =>
-                              _showDeletionConfirmation(context, student),
-                        ),
-                    ],
+                    onDelete: () => _showDeletionConfirmation(context, student),
                   ),
+              ],
+            ),
           ),
         ],
       ),
@@ -259,35 +249,22 @@ class _StudentsPageState extends State<StudentsPage>
   }
 
   Widget _buildGroupsTab(StudentsAndGroupsState state) {
-    final filtered = state.filteredGroups;
-
-    final widget = filtered.isEmpty
-        ? Center(
-            child: Text(
-              state.groups.isEmpty
-                  ? 'No groups yet'
-                  : 'No groups match your search',
-              style: const TextStyle(
-                color: AppColors.secondaryText,
-                fontSize: 16,
-              ),
+    return StateTransitionWidget(
+      state: state,
+      child: GridView.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: inset,
+        crossAxisSpacing: inset,
+        childAspectRatio: 0.75,
+        children: [
+          for (final group in state.filteredGroups)
+            ParticipantCard(
+              participant: group,
+              onTap: () => _showForm(context, group),
+              onDelete: () => _showDeletionConfirmation(context, group),
             ),
-          )
-        : GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: inset,
-            crossAxisSpacing: inset,
-            childAspectRatio: 0.75,
-            children: [
-              for (final group in filtered)
-                ParticipantCard(
-                  participant: group,
-                  onTap: () => _showForm(context, group),
-                  onDelete: () => _showDeletionConfirmation(context, group),
-                ),
-            ],
-          );
-
-    return StateTransitionWidget(state: state, child: widget);
+        ],
+      ),
+    );
   }
 }

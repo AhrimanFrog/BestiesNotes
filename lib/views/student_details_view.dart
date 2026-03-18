@@ -215,13 +215,6 @@ class _RecentLessonsSection extends StatelessWidget {
         const SizedBox(height: 8),
         BlocBuilder<StudentDetailsCubit, StudentDetailsState>(
           builder: (context, state) {
-            if (state.lessons.isEmpty) {
-              return const Text(
-                'No lessons yet',
-                style: TextStyle(color: AppColors.secondaryText),
-              );
-            }
-
             return StateTransitionWidget(
               state: state,
               child: Column(

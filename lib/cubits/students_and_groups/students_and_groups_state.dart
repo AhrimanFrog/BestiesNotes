@@ -8,6 +8,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
+  final int activeDataIndex;
   @override
   final bool isLoading;
   @override
@@ -23,6 +24,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     this.filterGroupId,
     this.isLoading = false,
     this.error,
+    this.activeDataIndex = 0,
   });
 
   List<Student> get filteredStudents {
@@ -64,6 +66,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     int? Function()? filterGroupId,
     bool? isLoading,
     String? Function()? error,
+    int? activeDataIndex,
   }) {
     return StudentsAndGroupsState(
       students: students ?? this.students,
@@ -77,6 +80,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
           : this.filterGroupId,
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
+      activeDataIndex: activeDataIndex ?? this.activeDataIndex,
     );
   }
 
@@ -91,5 +95,9 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     filterGroupId,
     isLoading,
     error,
+    activeDataIndex,
   ];
+
+  @override
+  bool get isEmpty => activeDataIndex == 0 ? students.isEmpty : groups.isEmpty;
 }
