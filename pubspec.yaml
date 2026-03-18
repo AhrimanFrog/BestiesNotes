@@ -1,5 +1,5 @@
 name: besties_notes
-description: " Mobile app for teacher's notes"
+description: "Mobile app for teacher's notes"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -29,7 +29,7 @@ dev_dependencies:
   custom_lint: ^0.8.0
   drift_dev: ^2.28.3
   build_runner: ^2.7.1
-  bloc_lint: ^0.3.5
+  bloc_lint: ^0.3.7
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
 

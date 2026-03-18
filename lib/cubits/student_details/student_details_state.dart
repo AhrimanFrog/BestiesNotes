@@ -1,9 +1,11 @@
 part of 'student_details_cubit.dart';
 
-class StudentDetailsState extends Equatable {
+class StudentDetailsState extends Equatable implements CubitState {
   final Student student;
   final List<Lesson> lessons;
+  @override
   final bool isLoading;
+  @override
   final String? error;
 
   const StudentDetailsState({
@@ -29,4 +31,7 @@ class StudentDetailsState extends Equatable {
 
   @override
   List<Object?> get props => [student, lessons, isLoading, error];
+
+  @override
+  bool get isEmpty => lessons.isEmpty;
 }

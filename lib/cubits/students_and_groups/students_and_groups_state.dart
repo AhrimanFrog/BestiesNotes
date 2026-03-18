@@ -1,6 +1,6 @@
 part of 'students_and_groups_cubit.dart';
 
-class StudentsAndGroupsState extends Equatable {
+class StudentsAndGroupsState extends Equatable implements CubitState {
   final List<Student> students;
   final List<Group> groups;
   final bool noMoreStudents;
@@ -8,7 +8,10 @@ class StudentsAndGroupsState extends Equatable {
   final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
+  final int activeDataIndex;
+  @override
   final bool isLoading;
+  @override
   final String? error;
 
   const StudentsAndGroupsState({
@@ -21,6 +24,7 @@ class StudentsAndGroupsState extends Equatable {
     this.filterGroupId,
     this.isLoading = false,
     this.error,
+    this.activeDataIndex = 0,
   });
 
   List<Student> get filteredStudents {
@@ -62,6 +66,7 @@ class StudentsAndGroupsState extends Equatable {
     int? Function()? filterGroupId,
     bool? isLoading,
     String? Function()? error,
+    int? activeDataIndex,
   }) {
     return StudentsAndGroupsState(
       students: students ?? this.students,
@@ -70,9 +75,12 @@ class StudentsAndGroupsState extends Equatable {
       noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
       groupMembers: groupMembers ?? this.groupMembers,
-      filterGroupId: filterGroupId != null ? filterGroupId() : this.filterGroupId,
+      filterGroupId: filterGroupId != null
+          ? filterGroupId()
+          : this.filterGroupId,
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
+      activeDataIndex: activeDataIndex ?? this.activeDataIndex,
     );
   }
 
@@ -87,5 +95,9 @@ class StudentsAndGroupsState extends Equatable {
     filterGroupId,
     isLoading,
     error,
+    activeDataIndex,
   ];
+
+  @override
+  bool get isEmpty => activeDataIndex == 0 ? students.isEmpty : groups.isEmpty;
 }

@@ -1,3 +1,4 @@
+import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
@@ -143,4 +144,6 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   void setFilterGroup(int? groupId) {
     emit(state.copyWith(filterGroupId: () => groupId));
   }
+
+  void setActiveTab(int index) => emit(state.copyWith(activeDataIndex: index));
 }
