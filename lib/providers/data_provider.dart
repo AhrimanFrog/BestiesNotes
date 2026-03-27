@@ -18,7 +18,11 @@ abstract class DataProvider {
 
   Future<List<Student>> getStudents({int offset = 0, int limit = 100});
 
+  Future<Group> getGroup(int groupId);
+
   Future<List<Group>> getGroups({int offset = 0, int limit = 100});
+
+  Future<List<Lesson>> getLessonsForGroup(int groupId);
 
   Future<int> createOrUpdateGroup(Group group);
 

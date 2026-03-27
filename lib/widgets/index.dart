@@ -1,5 +1,6 @@
 export 'avatar_picker_field.dart';
 export 'cards/lesson_card.dart';
+export 'cards/compact_lesson_tile.dart';
 export 'cards/schedule_card.dart';
 export 'cards/participant_card.dart';
 export 'initials_circle.dart';
