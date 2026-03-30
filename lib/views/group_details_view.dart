@@ -55,7 +55,10 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
                 const SizedBox(height: 20),
                 _MembersSection(state: state),
                 const SizedBox(height: 20),
-                _RecentLessonsSection(state: state),
+                StateTransitionWidget(
+                  state: state,
+                  child: RecentLessonsSection(lessons: state.lessons),
+                ),
               ],
             ),
           ),
@@ -160,50 +163,6 @@ class _MembersSection extends StatelessWidget {
               return ParticipantCard(participant: student);
             },
           ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Recent lessons ──────────────────────────────────────────────────────────
-
-class _RecentLessonsSection extends StatelessWidget {
-  final GroupDetailsState state;
-
-  const _RecentLessonsSection({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Recent lessons',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.mainText,
-          ),
-        ),
-        const SizedBox(height: 8),
-        BlocBuilder<GroupDetailsCubit, GroupDetailsState>(
-          buildWhen: (prev, curr) => prev.lessons != curr.lessons,
-          builder: (context, state) {
-            return StateTransitionWidget(
-              state: state,
-              child: Column(
-                children: [
-                  for (final lesson in state.lessons.take(3))
-                    CompactLessonTile(lesson: lesson),
-                  if (state.lessons.length > 3)
-                    SeeAllRow(
-                      onTap: () {}, // TODO: navigate to lesson history
-                    ),
-                ],
-              ),
-            );
-          },
         ),
       ],
     );

@@ -56,7 +56,10 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
                 const SizedBox(height: 12),
                 _NavigationChipsRow(student: state.student),
                 const SizedBox(height: 20),
-                _RecentLessonsSection(),
+                StateTransitionWidget(
+                  state: state,
+                  child: RecentLessonsSection(lessons: state.lessons),
+                ),
               ],
             ),
           ),
@@ -173,9 +176,7 @@ class _NavigationChipsRow extends StatelessWidget {
               icon: Icons.group_outlined,
               label: student.group!.name,
               color: AppColors.accentPink,
-              onTap: () => context.go(
-                '/scholars/group/${student.group!.id}',
-              ),
+              onTap: () => context.go('/scholars/group/${student.group!.id}'),
             ),
           NavigationChip(
             icon: Icons.payments_outlined,
@@ -194,45 +195,3 @@ class _NavigationChipsRow extends StatelessWidget {
     );
   }
 }
-
-// ─── Recent lessons ──────────────────────────────────────────────────────────
-
-class _RecentLessonsSection extends StatelessWidget {
-  const _RecentLessonsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Recent lessons',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.mainText,
-          ),
-        ),
-        const SizedBox(height: 8),
-        BlocBuilder<StudentDetailsCubit, StudentDetailsState>(
-          builder: (context, state) {
-            return StateTransitionWidget(
-              state: state,
-              child: Column(
-                children: [
-                  for (final lesson in state.lessons.take(3))
-                    CompactLessonTile(lesson: lesson),
-                  if (state.lessons.length > 3)
-                    SeeAllRow(
-                      onTap: () {}, // TODO: navigate to lesson history
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
