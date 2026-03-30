@@ -10,7 +10,7 @@ import 'package:besties_notes/views/students_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:besties_notes/widgets/main_bottom_bar.dart';
+import 'package:besties_notes/widgets/navigation/main_bottom_bar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 

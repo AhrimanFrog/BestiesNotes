@@ -2,7 +2,7 @@ import 'dart:io' show File;
 
 import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/avatar/initials_circle.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatar extends StatelessWidget {

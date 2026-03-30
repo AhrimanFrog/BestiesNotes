@@ -1,4 +1,4 @@
-import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/avatar/initials_circle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
