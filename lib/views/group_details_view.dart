@@ -134,10 +134,12 @@ class _MembersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final students = state.group.students;
     return TitledSection(
       title: 'Members',
       child: StateTransitionWidget(
         state: state,
+        isEmpty: students.isEmpty,
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -145,12 +147,11 @@ class _MembersSection extends StatelessWidget {
             crossAxisCount: 3,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 0.75,
+            childAspectRatio: 0.65,
           ),
-          itemCount: state.group.students.length,
+          itemCount: students.length,
           itemBuilder: (context, index) {
-            final student = state.group.students.elementAt(index);
-            return ParticipantCard(participant: student);
+            return ParticipantCard(participant: students.elementAt(index));
           },
         ),
       ),

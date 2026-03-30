@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 class StateTransitionWidget extends StatelessWidget {
   final CubitState state;
   final Widget child;
+  final bool? isEmpty;
 
   const StateTransitionWidget({
     super.key,
     required this.state,
     required this.child,
+    this.isEmpty,
   });
 
   @override
   Widget build(BuildContext context) {
+    final emptyExp = isEmpty ?? state.isEmpty;
     return Stack(
       children: [
         child,
@@ -31,7 +34,7 @@ class StateTransitionWidget extends StatelessWidget {
               child: Center(child: Text(state.error!)),
             ),
           ),
-        if (state.isEmpty && !state.isLoading && state.error == null)
+        if (emptyExp && !state.isLoading && state.error == null)
           Positioned.fill(
             child: Center(
               child: const Text(
