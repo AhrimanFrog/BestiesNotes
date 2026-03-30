@@ -134,37 +134,26 @@ class _MembersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Members',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.mainText,
+    return TitledSection(
+      title: 'Members',
+      child: StateTransitionWidget(
+        state: state,
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.75,
           ),
+          itemCount: state.group.students.length,
+          itemBuilder: (context, index) {
+            final student = state.group.students.elementAt(index);
+            return ParticipantCard(participant: student);
+          },
         ),
-        const SizedBox(height: 8),
-        StateTransitionWidget(
-          state: state,
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 0.75,
-            ),
-            itemCount: state.group.students.length,
-            itemBuilder: (context, index) {
-              final student = state.group.students.elementAt(index);
-              return ParticipantCard(participant: student);
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

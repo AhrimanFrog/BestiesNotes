@@ -28,3 +28,4 @@ export 'main_bottom_bar.dart';
 export 'navigation_chip.dart';
 export 'state_transition_widget.dart';
 export 'recent_lessons_section.dart';
+export 'titled_section.dart';
