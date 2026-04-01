@@ -13,12 +13,51 @@ class LessonsCubit extends Cubit<LessonsState> {
   Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
     final dateFrom = from ?? state.dateFrom;
     final dateTo = to ?? state.dateTo;
+    await _fetchLessons(
+      () async => await _scheduleRepo.getLessonsForRange(dateFrom, dateTo),
+      dateFrom: from,
+      dateTo: to,
+    );
+  }
+
+  Future<void> fetchLessonsByStudentId(
+    int studID, {
+    int offset = 0,
+    int limit = 100,
+  }) async {
+    _fetchLessons(
+      () async => _scheduleRepo.getLessonsForStudent(
+        studID,
+        offset: offset,
+        limit: limit,
+      ),
+    );
+  }
+
+  Future<void> fetchLessonsByGroupId(
+    int groupId, {
+    int offset = 0,
+    int limit = 100,
+  }) async {
+    _fetchLessons(
+      () async => _scheduleRepo.getLessonsForGroup(
+        groupId,
+        offset: offset,
+        limit: limit,
+      ),
+    );
+  }
+
+  Future<void> _fetchLessons(
+    Future<List<Lesson>> Function() fetch, {
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) async {
     emit(state.copyWith(isLoading: true, error: () => null));
     try {
-      final lessons = await _scheduleRepo.getLessonsForRange(dateFrom, dateTo);
       emit(
         state.copyWith(
-          lessons: lessons,
+          lessons: await fetch(),
           dateFrom: dateFrom,
           dateTo: dateTo,
           isLoading: false,

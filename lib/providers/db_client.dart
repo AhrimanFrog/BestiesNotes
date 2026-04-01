@@ -40,9 +40,14 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<Lesson>> getLessonsForStudent(int studentID) async {
+  Future<List<Lesson>> getLessonsForStudent(
+    int studentID, {
+    int offset = 0,
+    int limit = 100,
+  }) async {
     final query = _lessonsQuery()
       ..where(dbLessonParticipants.studentId.equals(studentID))
+      ..limit(limit, offset: offset)
       ..orderBy([.desc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
   }
@@ -165,9 +170,14 @@ class DbClient extends _$DbClient implements DataProvider {
   }
 
   @override
-  Future<List<Lesson>> getLessonsForGroup(int groupId) async {
+  Future<List<Lesson>> getLessonsForGroup(
+    int groupId, {
+    int offset = 0,
+    int limit = 100,
+  }) async {
     final query = _lessonsQuery()
       ..where(dbLessonParticipants.groupId.equals(groupId))
+      ..limit(limit, offset: offset)
       ..orderBy([OrderingTerm.desc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
   }

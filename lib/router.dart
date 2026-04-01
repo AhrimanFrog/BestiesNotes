@@ -4,6 +4,7 @@ import 'package:besties_notes/cubits/student_details/student_details_cubit.dart'
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:besties_notes/views/group_details_view.dart';
+import 'package:besties_notes/views/lessons_history_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:besties_notes/views/students_view.dart';
@@ -22,7 +23,6 @@ final router = GoRouter(
           MainBottomBar(navigationShell: navigationShell),
       branches: [
         StatefulShellBranch(
-          // initialLocation: '/schedule',
           routes: [
             GoRoute(
               name: 'schedule',
@@ -47,7 +47,6 @@ final router = GoRouter(
           ],
         ),
         StatefulShellBranch(
-          // initialLocation: '/scholars',
           routes: [
             GoRoute(
               name: 'scholars',
@@ -70,6 +69,20 @@ final router = GoRouter(
                       studentId: int.parse(state.pathParameters['id']!),
                     ),
                   ),
+                  routes: [
+                    GoRoute(
+                      name: 'stud_lessons_history',
+                      path: 'lessons_history',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            LessonsCubit(context.read<ScheduleRepo>())
+                              ..fetchLessonsByStudentId(
+                                int.parse(state.pathParameters['id']!),
+                              ),
+                        child: LessonsHistoryView(),
+                      ),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   name: 'group',
@@ -81,6 +94,20 @@ final router = GoRouter(
                       groupId: int.parse(state.pathParameters['id']!),
                     ),
                   ),
+                  routes: [
+                    GoRoute(
+                      name: 'group_lessons_history',
+                      path: 'lessons_history',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) =>
+                            LessonsCubit(context.read<ScheduleRepo>())
+                              ..fetchLessonsByGroupId(
+                                int.parse(state.pathParameters['id']!),
+                              ),
+                        child: LessonsHistoryView(),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
