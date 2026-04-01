@@ -21,7 +21,7 @@ class RecentLessonsSection extends StatelessWidget {
           for (final lesson in lessons.take(3))
             CompactLessonTile(lesson: lesson),
           if (lessons.length > 3) SeeAllRow(onTap: onSeeAll),
-        ], // TODO: navigate to lesson history
+        ],
       ),
     );
   }

@@ -34,6 +34,7 @@ export 'rows/see_all_row.dart';
 export 'rows/time_row.dart';
 
 export 'sections/recent_lessons_section.dart';
+export 'sections/lessons_list_section.dart';
 
 export 'texts/arrowed_text.dart';
 export 'texts/day_title.dart';

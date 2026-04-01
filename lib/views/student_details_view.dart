@@ -58,7 +58,13 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
                 const SizedBox(height: 20),
                 StateTransitionWidget(
                   state: state,
-                  child: RecentLessonsSection(lessons: state.lessons),
+                  child: RecentLessonsSection(
+                    lessons: state.lessons,
+                    onSeeAll: () => context.pushNamed(
+                      'stud_lessons_history',
+                      pathParameters: {'id': '${widget.studentId}'},
+                    ),
+                  ),
                 ),
               ],
             ),

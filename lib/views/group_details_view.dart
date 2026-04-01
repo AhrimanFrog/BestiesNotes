@@ -7,6 +7,7 @@ import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class GroupDetailsView extends StatefulWidget {
   final int groupId;
@@ -57,7 +58,13 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
                 const SizedBox(height: 20),
                 StateTransitionWidget(
                   state: state,
-                  child: RecentLessonsSection(lessons: state.lessons),
+                  child: RecentLessonsSection(
+                    lessons: state.lessons,
+                    onSeeAll: () => context.pushNamed(
+                      'group_lessons_history',
+                      pathParameters: {'id': '${widget.groupId}'},
+                    ),
+                  ),
                 ),
               ],
             ),

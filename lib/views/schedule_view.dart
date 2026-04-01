@@ -55,20 +55,8 @@ class SchedulePage extends StatelessWidget {
           ),
         ],
       ),
-      body: GradientBackground(
-        child: BlocBuilder<LessonsCubit, LessonsState>(
-          builder: (context, state) {
-            return StateTransitionWidget(
-              state: state,
-              child: ListView(
-                children: [
-                  for (final entry in state.getLessonsByDate().entries)
-                    ScheduleCard(date: entry.key, lessons: entry.value),
-                ],
-              ),
-            );
-          },
-        ),
+      body: BlocBuilder<LessonsCubit, LessonsState>(
+        builder: (_, state) => LessonsListSection(state: state),
       ),
     );
   }
