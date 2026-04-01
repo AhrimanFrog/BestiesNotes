@@ -1,14 +1,16 @@
+import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/views/group_details_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:besties_notes/views/students_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:besties_notes/widgets/main_bottom_bar.dart';
+import 'package:besties_notes/widgets/navigation/main_bottom_bar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -66,6 +68,17 @@ final router = GoRouter(
                         StudentDetailsCubit(context.read<ScheduleRepo>()),
                     child: StudentDetailsView(
                       studentId: int.parse(state.pathParameters['id']!),
+                    ),
+                  ),
+                ),
+                GoRoute(
+                  name: 'group',
+                  path: 'group/:id',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) =>
+                        GroupDetailsCubit(context.read<ScheduleRepo>()),
+                    child: GroupDetailsView(
+                      groupId: int.parse(state.pathParameters['id']!),
                     ),
                   ),
                 ),

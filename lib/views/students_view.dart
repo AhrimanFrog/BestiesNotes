@@ -260,7 +260,10 @@ class _StudentsPageState extends State<StudentsPage>
           for (final group in state.filteredGroups)
             ParticipantCard(
               participant: group,
-              onTap: () => _showForm(context, group),
+              onTap: () => context.pushNamed(
+                'group',
+                pathParameters: {'id': '${group.id!}'},
+              ),
               onDelete: () => _showDeletionConfirmation(context, group),
             ),
         ],

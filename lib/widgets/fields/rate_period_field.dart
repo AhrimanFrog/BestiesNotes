@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:besties_notes/data/common.dart';
-import 'package:besties_notes/widgets/input_field.dart';
+import 'package:besties_notes/widgets/fields/input_field.dart';
 
 class RatePeriodField extends StatelessWidget {
   final TextEditingController rateController;

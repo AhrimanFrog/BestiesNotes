@@ -68,8 +68,13 @@ class ScheduleRepo {
   Future<List<Student>> getStudents({int offset = 0, int limit = 100}) =>
       dataProvider.getStudents(offset: offset, limit: limit);
 
+  Future<Group> getGroup(int groupId) => dataProvider.getGroup(groupId);
+
   Future<List<Group>> getGroups({int offset = 0, int limit = 100}) =>
       dataProvider.getGroups(offset: offset, limit: limit);
+
+  Future<List<Lesson>> getLessonsForGroup(int groupId) =>
+      dataProvider.getLessonsForGroup(groupId);
 
   // ---------------- GROUPS CRUD -----------------
 

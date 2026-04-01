@@ -2,9 +2,9 @@ import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class SeeAllRow extends StatelessWidget {
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const SeeAllRow({super.key, required this.onTap});
+  const SeeAllRow({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
 
 import 'student.dart';
@@ -14,6 +15,14 @@ class Group extends Teachable {
     super.iconPath,
     Set<Student>? students,
   }) : students = students ?? const {};
+
+  const Group.demo()
+    : students = const {},
+      super(
+        name: 'Loading...',
+        pricing: const Rate(rate: 0, period: RatePeriod.daily),
+        iconPath: null,
+      );
 
   Group copyWith({
     int? id,

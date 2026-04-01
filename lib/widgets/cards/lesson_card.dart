@@ -3,7 +3,7 @@ import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
-import 'package:besties_notes/widgets/initials_circle.dart';
+import 'package:besties_notes/widgets/avatar/initials_circle.dart';
 import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
