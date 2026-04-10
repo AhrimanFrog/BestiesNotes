@@ -4,6 +4,7 @@ import 'package:besties_notes/extensions/db_group_ext.dart';
 import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/data_provider.dart';
+import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
 import 'package:besties_notes/data/db_models/db_lesson_details.dart';
@@ -12,7 +13,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 part 'db_client.g.dart';
 
 @DriftDatabase(tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants])
-class DbClient extends _$DbClient implements DataProvider {
+class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
@@ -136,10 +137,8 @@ class DbClient extends _$DbClient implements DataProvider {
           leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
         ]);
     final result = await query.getSingle();
-    return result
-        .readTable(dbStudents)
-        .toDomain()
-        .copyWith(group: result.readTableOrNull(dbGroups)?.toDomain());
+    final group = result.readTableOrNull(dbGroups)?.toDomain();
+    return result.readTable(dbStudents).toDomain(group: group);
   }
 
   @override
@@ -347,7 +346,7 @@ class DbClient extends _$DbClient implements DataProvider {
       ..where(dbLessons.start.isBetweenValues(from, to));
     final result = await query.get();
 
-    if (result.isEmpty) throw Exception('No such student!');
+    if (result.isEmpty) return (paidLessons: 0, totalLessons: 0);
 
     final int paid = result.fold(
       0,
@@ -374,5 +373,52 @@ class DbClient extends _$DbClient implements DataProvider {
         dbGroups.id.equalsExp(dbLessonParticipants.groupId),
       ),
     ]);
+  }
+
+  @override
+  Future<List<Lesson>> getLessonsWithPaymentStatus(
+    bool paymentStatus, {
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.isPaid.equals(paymentStatus))
+      ..orderBy([OrderingTerm.asc(dbLessons.start)])
+      ..limit(limit, offset: offset);
+    return await _gatherLessonDetailsIntoLesson(query);
+  }
+
+  @override
+  Future<List<Debtor>> getDebtors() async {
+    final query = select(dbLessonParticipants).join([
+      innerJoin(
+        dbStudents,
+        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
+      ),
+    ])..where(dbLessonParticipants.isPaid.equals(false));
+
+    Map<int, Student> studs = {};
+    Map<int, int> unpaidCount = {};
+
+    for (final row in await query.get()) {
+      final stud = row.readTable(dbStudents);
+      studs.putIfAbsent(stud.id, () => stud.toDomain());
+      unpaidCount[stud.id] = (unpaidCount[stud.id] ?? 0) + 1;
+    }
+
+    return unpaidCount.entries
+        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessons: e.value))
+        .toList();
+  }
+
+  @override
+  Future<List<Lesson>> getUnpaidLessonsForStudent(int studentId) async {
+    final query = _lessonsQuery()
+      ..where(
+        dbLessonParticipants.isPaid.equals(false) &
+            dbLessonParticipants.studentId.equals(studentId),
+      )
+      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
+    return await _gatherLessonDetailsIntoLesson(query);
   }
 }

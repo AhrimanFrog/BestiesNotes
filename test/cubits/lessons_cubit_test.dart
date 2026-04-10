@@ -1,12 +1,12 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockScheduleRepo extends Mock implements ScheduleRepo {}
+class MockDataProvider extends Mock implements DataProvider {}
 
 // Minimal Lesson for test data
 Lesson makeLesson({int id = 1, String name = 'Math'}) => Lesson(
@@ -18,14 +18,16 @@ Lesson makeLesson({int id = 1, String name = 'Math'}) => Lesson(
 );
 
 void main() {
-  late MockScheduleRepo repo;
+  late MockDataProvider provider;
 
   setUpAll(() {
     registerFallbackValue(makeLesson());
+    registerFallbackValue(LessonStatus.cancelled);
+    registerFallbackValue(<Teachable>[]);
   });
 
   setUp(() {
-    repo = MockScheduleRepo();
+    provider = MockDataProvider();
   });
 
   // ---------------------------------------------------------------------------
@@ -34,10 +36,10 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'fetchLessons emits [loading, loaded] on success',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
     act: (c) => c.fetchLessons(),
@@ -52,10 +54,10 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'fetchLessons emits [loading, error] on failure',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenThrow(Exception('network error'));
     },
     act: (c) => c.fetchLessons(),
@@ -69,11 +71,11 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'fetchLessons clears previous error on success',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(error: 'old error'),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.fetchLessons(),
@@ -85,10 +87,10 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'fetchLessons uses custom date range when provided',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.fetchLessons(
@@ -97,7 +99,7 @@ void main() {
     ),
     verify: (_) {
       verify(
-        () => repo.getLessonsForRange(DateTime(2025, 3, 1), DateTime(2025, 3, 7)),
+        () => provider.getLessonsForRange(DateTime(2025, 3, 1), DateTime(2025, 3, 7)),
       ).called(1);
     },
   );
@@ -108,60 +110,60 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'goToPreviousWeek shifts dateFrom and dateTo back by 7 days',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(
       dateFrom: DateTime(2025, 1, 20),
       dateTo: DateTime(2025, 1, 27),
     ),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.goToPreviousWeek(),
     verify: (_) {
       verify(
-        () => repo.getLessonsForRange(DateTime(2025, 1, 13), DateTime(2025, 1, 20)),
+        () => provider.getLessonsForRange(DateTime(2025, 1, 13), DateTime(2025, 1, 20)),
       ).called(1);
     },
   );
 
   blocTest<LessonsCubit, LessonsState>(
     'goToNextWeek shifts dateFrom and dateTo forward by 7 days',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(
       dateFrom: DateTime(2025, 1, 20),
       dateTo: DateTime(2025, 1, 27),
     ),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.goToNextWeek(),
     verify: (_) {
       verify(
-        () => repo.getLessonsForRange(DateTime(2025, 1, 27), DateTime(2025, 2, 3)),
+        () => provider.getLessonsForRange(DateTime(2025, 1, 27), DateTime(2025, 2, 3)),
       ).called(1);
     },
   );
 
   blocTest<LessonsCubit, LessonsState>(
     'goToCurrentWeek resets to default date range',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(
       dateFrom: DateTime(2024, 1, 1),
       dateTo: DateTime(2024, 1, 7),
     ),
     setUp: () {
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.goToCurrentWeek(),
     verify: (_) {
       verify(
-        () => repo.getLessonsForRange(
+        () => provider.getLessonsForRange(
           LessonsState.defaultDateFrom(),
           LessonsState.defaultDateTo(),
         ),
@@ -175,19 +177,23 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'createOrUpdateLesson saves lesson and refetches',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     setUp: () {
       when(
-        () => repo.createOrUpdateLesson(any()),
+        () => provider.createOrUpdateLesson(any()),
       ).thenAnswer((_) async => 1);
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.syncLessonMembership(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
     act: (c) => c.createOrUpdateLesson(makeLesson()),
     verify: (_) {
-      verify(() => repo.createOrUpdateLesson(any())).called(1);
-      verify(() => repo.getLessonsForRange(any(), any())).called(1);
+      verify(() => provider.createOrUpdateLesson(any())).called(1);
+      verify(() => provider.syncLessonMembership(any(), any())).called(1);
+      verify(() => provider.getLessonsForRange(any(), any())).called(1);
     },
   );
 
@@ -197,16 +203,20 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'cancelLesson cancels lesson and refetches',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     setUp: () {
-      when(() => repo.cancelLesson(any())).thenAnswer((_) async {});
       when(
-        () => repo.getLessonsForRange(any(), any()),
+        () => provider.updateLessonStatus(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.cancelLesson(1),
     verify: (_) {
-      verify(() => repo.cancelLesson(1)).called(1);
+      verify(
+        () => provider.updateLessonStatus(1, LessonStatus.cancelled),
+      ).called(1);
     },
   );
 
@@ -237,11 +247,11 @@ void main() {
 
   blocTest<LessonsCubit, LessonsState>(
     'updateParticipantStatus applies optimistic update immediately',
-    build: () => LessonsCubit(repo),
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(lessons: [lessonWithParticipant]),
     setUp: () {
       when(
-        () => repo.updateParticipantStatus(
+        () => provider.updateParticipantStatus(
           any(),
           any(),
           attended: any(named: 'attended'),
@@ -261,12 +271,12 @@ void main() {
   );
 
   blocTest<LessonsCubit, LessonsState>(
-    'updateParticipantStatus rolls back and sets error when repo throws',
-    build: () => LessonsCubit(repo),
+    'updateParticipantStatus rolls back and sets error when provider throws',
+    build: () => LessonsCubit(provider),
     seed: () => LessonsState(lessons: [lessonWithParticipant]),
     setUp: () {
       when(
-        () => repo.updateParticipantStatus(
+        () => provider.updateParticipantStatus(
           any(),
           any(),
           attended: any(named: 'attended'),

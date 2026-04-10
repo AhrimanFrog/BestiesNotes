@@ -1,12 +1,12 @@
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockScheduleRepo extends Mock implements ScheduleRepo {}
+class MockDataProvider extends Mock implements DataProvider {}
 
 const _rate = Rate(rate: 10.0, period: RatePeriod.monthly);
 
@@ -29,10 +29,10 @@ Lesson makeLesson({int id = 1}) => Lesson(
 );
 
 void main() {
-  late MockScheduleRepo repo;
+  late MockDataProvider provider;
 
   setUp(() {
-    repo = MockScheduleRepo();
+    provider = MockDataProvider();
   });
 
   // ---------------------------------------------------------------------------
@@ -41,12 +41,12 @@ void main() {
 
   blocTest<GroupDetailsCubit, GroupDetailsState>(
     'loadGroup emits [loading, loaded] on success',
-    build: () => GroupDetailsCubit(repo),
+    build: () => GroupDetailsCubit(provider),
     setUp: () {
-      when(() => repo.getGroup(any())).thenAnswer((_) async => makeGroup());
+      when(() => provider.getGroup(any())).thenAnswer((_) async => makeGroup());
       when(
-        () => repo.getGroupMembers(any()),
-      ).thenAnswer((_) async => {makeStudent()});
+        () => provider.getGroupMembers(any()),
+      ).thenAnswer((_) async => [makeStudent()]);
     },
     act: (c) => c.loadGroup(1),
     expect: () => [
@@ -60,9 +60,9 @@ void main() {
 
   blocTest<GroupDetailsCubit, GroupDetailsState>(
     'loadGroup emits error state on failure',
-    build: () => GroupDetailsCubit(repo),
+    build: () => GroupDetailsCubit(provider),
     setUp: () {
-      when(() => repo.getGroup(any())).thenThrow(Exception('not found'));
+      when(() => provider.getGroup(any())).thenThrow(Exception('not found'));
     },
     act: (c) => c.loadGroup(99),
     expect: () => [
@@ -77,10 +77,10 @@ void main() {
 
   blocTest<GroupDetailsCubit, GroupDetailsState>(
     'loadLessons emits [loading, loaded] on success',
-    build: () => GroupDetailsCubit(repo),
+    build: () => GroupDetailsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForGroup(any()),
+        () => provider.getLessonsForGroup(any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
     act: (c) => c.loadLessons(1),
@@ -95,10 +95,10 @@ void main() {
 
   blocTest<GroupDetailsCubit, GroupDetailsState>(
     'loadLessons emits error state on failure',
-    build: () => GroupDetailsCubit(repo),
+    build: () => GroupDetailsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForGroup(any()),
+        () => provider.getLessonsForGroup(any()),
       ).thenThrow(Exception('db error'));
     },
     act: (c) => c.loadLessons(1),
