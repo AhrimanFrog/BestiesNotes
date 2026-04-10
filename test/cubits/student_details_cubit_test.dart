@@ -1,12 +1,12 @@
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockScheduleRepo extends Mock implements ScheduleRepo {}
+class MockDataProvider extends Mock implements DataProvider {}
 
 const _rate = Rate(rate: 10.0, period: RatePeriod.monthly);
 
@@ -22,10 +22,10 @@ Lesson makeLesson({int id = 1}) => Lesson(
 );
 
 void main() {
-  late MockScheduleRepo repo;
+  late MockDataProvider provider;
 
   setUp(() {
-    repo = MockScheduleRepo();
+    provider = MockDataProvider();
   });
 
   // ---------------------------------------------------------------------------
@@ -34,9 +34,9 @@ void main() {
 
   blocTest<StudentDetailsCubit, StudentDetailsState>(
     'loadStudent emits [loading, loaded] on success',
-    build: () => StudentDetailsCubit(repo),
+    build: () => StudentDetailsCubit(provider),
     setUp: () {
-      when(() => repo.getStudent(any())).thenAnswer((_) async => makeStudent());
+      when(() => provider.getStudent(any())).thenAnswer((_) async => makeStudent());
     },
     act: (c) => c.loadStudent(1),
     expect: () => [
@@ -49,9 +49,9 @@ void main() {
 
   blocTest<StudentDetailsCubit, StudentDetailsState>(
     'loadStudent emits error state on failure',
-    build: () => StudentDetailsCubit(repo),
+    build: () => StudentDetailsCubit(provider),
     setUp: () {
-      when(() => repo.getStudent(any())).thenThrow(Exception('not found'));
+      when(() => provider.getStudent(any())).thenThrow(Exception('not found'));
     },
     act: (c) => c.loadStudent(99),
     expect: () => [
@@ -66,10 +66,10 @@ void main() {
 
   blocTest<StudentDetailsCubit, StudentDetailsState>(
     'loadLessons emits [loading, loaded] on success',
-    build: () => StudentDetailsCubit(repo),
+    build: () => StudentDetailsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForStudent(any()),
+        () => provider.getLessonsForStudent(any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
     act: (c) => c.loadLessons(1),
@@ -84,10 +84,10 @@ void main() {
 
   blocTest<StudentDetailsCubit, StudentDetailsState>(
     'loadLessons emits error state on failure',
-    build: () => StudentDetailsCubit(repo),
+    build: () => StudentDetailsCubit(provider),
     setUp: () {
       when(
-        () => repo.getLessonsForStudent(any()),
+        () => provider.getLessonsForStudent(any()),
       ).thenThrow(Exception('db error'));
     },
     act: (c) => c.loadLessons(1),

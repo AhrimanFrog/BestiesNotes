@@ -1,20 +1,21 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'lessons_state.dart';
 
 class LessonsCubit extends Cubit<LessonsState> {
-  final ScheduleRepo _scheduleRepo;
+  final DataProvider _provider;
 
-  LessonsCubit(this._scheduleRepo) : super(LessonsState());
+  LessonsCubit(this._provider) : super(LessonsState());
 
   Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
     final dateFrom = from ?? state.dateFrom;
     final dateTo = to ?? state.dateTo;
     await _fetchLessons(
-      () async => await _scheduleRepo.getLessonsForRange(dateFrom, dateTo),
+      () async => await _provider.getLessonsForRange(dateFrom, dateTo),
       dateFrom: from,
       dateTo: to,
     );
@@ -26,7 +27,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     int limit = 100,
   }) async {
     _fetchLessons(
-      () async => _scheduleRepo.getLessonsForStudent(
+      () async => _provider.getLessonsForStudent(
         studID,
         offset: offset,
         limit: limit,
@@ -40,7 +41,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     int limit = 100,
   }) async {
     _fetchLessons(
-      () async => _scheduleRepo.getLessonsForGroup(
+      () async => _provider.getLessonsForGroup(
         groupId,
         offset: offset,
         limit: limit,
@@ -84,12 +85,13 @@ class LessonsCubit extends Cubit<LessonsState> {
   );
 
   Future<void> createOrUpdateLesson(Lesson lesson) async {
-    await _scheduleRepo.createOrUpdateLesson(lesson);
+    final lessonId = await _provider.createOrUpdateLesson(lesson);
+    await _provider.syncLessonMembership(lessonId, lesson.subjects);
     await fetchLessons();
   }
 
   Future<void> cancelLesson(int lessonId) async {
-    await _scheduleRepo.cancelLesson(lessonId);
+    await _provider.updateLessonStatus(lessonId, LessonStatus.cancelled);
     await fetchLessons();
   }
 
@@ -119,7 +121,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     emit(state.copyWith(lessons: updatedLessons));
 
     try {
-      await _scheduleRepo.updateParticipantStatus(
+      await _provider.updateParticipantStatus(
         lessonId,
         studentId,
         attended: attended,

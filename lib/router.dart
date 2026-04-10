@@ -2,7 +2,7 @@ import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
@@ -31,12 +31,12 @@ final router = GoRouter(
                 providers: [
                   BlocProvider(
                     create: (_) =>
-                        LessonsCubit(context.read<ScheduleRepo>())
+                        LessonsCubit(context.read<DataProvider>())
                           ..fetchLessons(),
                   ),
                   BlocProvider(
                     create: (_) =>
-                        StudentsAndGroupsCubit(context.read<ScheduleRepo>())
+                        StudentsAndGroupsCubit(context.read<DataProvider>())
                           ..fetchStudents()
                           ..fetchGroups(),
                   ),
@@ -53,7 +53,7 @@ final router = GoRouter(
               path: '/scholars',
               builder: (context, state) => BlocProvider(
                 create: (_) =>
-                    StudentsAndGroupsCubit(context.read<ScheduleRepo>())
+                    StudentsAndGroupsCubit(context.read<DataProvider>())
                       ..fetchStudents()
                       ..fetchGroups(),
                 child: StudentsPage(),
@@ -64,7 +64,7 @@ final router = GoRouter(
                   path: 'student/:id',
                   builder: (context, state) => BlocProvider(
                     create: (_) =>
-                        StudentDetailsCubit(context.read<ScheduleRepo>()),
+                        StudentDetailsCubit(context.read<DataProvider>()),
                     child: StudentDetailsView(
                       studentId: int.parse(state.pathParameters['id']!),
                     ),
@@ -75,7 +75,7 @@ final router = GoRouter(
                       path: 'lessons_history',
                       builder: (context, state) => BlocProvider(
                         create: (_) =>
-                            LessonsCubit(context.read<ScheduleRepo>())
+                            LessonsCubit(context.read<DataProvider>())
                               ..fetchLessonsByStudentId(
                                 int.parse(state.pathParameters['id']!),
                               ),
@@ -89,7 +89,7 @@ final router = GoRouter(
                   path: 'group/:id',
                   builder: (context, state) => BlocProvider(
                     create: (_) =>
-                        GroupDetailsCubit(context.read<ScheduleRepo>()),
+                        GroupDetailsCubit(context.read<DataProvider>()),
                     child: GroupDetailsView(
                       groupId: int.parse(state.pathParameters['id']!),
                     ),
@@ -100,7 +100,7 @@ final router = GoRouter(
                       path: 'lessons_history',
                       builder: (context, state) => BlocProvider(
                         create: (_) =>
-                            LessonsCubit(context.read<ScheduleRepo>())
+                            LessonsCubit(context.read<DataProvider>())
                               ..fetchLessonsByGroupId(
                                 int.parse(state.pathParameters['id']!),
                               ),

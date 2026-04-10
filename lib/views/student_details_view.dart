@@ -2,7 +2,7 @@ import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +41,7 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
                   context: context,
                   builder: (_) => BlocProvider(
                     create: (_) =>
-                        StudentsAndGroupsCubit(context.read<ScheduleRepo>()),
+                        StudentsAndGroupsCubit(context.read<DataProvider>()),
                     child: StudentForm(state.student),
                   ),
                 ),
@@ -188,7 +188,10 @@ class _NavigationChipsRow extends StatelessWidget {
             icon: Icons.payments_outlined,
             label: 'Payments',
             color: AppColors.accentGreen,
-            onTap: () {}, // TODO: navigate to payments page
+            onTap: () => context.pushNamed(
+              'stud_payments',
+              pathParameters: {'id': '${student.id}'},
+            ),
           ),
           NavigationChip(
             icon: Icons.route_outlined,

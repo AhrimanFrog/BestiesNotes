@@ -1,20 +1,20 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'students_and_groups_state.dart';
 
 class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
-  final ScheduleRepo _scheduleRepo;
+  final DataProvider _provider;
 
-  StudentsAndGroupsCubit(this._scheduleRepo) : super(StudentsAndGroupsState());
+  StudentsAndGroupsCubit(this._provider) : super(StudentsAndGroupsState());
 
   Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
     if (state.noMoreStudents) return;
     emit(state.copyWith(isLoading: true, error: () => null));
     try {
-      final students = await _scheduleRepo.getStudents(
+      final students = await _provider.getStudents(
         offset: offset,
         limit: limit,
       );
@@ -34,7 +34,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     if (state.noMoreGroups) return;
     emit(state.copyWith(isLoading: true, error: () => null));
     try {
-      final groups = await _scheduleRepo.getGroups(
+      final groups = await _provider.getGroups(
         offset: offset,
         limit: limit,
       );
@@ -51,7 +51,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> createOrUpdateStudent(Student student) async {
-    final id = await _scheduleRepo.createOrUpdateStudent(student);
+    final id = await _provider.createOrUpdateStudent(student);
     final studentWithId = student.copyWith(id: id);
 
     final updatedStudents = student.id != null
@@ -64,17 +64,17 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> deleteStudent(int studentId) async {
-    await _scheduleRepo.deleteStudent(studentId);
+    await _provider.deleteStudent(studentId);
     final updatedStudents = state.students.where((s) => s.id != studentId);
     emit(state.copyWith(students: updatedStudents.toList()));
   }
 
   Future<void> createOrUpdateGroup(Group group) async {
-    final id = await _scheduleRepo.createOrUpdateGroup(group);
+    final id = await _provider.createOrUpdateGroup(group);
     final newMemberIds = group.students
         .where((s) => s.id != null)
         .map((s) => s.id!);
-    await _scheduleRepo.syncGroupMemberships(id, newMemberIds);
+    await _provider.syncGroupMemberships(id, newMemberIds);
 
     final groupWithId = group.copyWith(id: id);
 
@@ -105,7 +105,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> deleteGroup(int groupId) async {
-    await _scheduleRepo.deleteGroup(groupId);
+    await _provider.deleteGroup(groupId);
     final updatedGroups = state.groups.where((g) => g.id != groupId).toList();
 
     // Clear the group reference from students that belonged to the deleted group.
@@ -133,7 +133,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   }
 
   Future<void> fetchGroupMembers(int groupId) async {
-    final groupMembers = await _scheduleRepo.getGroupMembers(groupId);
+    final groupMembers = (await _provider.getGroupMembers(groupId)).toSet();
     emit(state.copyWith(groupMembers: groupMembers));
   }
 

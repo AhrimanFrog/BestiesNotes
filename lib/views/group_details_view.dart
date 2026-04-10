@@ -2,7 +2,7 @@ import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +41,7 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
                   context: context,
                   builder: (_) => BlocProvider(
                     create: (_) =>
-                        StudentsAndGroupsCubit(context.read<ScheduleRepo>()),
+                        StudentsAndGroupsCubit(context.read<DataProvider>()),
                     child: GroupForm(state.group),
                   ),
                 ),

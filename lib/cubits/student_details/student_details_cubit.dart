@@ -1,19 +1,19 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/repositories/schedule_repo.dart';
+import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'student_details_state.dart';
 
 class StudentDetailsCubit extends Cubit<StudentDetailsState> {
-  final ScheduleRepo _repo;
+  final DataProvider _provider;
 
-  StudentDetailsCubit(this._repo) : super(const StudentDetailsState());
+  StudentDetailsCubit(this._provider) : super(const StudentDetailsState());
 
   Future<void> loadStudent(int studentId) async {
     emit(const StudentDetailsState(isLoading: true));
     try {
-      final student = await _repo.getStudent(studentId);
+      final student = await _provider.getStudent(studentId);
       emit(state.copyWith(student: student));
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
@@ -23,7 +23,7 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
   Future<void> loadLessons(int studentId) async {
     emit(const StudentDetailsState(isLoading: true));
     try {
-      final lessons = await _repo.getLessonsForStudent(studentId);
+      final lessons = await _provider.getLessonsForStudent(studentId);
       emit(state.copyWith(lessons: lessons, isLoading: false));
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
