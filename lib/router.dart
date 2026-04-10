@@ -1,10 +1,13 @@
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/payments/payments_cubit.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/data_provider.dart';
+import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
+import 'package:besties_notes/views/payments_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:besties_notes/views/students_view.dart';
@@ -80,6 +83,19 @@ final router = GoRouter(
                                 int.parse(state.pathParameters['id']!),
                               ),
                         child: LessonsHistoryView(),
+                      ),
+                    ),
+                    GoRoute(
+                      name: 'stud_payments',
+                      path: 'payments',
+                      builder: (context, state) => BlocProvider(
+                        create: (_) => PaymentsCubit(
+                          context.read<PaymentProvider>(),
+                          context.read<DataProvider>(),
+                        ),
+                        child: PaymentsView(
+                          studentId: int.parse(state.pathParameters['id']!),
+                        ),
                       ),
                     ),
                   ],
