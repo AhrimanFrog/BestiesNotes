@@ -53,8 +53,9 @@ class CompactLessonTile extends StatelessWidget {
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.mainText,
-                      decoration:
-                          isCancelled ? TextDecoration.lineThrough : null,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   Text(

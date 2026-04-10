@@ -21,10 +21,12 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
       if (students.isEmpty) {
         return emit(state.copyWith(noMoreStudents: true, isLoading: false));
       }
-      emit(state.copyWith(
-        students: [...state.students, ...students],
-        isLoading: false,
-      ));
+      emit(
+        state.copyWith(
+          students: [...state.students, ...students],
+          isLoading: false,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: () => e.toString()));
     }
@@ -34,17 +36,13 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     if (state.noMoreGroups) return;
     emit(state.copyWith(isLoading: true, error: () => null));
     try {
-      final groups = await _provider.getGroups(
-        offset: offset,
-        limit: limit,
-      );
+      final groups = await _provider.getGroups(offset: offset, limit: limit);
       if (groups.isEmpty) {
         return emit(state.copyWith(noMoreGroups: true, isLoading: false));
       }
-      emit(state.copyWith(
-        groups: [...state.groups, ...groups],
-        isLoading: false,
-      ));
+      emit(
+        state.copyWith(groups: [...state.groups, ...groups], isLoading: false),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: () => e.toString()));
     }

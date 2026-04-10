@@ -27,11 +27,8 @@ class LessonsCubit extends Cubit<LessonsState> {
     int limit = 100,
   }) async {
     _fetchLessons(
-      () async => _provider.getLessonsForStudent(
-        studID,
-        offset: offset,
-        limit: limit,
-      ),
+      () async =>
+          _provider.getLessonsForStudent(studID, offset: offset, limit: limit),
     );
   }
 
@@ -41,11 +38,8 @@ class LessonsCubit extends Cubit<LessonsState> {
     int limit = 100,
   }) async {
     _fetchLessons(
-      () async => _provider.getLessonsForGroup(
-        groupId,
-        offset: offset,
-        limit: limit,
-      ),
+      () async =>
+          _provider.getLessonsForGroup(groupId, offset: offset, limit: limit),
     );
   }
 

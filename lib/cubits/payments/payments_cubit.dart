@@ -15,18 +15,18 @@ class PaymentsCubit extends Cubit<PaymentsState> {
 
   Future<void> load(int studentId) async {
     emit(const PaymentsState(isLoading: true));
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month);
     try {
-      final student = await _dataProvider.getStudent(studentId);
-      final unpaidLessons = await _paymentProvider.getUnpaidLessonsForStudent(
-        studentId,
-      );
-      final now = DateTime.now();
-      final monthStart = DateTime(now.year, now.month);
-      final stat = await _paymentProvider.getPaymentStatForPeriod(
-        studentID: studentId,
-        from: monthStart,
-        to: now,
-      );
+      final (student, unpaidLessons, stat) = await (
+        _dataProvider.getStudent(studentId),
+        _paymentProvider.getUnpaidLessonsForStudent(studentId),
+        _paymentProvider.getPaymentStatForPeriod(
+          studentID: studentId,
+          from: monthStart,
+          to: now,
+        ),
+      ).wait;
       emit(
         PaymentsState(
           student: student,
