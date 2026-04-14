@@ -421,4 +421,49 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       ..orderBy([OrderingTerm.asc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
   }
+
+  @override
+  Future<({int paidLessons, int totalLessons})> getPaymentStatForGroup({
+    required int groupId,
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.groupId.equals(groupId))
+      ..where(dbLessons.start.isBetweenValues(from, to));
+    final rows = await query.get();
+
+    if (rows.isEmpty) return (paidLessons: 0, totalLessons: 0);
+
+    // A lesson is "paid" when every group participant in it has paid.
+    // Accumulate per-lesson: AND together each participant's isPaid flag.
+    final Map<int, bool> allPaid = {};
+    for (final row in rows) {
+      final lessonId = row.readTable(dbLessons).id;
+      final participant = row.readTableOrNull(dbLessonParticipants);
+      if (participant != null) {
+        allPaid.update(
+          lessonId,
+          (prev) => prev && participant.isPaid,
+          ifAbsent: () => participant.isPaid,
+        );
+      }
+    }
+
+    return (
+      paidLessons: allPaid.values.where((v) => v).length,
+      totalLessons: allPaid.length,
+    );
+  }
+
+  @override
+  Future<List<Lesson>> getUnpaidLessonsForGroup(int groupId) async {
+    final query = _lessonsQuery()
+      ..where(
+        dbLessonParticipants.groupId.equals(groupId) &
+            dbLessonParticipants.isPaid.equals(false),
+      )
+      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
+    return await _gatherLessonDetailsIntoLesson(query);
+  }
 }

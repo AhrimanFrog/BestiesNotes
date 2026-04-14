@@ -53,6 +53,8 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               children: [
                 _GroupHeaderCard(group: state.group),
+                const SizedBox(height: 12),
+                _NavigationChipsRow(groupId: widget.groupId),
                 const SizedBox(height: 20),
                 _MembersSection(state: state),
                 const SizedBox(height: 20),
@@ -124,6 +126,35 @@ class _GroupHeaderCard extends StatelessWidget {
                   accentColor: AppColors.accentPink,
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Navigation chips ────────────────────────────────────────────────────────
+
+class _NavigationChipsRow extends StatelessWidget {
+  final int groupId;
+
+  const _NavigationChipsRow({required this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 8,
+        children: [
+          NavigationChip(
+            icon: Icons.payments_outlined,
+            label: 'Payments',
+            color: AppColors.accentGreen,
+            onTap: () => context.pushNamed(
+              'group_payments',
+              pathParameters: {'id': '$groupId'},
             ),
           ),
         ],
