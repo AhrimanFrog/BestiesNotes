@@ -22,7 +22,7 @@ class PaymentsCubit extends Cubit<PaymentsState> {
         _dataProvider.getStudent(studentId),
         _paymentProvider.getUnpaidLessonsForStudent(studentId),
         _paymentProvider.getPaymentStatForPeriod(
-          studentID: studentId,
+          studentId: studentId,
           from: monthStart,
           to: now,
         ),

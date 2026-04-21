@@ -4,7 +4,7 @@ abstract class PaymentProvider {
   Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
     required DateTime from,
     required DateTime to,
-    required int studentID,
+    required int studentId,
   });
 
   Future<({int paidLessons, int totalLessons})> getPaymentStatForGroup({

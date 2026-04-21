@@ -23,6 +23,10 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     return driftDatabase(name: 'besties_notes_db');
   }
 
+  // ---------------------------------------------------------------------------
+  // Lessons
+  // ---------------------------------------------------------------------------
+
   @override
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
     final queryRes = _lessonsQuery()
@@ -36,46 +40,33 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   Future<Lesson> getLesson(int lessonId) async {
     final query = _lessonsQuery()..where(dbLessons.id.equals(lessonId));
     final details = await _gatherLessonDetailsIntoLesson(query);
-    if (details.isEmpty) throw Exception("Lesson not Found!");
-    return details.first;
+    return details.single;
   }
 
   @override
   Future<List<Lesson>> getLessonsForStudent(
-    int studentID, {
+    int studentId, {
     int offset = 0,
     int limit = 100,
   }) async {
     final query = _lessonsQuery()
-      ..where(dbLessonParticipants.studentId.equals(studentID))
+      ..where(dbLessonParticipants.studentId.equals(studentId))
       ..limit(limit, offset: offset)
       ..orderBy([.desc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
   }
 
-  Future<List<Lesson>> _gatherLessonDetailsIntoLesson(
-    JoinedSelectStatement query,
-  ) async {
-    final Map<int, DbLessonDetails> lessonDetails = {};
-
-    for (final row in await query.get()) {
-      final lesson = row.readTable(dbLessons);
-      final student = row.readTableOrNull(dbStudents);
-      final group = row.readTableOrNull(dbGroups);
-      final participant = row.readTableOrNull(dbLessonParticipants);
-
-      final details = lessonDetails.putIfAbsent(
-        lesson.id,
-        () => DbLessonDetails(lesson: lesson),
-      );
-
-      if (student != null) details.students[student.id] = student;
-      if (group != null) details.groups[group.id] = group;
-      if (participant != null) {
-        details.participantStatus[participant.studentId] = participant;
-      }
-    }
-    return lessonDetails.values.map((d) => d.toDomain()).toList();
+  @override
+  Future<List<Lesson>> getLessonsForGroup(
+    int groupId, {
+    int offset = 0,
+    int limit = 100,
+  }) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.groupId.equals(groupId))
+      ..limit(limit, offset: offset)
+      ..orderBy([OrderingTerm.desc(dbLessons.start)]);
+    return await _gatherLessonDetailsIntoLesson(query);
   }
 
   @override
@@ -99,6 +90,111 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
         ),
       ),
     );
+  }
+
+  @override
+  Future<void> updateLessonStatus(int lessonId, LessonStatus status) async {
+    await (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
+      DbLessonsCompanion(
+        status: Value(status),
+        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  @override
+  Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects) {
+    return transaction(() async {
+      final desired = await _resolveParticipants(subjects);
+
+      if (desired.isEmpty) {
+        await (delete(
+          dbLessonParticipants,
+        )..where((p) => p.lessonId.equals(lessonId))).go();
+        return;
+      }
+
+      await batch((b) {
+        b.insertAll(dbLessonParticipants, [
+          for (final MapEntry(:key, :value) in desired.entries)
+            DbLessonParticipantsCompanion.insert(
+              lessonId: lessonId,
+              studentId: key,
+              isPaid: false,
+              attended: false,
+              groupId: Value(value),
+            ),
+        ], mode: InsertMode.insertOrIgnore);
+      });
+
+      await (delete(dbLessonParticipants)..where(
+            (p) =>
+                p.lessonId.equals(lessonId) & p.studentId.isNotIn(desired.keys),
+          ))
+          .go();
+    });
+  }
+
+  @override
+  Future<void> updateParticipantStatus(
+    int lessonId,
+    int studentId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) async {
+    await _updateStatuses(
+      (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
+      attended: attended,
+      isPaid: isPaid,
+      homeworkDone: homeworkDone,
+    );
+  }
+
+  @override
+  Future<void> updateGroupStatuses(
+    int lessonId,
+    int groupId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) async {
+    await _updateStatuses(
+      (p) => p.lessonId.equals(lessonId) & p.groupId.equals(groupId),
+      attended: attended,
+      isPaid: isPaid,
+      homeworkDone: homeworkDone,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Students
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<Student> getStudent(int studentId) async {
+    final query = (select(dbStudents)..where((s) => s.id.equals(studentId)))
+        .join([
+          leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
+        ]);
+    final result = await query.getSingle();
+    final group = result.readTableOrNull(dbGroups)?.toDomain();
+    return result.readTable(dbStudents).toDomain(group: group);
+  }
+
+  @override
+  Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
+    final query = (select(dbStudents)..limit(limit, offset: offset)).join([
+      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
+    ]);
+
+    return (await query.get())
+        .map(
+          (r) => r
+              .readTable(dbStudents)
+              .toDomain(group: r.readTableOrNull(dbGroups)?.toDomain()),
+        )
+        .toList();
   }
 
   @override
@@ -130,31 +226,9 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     return (delete(dbStudents)..where((s) => s.id.equals(studentId))).go();
   }
 
-  @override
-  Future<Student> getStudent(int studentId) async {
-    final query = (select(dbStudents)..where((s) => s.id.equals(studentId)))
-        .join([
-          leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
-        ]);
-    final result = await query.getSingle();
-    final group = result.readTableOrNull(dbGroups)?.toDomain();
-    return result.readTable(dbStudents).toDomain(group: group);
-  }
-
-  @override
-  Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
-    final query = (select(dbStudents)..limit(limit, offset: offset)).join([
-      leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
-    ]);
-
-    return (await query.get())
-        .map(
-          (r) => r
-              .readTable(dbStudents)
-              .toDomain(group: r.readTableOrNull(dbGroups)?.toDomain()),
-        )
-        .toList();
-  }
+  // ---------------------------------------------------------------------------
+  // Groups
+  // ---------------------------------------------------------------------------
 
   @override
   Future<Group> getGroup(int groupId) async {
@@ -166,19 +240,6 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   Future<List<Group>> getGroups({int offset = 0, int limit = 100}) async {
     final query = select(dbGroups)..limit(limit, offset: offset);
     return (await query.get()).map((g) => g.toDomain()).toList();
-  }
-
-  @override
-  Future<List<Lesson>> getLessonsForGroup(
-    int groupId, {
-    int offset = 0,
-    int limit = 100,
-  }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.groupId.equals(groupId))
-      ..limit(limit, offset: offset)
-      ..orderBy([OrderingTerm.desc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
   }
 
   @override
@@ -223,203 +284,37 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     }
   }
 
-  Future<void> _removeLessonParticipants(
-    int lessonId,
-    Set<int> toRemove,
-  ) async {
-    await (delete(dbLessonParticipants)..where(
-          (p) => p.lessonId.equals(lessonId) & p.studentId.isIn(toRemove),
-        ))
-        .go();
-  }
-
-  @override
-  Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects) {
-    return transaction(() async {
-      // Expand groups into individual students, tracking group origin
-      final Map<int, int?> desiredStudents = {}; // studentId -> groupId?
-      for (final subject in subjects) {
-        if (subject is Student && subject.id != null) {
-          desiredStudents[subject.id!] = null;
-        } else if (subject is Group && subject.id != null) {
-          final members = await getGroupMembers(subject.id!);
-          for (final member in members) {
-            desiredStudents[member.id!] = subject.id;
-          }
-        }
-      }
-
-      final existing =
-          await (select(dbLessonParticipants)
-                ..where((p) => p.lessonId.equals(lessonId)))
-              .map((p) => p.studentId)
-              .get();
-      final existingIds = existing.toSet();
-      final desiredIds = desiredStudents.keys.toSet();
-
-      final toRemove = existingIds.difference(desiredIds);
-      if (toRemove.isNotEmpty) {
-        await _removeLessonParticipants(lessonId, toRemove);
-      }
-
-      final toAdd = desiredIds.difference(existingIds);
-      if (toAdd.isNotEmpty) {
-        await batch((batch) {
-          batch.insertAll(dbLessonParticipants, [
-            for (final studentId in toAdd)
-              DbLessonParticipantsCompanion.insert(
-                lessonId: lessonId,
-                studentId: studentId,
-                isPaid: false,
-                attended: false,
-                homeworkDone: Value(false),
-                groupId: Value(desiredStudents[studentId]),
-              ),
-          ]);
-        });
-      }
-    });
-  }
-
-  @override
-  Future<void> updateLessonStatus(int lessonId, LessonStatus status) async {
-    await (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
-      DbLessonsCompanion(
-        status: Value(status),
-        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
-      ),
-    );
-  }
-
-  @override
-  Future<void> updateParticipantStatus(
-    int lessonId,
-    int studentId, {
-    bool? attended,
-    bool? isPaid,
-    bool? homeworkDone,
-  }) async {
-    await (update(dbLessonParticipants)..where(
-          (p) => p.lessonId.equals(lessonId) & p.studentId.equals(studentId),
-        ))
-        .write(
-          DbLessonParticipantsCompanion(
-            attended: attended != null ? Value(attended) : const Value.absent(),
-            isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
-            homeworkDone: homeworkDone != null
-                ? Value(homeworkDone)
-                : const Value.absent(),
-          ),
-        );
-  }
-
-  @override
-  Future<void> updateGroupStatuses(
-    int lessonId,
-    int groupId, {
-    bool? attended,
-    bool? isPaid,
-    bool? homeworkDone,
-  }) async {
-    await (update(dbLessonParticipants)..where(
-          (p) => p.lessonId.equals(lessonId) & p.groupId.equals(groupId),
-        ))
-        .write(
-          DbLessonParticipantsCompanion(
-            attended: attended != null ? Value(attended) : const Value.absent(),
-            isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
-            homeworkDone: homeworkDone != null
-                ? Value(homeworkDone)
-                : const Value.absent(),
-          ),
-        );
-  }
+  // ---------------------------------------------------------------------------
+  // Payments
+  // ---------------------------------------------------------------------------
 
   @override
   Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
     required DateTime from,
     required DateTime to,
-    required int studentID,
+    required int studentId,
   }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.studentId.equals(studentID))
-      ..where(dbLessons.start.isBetweenValues(from, to));
-    final result = await query.get();
-
-    if (result.isEmpty) return (paidLessons: 0, totalLessons: 0);
-
-    final int paid = result.fold(
-      0,
-      (count, row) => row.readTableOrNull(dbLessonParticipants)?.isPaid == true
-          ? count + 1
-          : count,
+    final total = countAll();
+    final paid = dbLessonParticipants.isPaid.count(
+      filter: dbLessonParticipants.isPaid.equals(true),
     );
 
-    return (paidLessons: paid, totalLessons: result.length);
-  }
+    final query = selectOnly(dbLessons)
+      ..addColumns([total, paid])
+      ..join([
+        innerJoin(
+          dbLessonParticipants,
+          dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
+        ),
+      ])
+      ..where(dbLessonParticipants.studentId.equals(studentId))
+      ..where(dbLessons.start.isBetweenValues(from, to));
 
-  JoinedSelectStatement _lessonsQuery() {
-    return (select(dbLessons)).join([
-      leftOuterJoin(
-        dbLessonParticipants,
-        dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
-      ),
-      leftOuterJoin(
-        dbStudents,
-        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
-      ),
-      leftOuterJoin(
-        dbGroups,
-        dbGroups.id.equalsExp(dbLessonParticipants.groupId),
-      ),
-    ]);
-  }
-
-  @override
-  Future<List<Lesson>> getLessonsWithPaymentStatus(
-    bool paymentStatus, {
-    int limit = 100,
-    int offset = 0,
-  }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.isPaid.equals(paymentStatus))
-      ..orderBy([OrderingTerm.asc(dbLessons.start)])
-      ..limit(limit, offset: offset);
-    return await _gatherLessonDetailsIntoLesson(query);
-  }
-
-  @override
-  Future<List<Debtor>> getDebtors() async {
-    final query = select(dbLessonParticipants).join([
-      innerJoin(
-        dbStudents,
-        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
-      ),
-    ])..where(dbLessonParticipants.isPaid.equals(false));
-
-    Map<int, Student> studs = {};
-    Map<int, int> unpaidCount = {};
-
-    for (final row in await query.get()) {
-      final stud = row.readTable(dbStudents);
-      studs.putIfAbsent(stud.id, () => stud.toDomain());
-      unpaidCount[stud.id] = (unpaidCount[stud.id] ?? 0) + 1;
-    }
-
-    return unpaidCount.entries
-        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessons: e.value))
-        .toList();
-  }
-
-  @override
-  Future<List<Lesson>> getUnpaidLessonsForStudent(int studentId) async {
-    final query = _lessonsQuery()
-      ..where(
-        dbLessonParticipants.isPaid.equals(false) &
-            dbLessonParticipants.studentId.equals(studentId),
-      )
-      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
+    final row = await query.getSingleOrNull();
+    return (
+      totalLessons: row?.read(total) ?? 0,
+      paidLessons: row?.read(paid) ?? 0,
+    );
   }
 
   @override
@@ -457,6 +352,30 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   }
 
   @override
+  Future<List<Lesson>> getLessonsWithPaymentStatus(
+    bool paymentStatus, {
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    final query = _lessonsQuery()
+      ..where(dbLessonParticipants.isPaid.equals(paymentStatus))
+      ..orderBy([OrderingTerm.asc(dbLessons.start)])
+      ..limit(limit, offset: offset);
+    return await _gatherLessonDetailsIntoLesson(query);
+  }
+
+  @override
+  Future<List<Lesson>> getUnpaidLessonsForStudent(int studentId) async {
+    final query = _lessonsQuery()
+      ..where(
+        dbLessonParticipants.isPaid.equals(false) &
+            dbLessonParticipants.studentId.equals(studentId),
+      )
+      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
+    return await _gatherLessonDetailsIntoLesson(query);
+  }
+
+  @override
   Future<List<Lesson>> getUnpaidLessonsForGroup(int groupId) async {
     final query = _lessonsQuery()
       ..where(
@@ -465,5 +384,115 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       )
       ..orderBy([OrderingTerm.asc(dbLessons.start)]);
     return await _gatherLessonDetailsIntoLesson(query);
+  }
+
+  @override
+  Future<List<Debtor>> getDebtors() async {
+    final query = select(dbLessonParticipants).join([
+      innerJoin(
+        dbStudents,
+        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
+      ),
+    ])..where(dbLessonParticipants.isPaid.equals(false));
+
+    Map<int, Student> studs = {};
+    Map<int, int> unpaidCount = {};
+
+    for (final row in await query.get()) {
+      final stud = row.readTable(dbStudents);
+      studs.putIfAbsent(stud.id, () => stud.toDomain());
+      unpaidCount[stud.id] = (unpaidCount[stud.id] ?? 0) + 1;
+    }
+
+    return unpaidCount.entries
+        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessons: e.value))
+        .toList();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  JoinedSelectStatement _lessonsQuery() {
+    return (select(dbLessons)).join([
+      leftOuterJoin(
+        dbLessonParticipants,
+        dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
+      ),
+      leftOuterJoin(
+        dbStudents,
+        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
+      ),
+      leftOuterJoin(
+        dbGroups,
+        dbGroups.id.equalsExp(dbLessonParticipants.groupId),
+      ),
+    ]);
+  }
+
+  Future<List<Lesson>> _gatherLessonDetailsIntoLesson(
+    JoinedSelectStatement query,
+  ) async {
+    final Map<int, DbLessonDetails> lessonDetails = {};
+
+    for (final row in await query.get()) {
+      final lesson = row.readTable(dbLessons);
+      final student = row.readTableOrNull(dbStudents);
+      final group = row.readTableOrNull(dbGroups);
+      final participant = row.readTableOrNull(dbLessonParticipants);
+
+      final details = lessonDetails.putIfAbsent(
+        lesson.id,
+        () => DbLessonDetails(lesson: lesson),
+      );
+
+      if (student != null) details.students[student.id] = student;
+      if (group != null) details.groups[group.id] = group;
+      if (participant != null) {
+        details.participantStatus[participant.studentId] = participant;
+      }
+    }
+    return lessonDetails.values.map((d) => d.toDomain()).toList();
+  }
+
+  Future<Map<int, int?>> _resolveParticipants(List<Teachable> subjects) async {
+    final Map<int, int?> desiredStudents = {};
+    for (final s in subjects.whereType<Student>()) {
+      if (s.id != null) desiredStudents[s.id!] = null;
+    }
+
+    final groupIds = subjects
+        .whereType<Group>()
+        .where((g) => g.id != null)
+        .map((g) => g.id!)
+        .toSet();
+
+    if (groupIds.isEmpty) return desiredStudents;
+
+    final members = await (select(
+      dbStudents,
+    )..where((s) => s.groupId.isIn(groupIds))).get();
+    for (final member in members) {
+      desiredStudents[member.id] = member.groupId;
+    }
+
+    return desiredStudents;
+  }
+
+  Future<void> _updateStatuses(
+    Expression<bool> Function($DbLessonParticipantsTable tbl) whereClause, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) async {
+    await (update(dbLessonParticipants)..where(whereClause)).write(
+      DbLessonParticipantsCompanion(
+        attended: attended != null ? Value(attended) : const Value.absent(),
+        isPaid: isPaid != null ? Value(isPaid) : const Value.absent(),
+        homeworkDone: homeworkDone != null
+            ? Value(homeworkDone)
+            : const Value.absent(),
+      ),
+    );
   }
 }

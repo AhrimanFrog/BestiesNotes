@@ -7,7 +7,7 @@ abstract class DataProvider {
   Future<Lesson> getLesson(int lessonId);
 
   Future<List<Lesson>> getLessonsForStudent(
-    int studentID, {
+    int studentId, {
     int offset = 0,
     int limit = 100,
   });
@@ -63,6 +63,6 @@ abstract class DataProvider {
   Future<({int paidLessons, int totalLessons})> getPaymentStatForPeriod({
     required DateTime from,
     required DateTime to,
-    required int studentID,
+    required int studentId,
   });
 }

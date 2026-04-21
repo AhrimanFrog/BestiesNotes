@@ -461,7 +461,7 @@ void main() {
       final stats = await db.getPaymentStatForPeriod(
         from: DateTime(2025, 1, 1),
         to: DateTime(2025, 1, 31),
-        studentID: studentId,
+        studentId: studentId,
       );
       expect(stats.paidLessons, 2);
       expect(stats.totalLessons, 3);
@@ -477,7 +477,7 @@ void main() {
       final stats = await db.getPaymentStatForPeriod(
         from: DateTime(2025, 1, 1),
         to: DateTime(2025, 1, 31),
-        studentID: studentId,
+        studentId: studentId,
       );
       expect(stats.paidLessons, 0);
       expect(stats.totalLessons, 1);
@@ -488,7 +488,7 @@ void main() {
       final stats = await db.getPaymentStatForPeriod(
         from: DateTime(2025, 1, 1),
         to: DateTime(2025, 1, 31),
-        studentID: studentId,
+        studentId: studentId,
       );
       expect(stats.paidLessons, 0);
       expect(stats.totalLessons, 0);
@@ -510,7 +510,7 @@ void main() {
       final stats = await db.getPaymentStatForPeriod(
         from: DateTime(2025, 1, 1),
         to: DateTime(2025, 1, 31),
-        studentID: studentId,
+        studentId: studentId,
       );
       expect(stats.totalLessons, 1);
       expect(stats.paidLessons, 0);

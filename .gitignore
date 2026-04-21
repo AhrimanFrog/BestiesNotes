@@ -12,6 +12,11 @@
 .swiftpm/
 migrate_working_dir/
 
+# AI
+.claude/
+.agents/
+skills-lock.json
+
 # IntelliJ related
 *.iml
 *.ipr
