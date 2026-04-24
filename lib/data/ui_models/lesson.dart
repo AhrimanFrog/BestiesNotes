@@ -4,7 +4,6 @@ import 'package:besties_notes/data/ui_models/index.dart';
 class Lesson {
   final int? id;
   final String name;
-  final List<Teachable> subjects;
   final List<LessonParticipant> participants;
   final DateTime start;
   final Duration duration;
@@ -14,7 +13,6 @@ class Lesson {
   const Lesson({
     this.id,
     required this.name,
-    required this.subjects,
     this.participants = const [],
     required this.start,
     required this.duration,
@@ -30,10 +28,16 @@ class Lesson {
 
   DateTime get end => start.add(duration);
 
+  List<Teachable> get subjects {
+    return participants
+        .map((p) => p.group == null ? p.student : p.group!)
+        .toSet()
+        .toList();
+  }
+
   Lesson copyWith({
     int? id,
     String? name,
-    List<Teachable>? subjects,
     List<LessonParticipant>? participants,
     DateTime? start,
     Duration? duration,
@@ -43,7 +47,6 @@ class Lesson {
     return Lesson(
       id: id ?? this.id,
       name: name ?? this.name,
-      subjects: subjects ?? this.subjects,
       participants: participants ?? this.participants,
       start: start ?? this.start,
       duration: duration ?? this.duration,
@@ -51,24 +54,4 @@ class Lesson {
       status: status ?? this.status,
     );
   }
-
-  Lesson.demoActive()
-    : id = null,
-      name = "Present simple",
-      subjects = [Student.demo()],
-      participants = const [],
-      start = DateTime.now(),
-      duration = Duration(minutes: 70),
-      note = "Just text",
-      status = LessonStatus.scheduled;
-
-  Lesson.demoNonActive()
-    : id = null,
-      name = "Present huimple",
-      subjects = [Student.demo()],
-      participants = const [],
-      start = DateTime.now().add(Duration(days: 2, minutes: 70)),
-      duration = Duration(minutes: 60),
-      note = "Some note here",
-      status = LessonStatus.scheduled;
 }

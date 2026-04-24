@@ -40,7 +40,7 @@ void main() {
   }) => Lesson(
     id: id,
     name: name,
-    subjects: const [],
+    participants: const [],
     start: start ?? DateTime(2025, 1, 15, 10, 0),
     duration: const Duration(hours: 1),
     status: status,

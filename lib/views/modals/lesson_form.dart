@@ -171,14 +171,13 @@ class _LessonFormState extends State<LessonForm> {
       final lesson = Lesson(
         id: this.lesson?.id,
         name: _nameController.text.trim(),
-        subjects: _selectedSubjects,
         start: startDateTime,
         duration: Duration(minutes: int.parse(_durationController.text)),
         note: _noteController.text.trim(),
       );
 
       final cubit = context.read<LessonsCubit>();
-      await cubit.createOrUpdateLesson(lesson);
+      await cubit.createOrUpdateLesson(lesson, _selectedSubjects);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

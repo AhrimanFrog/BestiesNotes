@@ -45,7 +45,6 @@ Lesson makeLesson({
 }) => Lesson(
   id: id,
   name: name,
-  subjects: subjects ?? [makeStudent()],
   participants: participants ?? const [],
   start: DateTime(2025, 1, 15, 10, 0),
   duration: const Duration(hours: 1),

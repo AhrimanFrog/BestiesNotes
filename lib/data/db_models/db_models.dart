@@ -48,7 +48,9 @@ class DbLessonParticipants extends Table {
   BoolColumn get isPaid => boolean()();
   BoolColumn get attended => boolean()();
   BoolColumn get homeworkDone => boolean().withDefault(const Constant(false))();
-  IntColumn get groupId => integer().references(DbGroups, #id).nullable()();
+  IntColumn get groupId => integer()
+      .references(DbGroups, #id, onDelete: KeyAction.setNull)
+      .nullable()();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [

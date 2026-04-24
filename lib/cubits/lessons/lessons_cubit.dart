@@ -78,9 +78,12 @@ class LessonsCubit extends Cubit<LessonsState> {
     to: LessonsState.defaultDateTo(),
   );
 
-  Future<void> createOrUpdateLesson(Lesson lesson) async {
+  Future<void> createOrUpdateLesson(
+    Lesson lesson,
+    List<Teachable> subjects,
+  ) async {
     final lessonId = await _provider.createOrUpdateLesson(lesson);
-    await _provider.syncLessonMembership(lessonId, lesson.subjects);
+    await _provider.syncLessonMembership(lessonId, subjects);
     await fetchLessons();
   }
 

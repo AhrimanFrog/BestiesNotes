@@ -12,7 +12,7 @@ class MockDataProvider extends Mock implements DataProvider {}
 Lesson makeLesson({int id = 1, String name = 'Math'}) => Lesson(
   id: id,
   name: name,
-  subjects: const [],
+  participants: const [],
   start: DateTime(2025, 1, 15, 10),
   duration: const Duration(hours: 1),
 );
@@ -93,13 +93,14 @@ void main() {
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
-    act: (c) => c.fetchLessons(
-      from: DateTime(2025, 3, 1),
-      to: DateTime(2025, 3, 7),
-    ),
+    act: (c) =>
+        c.fetchLessons(from: DateTime(2025, 3, 1), to: DateTime(2025, 3, 7)),
     verify: (_) {
       verify(
-        () => provider.getLessonsForRange(DateTime(2025, 3, 1), DateTime(2025, 3, 7)),
+        () => provider.getLessonsForRange(
+          DateTime(2025, 3, 1),
+          DateTime(2025, 3, 7),
+        ),
       ).called(1);
     },
   );
@@ -123,7 +124,10 @@ void main() {
     act: (c) => c.goToPreviousWeek(),
     verify: (_) {
       verify(
-        () => provider.getLessonsForRange(DateTime(2025, 1, 13), DateTime(2025, 1, 20)),
+        () => provider.getLessonsForRange(
+          DateTime(2025, 1, 13),
+          DateTime(2025, 1, 20),
+        ),
       ).called(1);
     },
   );
@@ -143,7 +147,10 @@ void main() {
     act: (c) => c.goToNextWeek(),
     verify: (_) {
       verify(
-        () => provider.getLessonsForRange(DateTime(2025, 1, 27), DateTime(2025, 2, 3)),
+        () => provider.getLessonsForRange(
+          DateTime(2025, 1, 27),
+          DateTime(2025, 2, 3),
+        ),
       ).called(1);
     },
   );
@@ -189,7 +196,7 @@ void main() {
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
-    act: (c) => c.createOrUpdateLesson(makeLesson()),
+    act: (c) => c.createOrUpdateLesson(makeLesson(), const []),
     verify: (_) {
       verify(() => provider.createOrUpdateLesson(any())).called(1);
       verify(() => provider.syncLessonMembership(any(), any())).called(1);
@@ -239,7 +246,6 @@ void main() {
   final lessonWithParticipant = Lesson(
     id: 1,
     name: 'Math',
-    subjects: const [],
     participants: [participant],
     start: DateTime(2025, 1, 15, 10),
     duration: const Duration(hours: 1),
@@ -310,12 +316,9 @@ void main() {
 
   group('LessonsState.getLessonsByDate', () {
     test('groups lessons by calendar day', () {
-      final l1 = makeLesson(id: 1)
-          .copyWith(start: DateTime(2025, 1, 10, 9));
-      final l2 = makeLesson(id: 2)
-          .copyWith(start: DateTime(2025, 1, 10, 14));
-      final l3 = makeLesson(id: 3)
-          .copyWith(start: DateTime(2025, 1, 11, 10));
+      final l1 = makeLesson(id: 1).copyWith(start: DateTime(2025, 1, 10, 9));
+      final l2 = makeLesson(id: 2).copyWith(start: DateTime(2025, 1, 10, 14));
+      final l3 = makeLesson(id: 3).copyWith(start: DateTime(2025, 1, 11, 10));
       final state = LessonsState(lessons: [l1, l2, l3]);
       final map = state.getLessonsByDate();
       expect(map[DateTime(2025, 1, 10)]?.length, 2);

@@ -16,7 +16,7 @@ Student makeStudent({int id = 1}) =>
 Lesson makeLesson({int id = 1}) => Lesson(
   id: id,
   name: 'Math',
-  subjects: const [],
+  participants: const [],
   start: DateTime(2025, 1, 15, 10),
   duration: const Duration(hours: 1),
 );

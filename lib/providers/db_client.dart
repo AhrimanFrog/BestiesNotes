@@ -17,7 +17,7 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
