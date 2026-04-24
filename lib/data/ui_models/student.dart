@@ -23,7 +23,7 @@ class Student extends Teachable {
     Rate? pricing,
     String? contact,
     String? iconPath,
-    Group? group,
+    Group? Function()? group,
     String? note,
   }) {
     return Student(
@@ -32,7 +32,7 @@ class Student extends Teachable {
       pricing: pricing ?? this.pricing,
       contact: contact ?? this.contact,
       iconPath: iconPath ?? this.iconPath,
-      group: group ?? this.group,
+      group: group != null ? group() : this.group,
       note: note ?? this.note,
     );
   }

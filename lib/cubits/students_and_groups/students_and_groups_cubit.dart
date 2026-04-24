@@ -80,17 +80,9 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     // group-based filtering works immediately without a refetch.
     final updatedStudents = state.students.map((s) {
       if (newMemberIds.contains(s.id)) {
-        return s.copyWith(group: groupWithId);
+        return s.copyWith(group: () => groupWithId);
       } else if (s.group?.id == id) {
-        // Student was removed from this group.
-        return Student(
-          id: s.id,
-          name: s.name,
-          pricing: s.pricing,
-          contact: s.contact,
-          iconPath: s.iconPath,
-          note: s.note,
-        );
+        return s.copyWith(group: () => null);
       }
       return s;
     }).toList();
@@ -107,18 +99,9 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     final updatedGroups = state.groups.where((g) => g.id != groupId).toList();
 
     // Clear the group reference from students that belonged to the deleted group.
-    final updatedStudents = state.students.map((s) {
-      return (s.group?.id != groupId)
-          ? s
-          : Student(
-              id: s.id,
-              name: s.name,
-              pricing: s.pricing,
-              contact: s.contact,
-              iconPath: s.iconPath,
-              note: s.note,
-            );
-    }).toList();
+    final updatedStudents = state.students
+        .map((s) => s.group?.id == groupId ? s.copyWith(group: () => null) : s)
+        .toList();
 
     emit(
       state.copyWith(
