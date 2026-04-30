@@ -19,9 +19,7 @@ class PaymentsState extends Equatable implements CubitState {
     this.error,
   });
 
-  double get amountOwed => student.pricing.period == .daily
-      ? student.pricing.rate * unpaidLessons.length
-      : student.pricing.rate;
+  double get amountOwed => student.pricing.calculateOwed(unpaidLessons.length);
 
   PaymentsState copyWith({
     Student? student,

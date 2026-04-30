@@ -273,15 +273,18 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     int groupId,
     Iterable<int> studentIds,
   ) async {
-    await (update(dbStudents)
-          ..where((s) => s.groupId.equals(groupId) & s.id.isNotIn(studentIds)))
-        .write(DbStudentsCompanion(groupId: Value(null)));
+    return transaction(() async {
+      await (update(
+            dbStudents,
+          )..where((s) => s.groupId.equals(groupId) & s.id.isNotIn(studentIds)))
+          .write(DbStudentsCompanion(groupId: Value(null)));
 
-    if (studentIds.isNotEmpty) {
-      await (update(dbStudents)..where((s) => s.id.isIn(studentIds))).write(
-        DbStudentsCompanion(groupId: Value(groupId)),
-      );
-    }
+      if (studentIds.isNotEmpty) {
+        await (update(dbStudents)..where((s) => s.id.isIn(studentIds))).write(
+          DbStudentsCompanion(groupId: Value(groupId)),
+        );
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------

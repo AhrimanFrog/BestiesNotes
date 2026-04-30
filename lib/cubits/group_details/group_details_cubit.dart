@@ -10,22 +10,22 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
 
   GroupDetailsCubit(this._provider) : super(const GroupDetailsState());
 
-  Future<void> loadGroup(int groupId) async {
+  Future<void> load(int groupId) async {
     emit(const GroupDetailsState(isLoading: true));
     try {
-      final group = await _provider.getGroup(groupId);
-      final members = (await _provider.getGroupMembers(groupId)).toSet();
-      emit(state.copyWith(group: group.copyWith(students: members)));
-    } catch (e) {
-      emit(state.copyWith(error: e.toString()));
-    }
-  }
+      final (group, lessons, members) = await (
+        _provider.getGroup(groupId),
+        _provider.getLessonsForGroup(groupId),
+        _provider.getGroupMembers(groupId),
+      ).wait;
 
-  Future<void> loadLessons(int groupId) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final lessons = await _provider.getLessonsForGroup(groupId);
-      emit(state.copyWith(lessons: lessons, isLoading: false));
+      emit(
+        state.copyWith(
+          lessons: lessons,
+          group: group.copyWith(students: members.toSet()),
+          isLoading: false,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }

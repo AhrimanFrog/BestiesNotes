@@ -4,9 +4,7 @@ class Debtor {
   final Student debtor;
   final int unpaidLessons;
 
-  double get amountOwed => debtor.pricing.period == .daily
-      ? debtor.pricing.rate * unpaidLessons
-      : debtor.pricing.rate;
+  double get amountOwed => debtor.pricing.calculateOwed(unpaidLessons);
 
   const Debtor({required this.debtor, required this.unpaidLessons});
 }

@@ -23,8 +23,7 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
   void initState() {
     super.initState();
     final cubit = context.read<StudentDetailsCubit>();
-    cubit.loadStudent(widget.studentId);
-    cubit.loadLessons(widget.studentId);
+    cubit.load(widget.studentId);
   }
 
   @override

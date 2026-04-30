@@ -48,7 +48,7 @@ void main() {
         () => provider.getGroupMembers(any()),
       ).thenAnswer((_) async => [makeStudent()]);
     },
-    act: (c) => c.loadGroup(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<GroupDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<GroupDetailsState>()
@@ -64,7 +64,7 @@ void main() {
     setUp: () {
       when(() => provider.getGroup(any())).thenThrow(Exception('not found'));
     },
-    act: (c) => c.loadGroup(99),
+    act: (c) => c.load(99),
     expect: () => [
       isA<GroupDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<GroupDetailsState>().having((s) => s.error, 'error', isNotNull),
@@ -83,7 +83,7 @@ void main() {
         () => provider.getLessonsForGroup(any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
-    act: (c) => c.loadLessons(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<GroupDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<GroupDetailsState>()
@@ -101,7 +101,7 @@ void main() {
         () => provider.getLessonsForGroup(any()),
       ).thenThrow(Exception('db error'));
     },
-    act: (c) => c.loadLessons(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<GroupDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<GroupDetailsState>().having((s) => s.error, 'error', isNotNull),

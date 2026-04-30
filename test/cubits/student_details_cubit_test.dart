@@ -36,9 +36,11 @@ void main() {
     'loadStudent emits [loading, loaded] on success',
     build: () => StudentDetailsCubit(provider),
     setUp: () {
-      when(() => provider.getStudent(any())).thenAnswer((_) async => makeStudent());
+      when(
+        () => provider.getStudent(any()),
+      ).thenAnswer((_) async => makeStudent());
     },
-    act: (c) => c.loadStudent(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<StudentDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<StudentDetailsState>()
@@ -53,7 +55,7 @@ void main() {
     setUp: () {
       when(() => provider.getStudent(any())).thenThrow(Exception('not found'));
     },
-    act: (c) => c.loadStudent(99),
+    act: (c) => c.load(99),
     expect: () => [
       isA<StudentDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<StudentDetailsState>().having((s) => s.error, 'error', isNotNull),
@@ -72,7 +74,7 @@ void main() {
         () => provider.getLessonsForStudent(any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
-    act: (c) => c.loadLessons(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<StudentDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<StudentDetailsState>()
@@ -90,7 +92,7 @@ void main() {
         () => provider.getLessonsForStudent(any()),
       ).thenThrow(Exception('db error'));
     },
-    act: (c) => c.loadLessons(1),
+    act: (c) => c.load(1),
     expect: () => [
       isA<StudentDetailsState>().having((s) => s.isLoading, 'isLoading', true),
       isA<StudentDetailsState>().having((s) => s.error, 'error', isNotNull),
