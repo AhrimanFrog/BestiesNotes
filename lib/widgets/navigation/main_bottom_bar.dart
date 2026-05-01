@@ -13,19 +13,15 @@ class MainBottomBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        unselectedItemColor: AppColors.softPink,
+        unselectedItemColor: AppColors.accentGrey,
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),
-        iconSize: 50,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month, size: 50),
+            icon: Icon(Icons.calendar_month),
             label: 'Schedule',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school, size: 50),
-            label: 'Scholars',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Scholars'),
         ],
       ),
     );

@@ -52,13 +52,17 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     final id = await _provider.createOrUpdateStudent(student);
     final studentWithId = student.copyWith(id: id);
 
-    final updatedStudents = student.id != null
-        ? state.students
+    final isNew = student.id == null;
+    final updatedStudents = isNew
+        ? [...state.students, studentWithId]
+        : state.students
               .map((s) => s.id == student.id ? studentWithId : s)
-              .toList()
-        : [...state.students, studentWithId];
+              .toList();
 
-    emit(state.copyWith(students: updatedStudents));
+    emit(state.copyWith(
+      students: updatedStudents,
+      noMoreStudents: isNew ? false : null,
+    ));
   }
 
   Future<void> deleteStudent(int studentId) async {
@@ -74,6 +78,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
         .map((s) => s.id!);
     await _provider.syncGroupMemberships(id, newMemberIds);
 
+    final isNew = group.id == null;
     final groupWithId = group.copyWith(id: id);
 
     // Reflect new memberships on the student objects already in state so that
@@ -87,11 +92,15 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
       return s;
     }).toList();
 
-    final updatedGroups = group.id != null
-        ? state.groups.map((g) => g.id == group.id ? groupWithId : g).toList()
-        : [...state.groups, groupWithId];
+    final updatedGroups = isNew
+        ? [...state.groups, groupWithId]
+        : state.groups.map((g) => g.id == group.id ? groupWithId : g).toList();
 
-    emit(state.copyWith(groups: updatedGroups, students: updatedStudents));
+    emit(state.copyWith(
+      groups: updatedGroups,
+      students: updatedStudents,
+      noMoreGroups: isNew ? false : null,
+    ));
   }
 
   Future<void> deleteGroup(int groupId) async {

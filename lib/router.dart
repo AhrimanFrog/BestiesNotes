@@ -24,28 +24,21 @@ final router = GoRouter(
   initialLocation: '/schedule',
   routes: [
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          MainBottomBar(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) => BlocProvider(
+        create: (_) => StudentsAndGroupsCubit(context.read<DataProvider>())
+          ..fetchStudents()
+          ..fetchGroups(),
+        child: MainBottomBar(navigationShell: navigationShell),
+      ),
       branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
               name: 'schedule',
               path: '/schedule',
-              builder: (context, state) => MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (_) =>
-                        LessonsCubit(context.read<DataProvider>())
-                          ..fetchLessons(),
-                  ),
-                  BlocProvider(
-                    create: (_) =>
-                        StudentsAndGroupsCubit(context.read<DataProvider>())
-                          ..fetchStudents()
-                          ..fetchGroups(),
-                  ),
-                ],
+              builder: (context, state) => BlocProvider(
+                create: (_) =>
+                    LessonsCubit(context.read<DataProvider>())..fetchLessons(),
                 child: SchedulePage(),
               ),
             ),
@@ -56,13 +49,7 @@ final router = GoRouter(
             GoRoute(
               name: 'scholars',
               path: '/scholars',
-              builder: (context, state) => BlocProvider(
-                create: (_) =>
-                    StudentsAndGroupsCubit(context.read<DataProvider>())
-                      ..fetchStudents()
-                      ..fetchGroups(),
-                child: StudentsPage(),
-              ),
+              builder: (context, state) => StudentsPage(),
               routes: [
                 GoRoute(
                   name: 'student',

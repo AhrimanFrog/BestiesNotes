@@ -17,8 +17,8 @@ class InkWellSelector extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Time',
+        decoration: InputDecoration(
+          labelText: title,
           border: OutlineInputBorder(),
           prefixIcon: Icon(Icons.access_time),
         ),
