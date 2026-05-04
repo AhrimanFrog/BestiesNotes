@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CardContainer extends StatelessWidget {
@@ -11,13 +10,12 @@ class CardContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white, // clean card background
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.softPink, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.softPink.withValues(alpha: 0.5),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.07),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],

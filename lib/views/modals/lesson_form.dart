@@ -236,6 +236,7 @@ class _LessonFormState extends State<LessonForm> {
                             child: InkWellSelector(
                               title: 'Date',
                               body: _selectedDate.toDateFormat(),
+                              icon: Icons.calendar_today,
                               onTap: _selectDate,
                             ),
                           ),
@@ -244,6 +245,7 @@ class _LessonFormState extends State<LessonForm> {
                             child: InkWellSelector(
                               title: 'Time',
                               body: _selectedTime.format(context),
+                              icon: Icons.access_time,
                               onTap: _selectTime,
                             ),
                           ),

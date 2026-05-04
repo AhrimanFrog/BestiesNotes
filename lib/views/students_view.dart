@@ -17,7 +17,7 @@ class StudentsPage extends StatefulWidget {
 
 class _StudentsPageState extends State<StudentsPage>
     with SingleTickerProviderStateMixin {
-  final double inset = 2;
+  final double inset = 10;
   final _searchController = TextEditingController();
   late final TabController _tabController;
 
@@ -67,10 +67,6 @@ class _StudentsPageState extends State<StudentsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () => {},
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

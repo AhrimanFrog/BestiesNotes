@@ -43,9 +43,9 @@ class _LessonCardState extends State<LessonCard> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: isCancelled ? 0.2 : 0.5),
-                  spreadRadius: isCancelled ? 2 : 5,
-                  blurRadius: 7,
+                  color: Colors.black.withValues(alpha: isCancelled ? 0.06 : 0.12),
+                  spreadRadius: 0,
+                  blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
               ],

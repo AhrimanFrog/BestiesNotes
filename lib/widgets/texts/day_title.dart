@@ -1,5 +1,5 @@
+import 'package:besties_notes/common/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/common/app_colors.dart';
 
 class DayTitle extends StatelessWidget {
   final String weekDay;
@@ -11,19 +11,9 @@ class DayTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          weekDay,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: AppColors.mainText,
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          date,
-          style: const TextStyle(color: AppColors.secondaryText, fontSize: 14),
-        ),
+        Text(weekDay, style: AppTextStyles.headline),
+        const SizedBox(height: 4),
+        Text(date, style: AppTextStyles.caption),
       ],
     );
   }

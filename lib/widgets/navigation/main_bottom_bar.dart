@@ -13,10 +13,11 @@ class MainBottomBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
+        selectedItemColor: AppColors.accentPink,
         unselectedItemColor: AppColors.accentGrey,
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
             label: 'Schedule',

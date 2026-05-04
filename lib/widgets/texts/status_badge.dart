@@ -1,3 +1,4 @@
+import 'package:besties_notes/common/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class StatusBadge extends StatelessWidget {
@@ -20,8 +21,7 @@ class StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
+        style: AppTextStyles.micro.copyWith(
           fontWeight: FontWeight.w600,
           color: accentColor,
         ),

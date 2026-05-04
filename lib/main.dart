@@ -17,7 +17,9 @@ void main() {
       child: MaterialApp.router(
         title: 'Besties Notes',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accentPink),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.accentPink,
+          ).copyWith(primary: AppColors.accentPink, onPrimary: Colors.white),
         ),
         routerConfig: router,
       ),

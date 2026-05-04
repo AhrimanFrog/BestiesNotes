@@ -1,3 +1,4 @@
+import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:flutter/material.dart';
 
@@ -15,18 +16,35 @@ class ScholarsSelector extends StatelessWidget {
     this.onDeleted,
   });
 
+  static final _borderRadius = BorderRadius.circular(16);
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: _borderRadius,
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.people),
+          prefixIcon: const Icon(Icons.people),
+          border: OutlineInputBorder(
+            borderRadius: _borderRadius,
+            borderSide: const BorderSide(color: AppColors.softPink),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: _borderRadius,
+            borderSide: const BorderSide(color: AppColors.softPink),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: _borderRadius,
+            borderSide: const BorderSide(color: AppColors.accentPink, width: 2),
+          ),
         ),
         child: selectedSubjects.isEmpty
-            ? const Text('Tap to select', style: TextStyle(color: Colors.grey))
+            ? const Text(
+                'Tap to select',
+                style: TextStyle(color: AppColors.secondaryText),
+              )
             : Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -35,9 +53,7 @@ class ScholarsSelector extends StatelessWidget {
                       (s) => Chip(
                         label: Text(s.name),
                         deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: onDeleted != null
-                            ? () => onDeleted!(s)
-                            : null,
+                        onDeleted: onDeleted != null ? () => onDeleted!(s) : null,
                       ),
                     )
                     .toList(),

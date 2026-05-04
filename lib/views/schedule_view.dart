@@ -12,25 +12,7 @@ class SchedulePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
         actions: [
-          BlocBuilder<LessonsCubit, LessonsState>(
-            builder: (ctx, state) {
-              final lessonCubit = ctx.read<LessonsCubit>();
-              return WeekNavigationBar(
-                timeRange: DateTimeRange(
-                  start: state.dateFrom,
-                  end: state.dateTo,
-                ),
-                onRangeSelection: (range) => lessonCubit.fetchLessons(
-                  from: range.start,
-                  to: range.end.add(const Duration(days: 1)),
-                ),
-                onTapLeft: lessonCubit.goToPreviousWeek,
-                onTapRight: lessonCubit.goToNextWeek,
-              );
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: context.read<LessonsCubit>().goToCurrentWeek,
@@ -54,6 +36,26 @@ class SchedulePage extends StatelessWidget {
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(44),
+          child: BlocBuilder<LessonsCubit, LessonsState>(
+            builder: (ctx, state) {
+              final lessonCubit = ctx.read<LessonsCubit>();
+              return WeekNavigationBar(
+                timeRange: DateTimeRange(
+                  start: state.dateFrom,
+                  end: state.dateTo,
+                ),
+                onRangeSelection: (range) => lessonCubit.fetchLessons(
+                  from: range.start,
+                  to: range.end.add(const Duration(days: 1)),
+                ),
+                onTapLeft: lessonCubit.goToPreviousWeek,
+                onTapRight: lessonCubit.goToNextWeek,
+              );
+            },
+          ),
+        ),
       ),
       body: BlocBuilder<LessonsCubit, LessonsState>(
         builder: (_, state) => LessonsListSection(state: state),
