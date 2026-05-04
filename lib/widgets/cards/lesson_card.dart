@@ -43,7 +43,9 @@ class _LessonCardState extends State<LessonCard> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isCancelled ? 0.06 : 0.12),
+                  color: Colors.black.withValues(
+                    alpha: isCancelled ? 0.06 : 0.12,
+                  ),
                   spreadRadius: 0,
                   blurRadius: 8,
                   offset: const Offset(0, 3),
@@ -150,11 +152,7 @@ class _LessonCardState extends State<LessonCard> {
               ],
             ),
           ),
-
-          StatusBadge(
-            label: lesson.status.label(isNow: lesson.isNow),
-            accentColor: accentColor,
-          ),
+          StatusBadge(label: lesson.uiLabel, accentColor: accentColor),
         ],
       ),
     );

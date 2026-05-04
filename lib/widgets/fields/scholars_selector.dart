@@ -53,7 +53,9 @@ class ScholarsSelector extends StatelessWidget {
                       (s) => Chip(
                         label: Text(s.name),
                         deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: onDeleted != null ? () => onDeleted!(s) : null,
+                        onDeleted: onDeleted != null
+                            ? () => onDeleted!(s)
+                            : null,
                       ),
                     )
                     .toList(),

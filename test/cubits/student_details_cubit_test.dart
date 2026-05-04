@@ -39,6 +39,9 @@ void main() {
       when(
         () => provider.getStudent(any()),
       ).thenAnswer((_) async => makeStudent());
+      when(
+        () => provider.getLessonsForStudent(any()),
+      ).thenAnswer((_) async => []);
     },
     act: (c) => c.load(1),
     expect: () => [
@@ -54,6 +57,9 @@ void main() {
     build: () => StudentDetailsCubit(provider),
     setUp: () {
       when(() => provider.getStudent(any())).thenThrow(Exception('not found'));
+      when(
+        () => provider.getLessonsForStudent(any()),
+      ).thenAnswer((_) async => []);
     },
     act: (c) => c.load(99),
     expect: () => [
@@ -70,6 +76,9 @@ void main() {
     'loadLessons emits [loading, loaded] on success',
     build: () => StudentDetailsCubit(provider),
     setUp: () {
+      when(
+        () => provider.getStudent(any()),
+      ).thenAnswer((_) async => makeStudent());
       when(
         () => provider.getLessonsForStudent(any()),
       ).thenAnswer((_) async => [makeLesson()]);
@@ -88,6 +97,9 @@ void main() {
     'loadLessons emits error state on failure',
     build: () => StudentDetailsCubit(provider),
     setUp: () {
+      when(
+        () => provider.getStudent(any()),
+      ).thenAnswer((_) async => makeStudent());
       when(
         () => provider.getLessonsForStudent(any()),
       ).thenThrow(Exception('db error'));

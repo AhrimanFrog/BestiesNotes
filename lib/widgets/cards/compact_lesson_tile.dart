@@ -68,10 +68,7 @@ class CompactLessonTile extends StatelessWidget {
                 ],
               ),
             ),
-            StatusBadge(
-              label: lesson.status.label(isNow: lesson.isNow),
-              accentColor: color,
-            ),
+            StatusBadge(label: lesson.uiLabel, accentColor: color),
           ],
         ),
       ),

@@ -1,4 +1,3 @@
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 
 class Lesson {
@@ -8,7 +7,7 @@ class Lesson {
   final DateTime start;
   final Duration duration;
   final String note;
-  final LessonStatus status;
+  final bool isCancelled;
 
   const Lesson({
     this.id,
@@ -17,14 +16,14 @@ class Lesson {
     required this.start,
     required this.duration,
     this.note = "",
-    this.status = LessonStatus.scheduled,
+    this.isCancelled = false,
   });
 
   bool get isNow =>
       DateTime.now().isAfter(start) &&
       DateTime.now().isBefore(start.add(duration));
 
-  bool get isCancelled => status == LessonStatus.cancelled;
+  bool get isCompleted => DateTime.now().isAfter(end);
 
   DateTime get end => start.add(duration);
 
@@ -42,7 +41,7 @@ class Lesson {
     DateTime? start,
     Duration? duration,
     String? note,
-    LessonStatus? status,
+    bool? isCancelled,
   }) {
     return Lesson(
       id: id ?? this.id,
@@ -51,7 +50,7 @@ class Lesson {
       start: start ?? this.start,
       duration: duration ?? this.duration,
       note: note ?? this.note,
-      status: status ?? this.status,
+      isCancelled: isCancelled ?? this.isCancelled,
     );
   }
 }

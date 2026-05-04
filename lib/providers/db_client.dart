@@ -77,7 +77,7 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       topic: lesson.name,
       start: lesson.start,
       durationInMinutes: lesson.duration.inMinutes,
-      status: lesson.status,
+      isCancelled: lesson.isCancelled,
       createdAt: now,
       updatedAt: now,
     );
@@ -93,10 +93,10 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   }
 
   @override
-  Future<void> updateLessonStatus(int lessonId, LessonStatus status) async {
+  Future<void> updateCancellation(int lessonId, bool isCancelled) async {
     await (update(dbLessons)..where((l) => l.id.equals(lessonId))).write(
       DbLessonsCompanion(
-        status: Value(status),
+        isCancelled: Value(isCancelled),
         updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
       ),
     );

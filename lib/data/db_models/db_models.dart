@@ -34,7 +34,7 @@ class DbLessons extends Table {
   DateTimeColumn get start => dateTime()();
   IntColumn get durationInMinutes => integer()();
   TextColumn get note => text().nullable()();
-  TextColumn get status => textEnum<LessonStatus>()();
+  BoolColumn get isCancelled => boolean()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
 }

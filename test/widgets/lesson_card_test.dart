@@ -12,7 +12,8 @@ import 'package:mocktail/mocktail.dart';
 // Mock cubit
 // ---------------------------------------------------------------------------
 
-class MockLessonsCubit extends MockCubit<LessonsState> implements LessonsCubit {}
+class MockLessonsCubit extends MockCubit<LessonsState>
+    implements LessonsCubit {}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -39,16 +40,28 @@ LessonParticipant makeParticipant({
 Lesson makeLesson({
   int id = 1,
   String name = 'Grammar',
-  LessonStatus status = LessonStatus.scheduled,
-  List<Teachable>? subjects,
+  bool isCancelled = false,
+  DateTime? start,
+  List<Student>? subjects,
   List<LessonParticipant>? participants,
 }) => Lesson(
   id: id,
   name: name,
-  participants: participants ?? const [],
-  start: DateTime(2025, 1, 15, 10, 0),
+  participants: participants ??
+      subjects
+          ?.map(
+            (s) => LessonParticipant(
+              student: s,
+              attended: false,
+              isPaid: false,
+              homeworkDone: false,
+            ),
+          )
+          .toList() ??
+      [makeParticipant()],
+  start: start ?? DateTime(2025, 1, 15, 10, 0),
   duration: const Duration(hours: 1),
-  status: status,
+  isCancelled: isCancelled,
 );
 
 // ---------------------------------------------------------------------------
@@ -98,11 +111,13 @@ void main() {
     });
 
     testWidgets('shows "& N more" label for multiple subjects', (tester) async {
-      final lesson = makeLesson(subjects: [
-        makeStudent(id: 1, name: 'Alice'),
-        makeStudent(id: 2, name: 'Bob'),
-        makeStudent(id: 3, name: 'Carol'),
-      ]);
+      final lesson = makeLesson(
+        subjects: [
+          makeStudent(id: 1, name: 'Alice'),
+          makeStudent(id: 2, name: 'Bob'),
+          makeStudent(id: 3, name: 'Carol'),
+        ],
+      );
       await tester.pumpWidget(buildCard(lesson, cubit));
       // Shows first subject's initials + "& 2 more"
       expect(find.textContaining('& 2 more'), findsOneWidget);
@@ -115,7 +130,7 @@ void main() {
     });
 
     testWidgets('shows status badge', (tester) async {
-      final lesson = makeLesson(status: LessonStatus.completed);
+      final lesson = makeLesson();
       await tester.pumpWidget(buildCard(lesson, cubit));
       expect(find.text('Completed'), findsOneWidget);
     });
@@ -123,14 +138,14 @@ void main() {
 
   group('header — cancelled appearance', () {
     testWidgets('cancelled lesson has reduced opacity', (tester) async {
-      final lesson = makeLesson(status: LessonStatus.cancelled);
+      final lesson = makeLesson(isCancelled: true);
       await tester.pumpWidget(buildCard(lesson, cubit));
       final opacity = tester.widget<Opacity>(find.byType(Opacity).first);
       expect(opacity.opacity, closeTo(0.55, 0.01));
     });
 
     testWidgets('non-cancelled lesson has full opacity', (tester) async {
-      final lesson = makeLesson(status: LessonStatus.scheduled);
+      final lesson = makeLesson(start: .now().add(Duration(days: 1)));
       await tester.pumpWidget(buildCard(lesson, cubit));
       final opacity = tester.widget<Opacity>(find.byType(Opacity).first);
       expect(opacity.opacity, closeTo(1.0, 0.01));
@@ -155,23 +170,15 @@ void main() {
       expect(find.text('Alice Smith'), findsWidgets);
     });
 
-    testWidgets('shows "No participants" when expanded with empty list', (tester) async {
-      final lesson = makeLesson(participants: []);
-      await tester.pumpWidget(buildCard(lesson, cubit));
-      await tester.tap(find.text('Grammar'));
-      await tester.pumpAndSettle();
-      expect(find.text('No participants'), findsOneWidget);
-    });
-
     testWidgets('tapping header twice collapses list again', (tester) async {
-      final lesson = makeLesson(participants: []);
+      final lesson = makeLesson(participants: [makeParticipant()]);
       await tester.pumpWidget(buildCard(lesson, cubit));
       await tester.tap(find.text('Grammar'));
       await tester.pumpAndSettle();
-      expect(find.text('No participants'), findsOneWidget);
+      expect(find.text('Alice Smith'), findsWidgets);
       await tester.tap(find.text('Grammar'));
       await tester.pumpAndSettle();
-      expect(find.text('No participants'), findsNothing);
+      expect(find.byIcon(Icons.edit_outlined), findsNothing);
     });
   });
 
@@ -196,16 +203,18 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('tapping Paid dot calls updateParticipantStatus', (tester) async {
+    testWidgets('tapping Paid dot calls updateParticipantStatus', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildCard(lesson, cubit));
       await expand(tester);
       await tester.tap(find.text('Paid'));
-      verify(
-        () => cubit.updateParticipantStatus(1, 1, isPaid: true),
-      ).called(1);
+      verify(() => cubit.updateParticipantStatus(1, 1, isPaid: true)).called(1);
     });
 
-    testWidgets('tapping Here dot calls updateParticipantStatus', (tester) async {
+    testWidgets('tapping Here dot calls updateParticipantStatus', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildCard(lesson, cubit));
       await expand(tester);
       await tester.tap(find.text('Here'));
@@ -214,7 +223,9 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('tapping Homework dot calls updateParticipantStatus', (tester) async {
+    testWidgets('tapping Homework dot calls updateParticipantStatus', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildCard(lesson, cubit));
       await expand(tester);
       await tester.tap(find.text('Homework'));
@@ -223,17 +234,17 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('toggle dots are disabled for cancelled lessons', (tester) async {
+    testWidgets('toggle dots are disabled for cancelled lessons', (
+      tester,
+    ) async {
       final cancelledLesson = makeLesson(
-        status: LessonStatus.cancelled,
+        isCancelled: true,
         participants: [makeParticipant()],
       );
       await tester.pumpWidget(buildCard(cancelledLesson, cubit));
       await expand(tester);
       await tester.tap(find.text('Paid'));
-      verifyNever(
-        () => cubit.updateParticipantStatus(any(), any()),
-      );
+      verifyNever(() => cubit.updateParticipantStatus(any(), any()));
     });
   });
 
@@ -241,7 +252,9 @@ void main() {
     testWidgets('edit button fires onClick when expanded', (tester) async {
       bool clicked = false;
       final lesson = makeLesson();
-      await tester.pumpWidget(buildCard(lesson, cubit, onClick: () => clicked = true));
+      await tester.pumpWidget(
+        buildCard(lesson, cubit, onClick: () => clicked = true),
+      );
       await tester.tap(find.text('Grammar'));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.edit_outlined));

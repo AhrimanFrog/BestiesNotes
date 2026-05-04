@@ -33,7 +33,9 @@ class _StudentFormState extends State<StudentForm> {
     super.initState();
     _nameController = TextEditingController(text: student?.name);
     _contactController = TextEditingController(text: student?.contact);
-    _rateController = TextEditingController(text: "${student?.pricing.rate}");
+    _rateController = TextEditingController(
+      text: student?.pricing.rate.toString() ?? '',
+    );
     _noteController = TextEditingController(text: student?.note);
     _selectedPeriod = student?.pricing.period ?? .daily;
     _avatarPath = student?.iconPath;

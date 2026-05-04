@@ -24,7 +24,6 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
     super.initState();
     final cubit = context.read<GroupDetailsCubit>();
     cubit.load(widget.groupId);
-
   }
 
   @override

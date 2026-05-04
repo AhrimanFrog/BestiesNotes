@@ -36,14 +36,14 @@ void main() {
     int? id,
     String name = 'Math',
     DateTime? start,
-    LessonStatus status = LessonStatus.scheduled,
+    bool isCancelled = false,
   }) => Lesson(
     id: id,
     name: name,
     participants: const [],
     start: start ?? DateTime(2025, 1, 15, 10, 0),
     duration: const Duration(hours: 1),
-    status: status,
+    isCancelled: isCancelled,
   );
 
   // ---------------------------------------------------------------------------
@@ -253,7 +253,7 @@ void main() {
     });
 
     test('throws when lesson does not exist', () async {
-      expect(() => db.getLesson(9999), throwsException);
+      expect(() => db.getLesson(9999), throwsStateError);
     });
   });
 
@@ -292,19 +292,16 @@ void main() {
 
   group('updateLessonStatus', () {
     test('changes status to completed', () async {
-      final id = await db.createOrUpdateLesson(
-        makeLesson(status: LessonStatus.scheduled),
-      );
-      await db.updateLessonStatus(id, LessonStatus.completed);
+      final id = await db.createOrUpdateLesson(makeLesson());
       final lesson = await db.getLesson(id);
-      expect(lesson.status, LessonStatus.completed);
+      expect(lesson.isCompleted, true);
     });
 
     test('changes status to cancelled', () async {
       final id = await db.createOrUpdateLesson(makeLesson());
-      await db.updateLessonStatus(id, LessonStatus.cancelled);
+      await db.updateCancellation(id, true);
       final lesson = await db.getLesson(id);
-      expect(lesson.status, LessonStatus.cancelled);
+      expect(lesson.isCancelled, true);
     });
   });
 

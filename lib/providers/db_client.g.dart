@@ -60,15 +60,20 @@ class $DbLessonsTable extends DbLessons
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isCancelledMeta = const VerificationMeta(
+    'isCancelled',
+  );
   @override
-  late final GeneratedColumnWithTypeConverter<LessonStatus, String> status =
-      GeneratedColumn<String>(
-        'status',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<LessonStatus>($DbLessonsTable.$converterstatus);
+  late final GeneratedColumn<bool> isCancelled = GeneratedColumn<bool>(
+    'is_cancelled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_cancelled" IN (0, 1))',
+    ),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -98,7 +103,7 @@ class $DbLessonsTable extends DbLessons
     start,
     durationInMinutes,
     note,
-    status,
+    isCancelled,
     createdAt,
     updatedAt,
   ];
@@ -150,6 +155,17 @@ class $DbLessonsTable extends DbLessons
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('is_cancelled')) {
+      context.handle(
+        _isCancelledMeta,
+        isCancelled.isAcceptableOrUnknown(
+          data['is_cancelled']!,
+          _isCancelledMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_isCancelledMeta);
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -195,12 +211,10 @@ class $DbLessonsTable extends DbLessons
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
-      status: $DbLessonsTable.$converterstatus.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}status'],
-        )!,
-      ),
+      isCancelled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_cancelled'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -216,9 +230,6 @@ class $DbLessonsTable extends DbLessons
   $DbLessonsTable createAlias(String alias) {
     return $DbLessonsTable(attachedDatabase, alias);
   }
-
-  static JsonTypeConverter2<LessonStatus, String, String> $converterstatus =
-      const EnumNameConverter<LessonStatus>(LessonStatus.values);
 }
 
 class DbLesson extends DataClass implements Insertable<DbLesson> {
@@ -227,7 +238,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
   final DateTime start;
   final int durationInMinutes;
   final String? note;
-  final LessonStatus status;
+  final bool isCancelled;
   final int createdAt;
   final int updatedAt;
   const DbLesson({
@@ -236,7 +247,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     required this.start,
     required this.durationInMinutes,
     this.note,
-    required this.status,
+    required this.isCancelled,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -250,11 +261,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
-    {
-      map['status'] = Variable<String>(
-        $DbLessonsTable.$converterstatus.toSql(status),
-      );
-    }
+    map['is_cancelled'] = Variable<bool>(isCancelled);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     return map;
@@ -267,7 +274,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
       start: Value(start),
       durationInMinutes: Value(durationInMinutes),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
-      status: Value(status),
+      isCancelled: Value(isCancelled),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -284,9 +291,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
       start: serializer.fromJson<DateTime>(json['start']),
       durationInMinutes: serializer.fromJson<int>(json['durationInMinutes']),
       note: serializer.fromJson<String?>(json['note']),
-      status: $DbLessonsTable.$converterstatus.fromJson(
-        serializer.fromJson<String>(json['status']),
-      ),
+      isCancelled: serializer.fromJson<bool>(json['isCancelled']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
@@ -300,9 +305,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
       'start': serializer.toJson<DateTime>(start),
       'durationInMinutes': serializer.toJson<int>(durationInMinutes),
       'note': serializer.toJson<String?>(note),
-      'status': serializer.toJson<String>(
-        $DbLessonsTable.$converterstatus.toJson(status),
-      ),
+      'isCancelled': serializer.toJson<bool>(isCancelled),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
     };
@@ -314,7 +317,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     DateTime? start,
     int? durationInMinutes,
     Value<String?> note = const Value.absent(),
-    LessonStatus? status,
+    bool? isCancelled,
     int? createdAt,
     int? updatedAt,
   }) => DbLesson(
@@ -323,7 +326,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     start: start ?? this.start,
     durationInMinutes: durationInMinutes ?? this.durationInMinutes,
     note: note.present ? note.value : this.note,
-    status: status ?? this.status,
+    isCancelled: isCancelled ?? this.isCancelled,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -336,7 +339,9 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
           ? data.durationInMinutes.value
           : this.durationInMinutes,
       note: data.note.present ? data.note.value : this.note,
-      status: data.status.present ? data.status.value : this.status,
+      isCancelled: data.isCancelled.present
+          ? data.isCancelled.value
+          : this.isCancelled,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -350,7 +355,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
           ..write('start: $start, ')
           ..write('durationInMinutes: $durationInMinutes, ')
           ..write('note: $note, ')
-          ..write('status: $status, ')
+          ..write('isCancelled: $isCancelled, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -364,7 +369,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
     start,
     durationInMinutes,
     note,
-    status,
+    isCancelled,
     createdAt,
     updatedAt,
   );
@@ -377,7 +382,7 @@ class DbLesson extends DataClass implements Insertable<DbLesson> {
           other.start == this.start &&
           other.durationInMinutes == this.durationInMinutes &&
           other.note == this.note &&
-          other.status == this.status &&
+          other.isCancelled == this.isCancelled &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -388,7 +393,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
   final Value<DateTime> start;
   final Value<int> durationInMinutes;
   final Value<String?> note;
-  final Value<LessonStatus> status;
+  final Value<bool> isCancelled;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   const DbLessonsCompanion({
@@ -397,7 +402,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     this.start = const Value.absent(),
     this.durationInMinutes = const Value.absent(),
     this.note = const Value.absent(),
-    this.status = const Value.absent(),
+    this.isCancelled = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -407,13 +412,13 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     required DateTime start,
     required int durationInMinutes,
     this.note = const Value.absent(),
-    required LessonStatus status,
+    required bool isCancelled,
     required int createdAt,
     required int updatedAt,
   }) : topic = Value(topic),
        start = Value(start),
        durationInMinutes = Value(durationInMinutes),
-       status = Value(status),
+       isCancelled = Value(isCancelled),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
   static Insertable<DbLesson> custom({
@@ -422,7 +427,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     Expression<DateTime>? start,
     Expression<int>? durationInMinutes,
     Expression<String>? note,
-    Expression<String>? status,
+    Expression<bool>? isCancelled,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
   }) {
@@ -432,7 +437,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
       if (start != null) 'start': start,
       if (durationInMinutes != null) 'duration_in_minutes': durationInMinutes,
       if (note != null) 'note': note,
-      if (status != null) 'status': status,
+      if (isCancelled != null) 'is_cancelled': isCancelled,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -444,7 +449,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     Value<DateTime>? start,
     Value<int>? durationInMinutes,
     Value<String?>? note,
-    Value<LessonStatus>? status,
+    Value<bool>? isCancelled,
     Value<int>? createdAt,
     Value<int>? updatedAt,
   }) {
@@ -454,7 +459,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
       start: start ?? this.start,
       durationInMinutes: durationInMinutes ?? this.durationInMinutes,
       note: note ?? this.note,
-      status: status ?? this.status,
+      isCancelled: isCancelled ?? this.isCancelled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -478,10 +483,8 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
-    if (status.present) {
-      map['status'] = Variable<String>(
-        $DbLessonsTable.$converterstatus.toSql(status.value),
-      );
+    if (isCancelled.present) {
+      map['is_cancelled'] = Variable<bool>(isCancelled.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
@@ -500,7 +503,7 @@ class DbLessonsCompanion extends UpdateCompanion<DbLesson> {
           ..write('start: $start, ')
           ..write('durationInMinutes: $durationInMinutes, ')
           ..write('note: $note, ')
-          ..write('status: $status, ')
+          ..write('isCancelled: $isCancelled, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1773,7 +1776,7 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES db_groups (id)',
+      'REFERENCES db_groups (id) ON DELETE SET NULL',
     ),
   );
   @override
@@ -2195,6 +2198,13 @@ abstract class _$DbClient extends GeneratedDatabase {
       ),
       result: [TableUpdate('db_lesson_participants', kind: UpdateKind.delete)],
     ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'db_groups',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('db_lesson_participants', kind: UpdateKind.update)],
+    ),
   ]);
 }
 
@@ -2205,7 +2215,7 @@ typedef $$DbLessonsTableCreateCompanionBuilder =
       required DateTime start,
       required int durationInMinutes,
       Value<String?> note,
-      required LessonStatus status,
+      required bool isCancelled,
       required int createdAt,
       required int updatedAt,
     });
@@ -2216,7 +2226,7 @@ typedef $$DbLessonsTableUpdateCompanionBuilder =
       Value<DateTime> start,
       Value<int> durationInMinutes,
       Value<String?> note,
-      Value<LessonStatus> status,
+      Value<bool> isCancelled,
       Value<int> createdAt,
       Value<int> updatedAt,
     });
@@ -2288,10 +2298,9 @@ class $$DbLessonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<LessonStatus, LessonStatus, String>
-  get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
+  ColumnFilters<bool> get isCancelled => $composableBuilder(
+    column: $table.isCancelled,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<int> get createdAt => $composableBuilder(
@@ -2364,8 +2373,8 @@ class $$DbLessonsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<bool> get isCancelled => $composableBuilder(
+    column: $table.isCancelled,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2406,8 +2415,10 @@ class $$DbLessonsTableAnnotationComposer
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<LessonStatus, String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<bool> get isCancelled => $composableBuilder(
+    column: $table.isCancelled,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2475,7 +2486,7 @@ class $$DbLessonsTableTableManager
                 Value<DateTime> start = const Value.absent(),
                 Value<int> durationInMinutes = const Value.absent(),
                 Value<String?> note = const Value.absent(),
-                Value<LessonStatus> status = const Value.absent(),
+                Value<bool> isCancelled = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
               }) => DbLessonsCompanion(
@@ -2484,7 +2495,7 @@ class $$DbLessonsTableTableManager
                 start: start,
                 durationInMinutes: durationInMinutes,
                 note: note,
-                status: status,
+                isCancelled: isCancelled,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -2495,7 +2506,7 @@ class $$DbLessonsTableTableManager
                 required DateTime start,
                 required int durationInMinutes,
                 Value<String?> note = const Value.absent(),
-                required LessonStatus status,
+                required bool isCancelled,
                 required int createdAt,
                 required int updatedAt,
               }) => DbLessonsCompanion.insert(
@@ -2504,7 +2515,7 @@ class $$DbLessonsTableTableManager
                 start: start,
                 durationInMinutes: durationInMinutes,
                 note: note,
-                status: status,
+                isCancelled: isCancelled,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

@@ -22,7 +22,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(makeLesson());
-    registerFallbackValue(LessonStatus.cancelled);
+    registerFallbackValue(true);
     registerFallbackValue(<Teachable>[]);
   });
 
@@ -213,18 +213,14 @@ void main() {
     build: () => LessonsCubit(provider),
     setUp: () {
       when(
-        () => provider.updateLessonStatus(any(), any()),
+        () => provider.updateCancellation(any(), any()),
       ).thenAnswer((_) async {});
       when(
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
     act: (c) => c.cancelLesson(1),
-    verify: (_) {
-      verify(
-        () => provider.updateLessonStatus(1, LessonStatus.cancelled),
-      ).called(1);
-    },
+    verify: (_) => verify(() => provider.updateCancellation(1, true)).called(1),
   );
 
   // ---------------------------------------------------------------------------

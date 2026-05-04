@@ -1,5 +1,4 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
@@ -88,7 +87,7 @@ class LessonsCubit extends Cubit<LessonsState> {
   }
 
   Future<void> cancelLesson(int lessonId) async {
-    await _provider.updateLessonStatus(lessonId, LessonStatus.cancelled);
+    await _provider.updateCancellation(lessonId, true);
     await fetchLessons();
   }
 

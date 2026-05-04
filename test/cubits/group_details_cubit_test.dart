@@ -47,6 +47,9 @@ void main() {
       when(
         () => provider.getGroupMembers(any()),
       ).thenAnswer((_) async => [makeStudent()]);
+      when(
+        () => provider.getLessonsForGroup(any()),
+      ).thenAnswer((_) async => []);
     },
     act: (c) => c.load(1),
     expect: () => [
@@ -63,6 +66,10 @@ void main() {
     build: () => GroupDetailsCubit(provider),
     setUp: () {
       when(() => provider.getGroup(any())).thenThrow(Exception('not found'));
+      when(
+        () => provider.getLessonsForGroup(any()),
+      ).thenAnswer((_) async => []);
+      when(() => provider.getGroupMembers(any())).thenAnswer((_) async => []);
     },
     act: (c) => c.load(99),
     expect: () => [
@@ -79,9 +86,11 @@ void main() {
     'loadLessons emits [loading, loaded] on success',
     build: () => GroupDetailsCubit(provider),
     setUp: () {
+      when(() => provider.getGroup(any())).thenAnswer((_) async => makeGroup());
       when(
         () => provider.getLessonsForGroup(any()),
       ).thenAnswer((_) async => [makeLesson()]);
+      when(() => provider.getGroupMembers(any())).thenAnswer((_) async => []);
     },
     act: (c) => c.load(1),
     expect: () => [
@@ -97,9 +106,11 @@ void main() {
     'loadLessons emits error state on failure',
     build: () => GroupDetailsCubit(provider),
     setUp: () {
+      when(() => provider.getGroup(any())).thenAnswer((_) async => makeGroup());
       when(
         () => provider.getLessonsForGroup(any()),
       ).thenThrow(Exception('db error'));
+      when(() => provider.getGroupMembers(any())).thenAnswer((_) async => []);
     },
     act: (c) => c.load(1),
     expect: () => [

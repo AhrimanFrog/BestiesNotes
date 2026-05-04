@@ -3,15 +3,21 @@ import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:flutter/material.dart';
 
 extension LessonUIExt on Lesson {
-  Color get accentColor => switch (status) {
-    .cancelled => AppColors.accentGrey,
-    .completed => AppColors.accentGreen,
-    .scheduled => isNow ? AppColors.accentPink : AppColors.pastelBlue,
-  };
+  Color get accentColor {
+    if (isCancelled) return AppColors.accentGrey;
+    if (isCompleted) return AppColors.accentGreen;
+    return isNow ? AppColors.accentPink : AppColors.pastelBlue;
+  }
 
-  Color get mainColor => switch (status) {
-    .cancelled => AppColors.softGrey,
-    .completed => AppColors.softGreen,
-    .scheduled => isNow ? AppColors.softWarmPink : AppColors.softPastelBlue,
-  };
+  Color get mainColor {
+    if (isCancelled) return AppColors.softGrey;
+    if (isCompleted) return AppColors.softGreen;
+    return isNow ? AppColors.softWarmPink : AppColors.softPastelBlue;
+  }
+
+  String get uiLabel {
+    if (isCancelled) return 'Cancelled';
+    if (isCompleted) return 'Completed';
+    return isNow ? 'In Progress' : 'Scheduled';
+  }
 }

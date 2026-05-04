@@ -1,4 +1,3 @@
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 
 abstract class DataProvider {
@@ -42,7 +41,7 @@ abstract class DataProvider {
 
   Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects);
 
-  Future<void> updateLessonStatus(int lessonId, LessonStatus status);
+  Future<void> updateCancellation(int lessonId, bool isCancelled);
 
   Future<void> updateParticipantStatus(
     int lessonId,
