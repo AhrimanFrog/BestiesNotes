@@ -26,6 +26,7 @@ extension DbLessonDetailsExt on DbLessonDetails {
       duration: Duration(minutes: lesson.durationInMinutes),
       note: lesson.note ?? "",
       isCancelled: lesson.isCancelled,
+      templateId: lesson.templateId,
     );
   }
 }

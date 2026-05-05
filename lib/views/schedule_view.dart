@@ -1,6 +1,8 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/recurring/recurring_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/lesson_form.dart';
+import 'package:besties_notes/views/modals/recurring_template_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +20,27 @@ class SchedulePage extends StatelessWidget {
             onPressed: context.read<LessonsCubit>().goToCurrentWeek,
           ),
           IconButton(
+            icon: const Icon(Icons.repeat),
+            tooltip: 'Manage recurring lessons',
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              builder: (_) => MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: context.read<RecurringCubit>()),
+                  BlocProvider.value(
+                    value: context.read<StudentsAndGroupsCubit>(),
+                  ),
+                ],
+                child: RecurringTemplateForm(null),
+              ),
+              backgroundColor: Colors.transparent,
+              useSafeArea: true,
+              isScrollControlled: true,
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
+            tooltip: 'Add one-off lesson',
             onPressed: () => showModalBottomSheet(
               context: context,
               builder: (_) => MultiBlocProvider(

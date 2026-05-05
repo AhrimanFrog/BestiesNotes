@@ -5,6 +5,7 @@ import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
+import 'package:besties_notes/providers/recurring_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
 import 'package:besties_notes/data/db_models/db_lesson_details.dart';
@@ -12,12 +13,34 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'db_client.g.dart';
 
-@DriftDatabase(tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants])
-class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
+// NOTE: After changing this file run: dart run build_runner build --delete-conflicting-outputs
+
+@DriftDatabase(tables: [
+  DbLessons,
+  DbStudents,
+  DbGroups,
+  DbLessonParticipants,
+  DbRecurringTemplates,
+  DbRecurringParticipants,
+])
+class DbClient extends _$DbClient
+    implements DataProvider, PaymentProvider, RecurringProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 6) {
+        await m.createTable(dbRecurringTemplates);
+        await m.createTable(dbRecurringParticipants);
+        await m.addColumn(dbLessons, dbLessons.templateId);
+        await m.addColumn(dbLessons, dbLessons.templateDate);
+      }
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
@@ -78,6 +101,8 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       start: lesson.start,
       durationInMinutes: lesson.duration.inMinutes,
       isCancelled: lesson.isCancelled,
+      templateId: Value(lesson.templateId),
+      templateDate: Value(lesson.templateId != null ? lesson.start : null),
       createdAt: now,
       updatedAt: now,
     );
@@ -498,4 +523,212 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // RecurringProvider
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<List<RecurringTemplate>> getTemplates() async {
+    return _gatherTemplates(
+      (select(dbRecurringTemplates)).join([
+        leftOuterJoin(
+          dbRecurringParticipants,
+          dbRecurringParticipants.templateId
+              .equalsExp(dbRecurringTemplates.id),
+        ),
+        leftOuterJoin(
+          dbStudents,
+          dbStudents.id.equalsExp(dbRecurringParticipants.studentId),
+        ),
+        leftOuterJoin(
+          dbGroups,
+          dbGroups.id.equalsExp(dbRecurringParticipants.groupId),
+        ),
+      ]),
+    );
+  }
+
+  @override
+  Future<RecurringTemplate> getTemplate(int templateId) async {
+    final results = await _gatherTemplates(
+      (select(dbRecurringTemplates)
+            ..where((t) => t.id.equals(templateId)))
+          .join([
+        leftOuterJoin(
+          dbRecurringParticipants,
+          dbRecurringParticipants.templateId
+              .equalsExp(dbRecurringTemplates.id),
+        ),
+        leftOuterJoin(
+          dbStudents,
+          dbStudents.id.equalsExp(dbRecurringParticipants.studentId),
+        ),
+        leftOuterJoin(
+          dbGroups,
+          dbGroups.id.equalsExp(dbRecurringParticipants.groupId),
+        ),
+      ]),
+    );
+    return results.single;
+  }
+
+  @override
+  Future<int> createOrUpdateTemplate(RecurringTemplate template) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final companion = DbRecurringTemplatesCompanion.insert(
+      id: template.id != null ? Value(template.id!) : const Value.absent(),
+      topic: template.name,
+      dayOfWeek: template.dayOfWeek,
+      startTimeMinutes: template.startHour * 60 + template.startMinute,
+      durationInMinutes: template.duration.inMinutes,
+      note: Value(template.note.isEmpty ? null : template.note),
+      startDate: template.startDate,
+      endDate: Value(template.endDate),
+      createdAt: now,
+      updatedAt: now,
+    );
+    return into(dbRecurringTemplates).insert(
+      companion,
+      onConflict: DoUpdate(
+        (_) => companion.copyWith(
+          createdAt: const Value.absent(),
+          updatedAt: Value(now),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteTemplate(int templateId) {
+    return (delete(dbRecurringTemplates)
+          ..where((t) => t.id.equals(templateId)))
+        .go();
+  }
+
+  @override
+  Future<void> syncTemplateParticipants(
+    int templateId,
+    List<Teachable> subjects,
+  ) {
+    return transaction(() async {
+      final desired = await _resolveParticipants(subjects);
+
+      if (desired.isEmpty) {
+        await (delete(dbRecurringParticipants)
+              ..where((p) => p.templateId.equals(templateId)))
+            .go();
+        return;
+      }
+
+      await batch((b) {
+        b.insertAll(dbRecurringParticipants, [
+          for (final MapEntry(:key, :value) in desired.entries)
+            DbRecurringParticipantsCompanion.insert(
+              templateId: templateId,
+              studentId: key,
+              groupId: Value(value),
+            ),
+        ], mode: InsertMode.insertOrIgnore);
+      });
+
+      await (delete(dbRecurringParticipants)
+            ..where(
+              (p) =>
+                  p.templateId.equals(templateId) &
+                  p.studentId.isNotIn(desired.keys),
+            ))
+          .go();
+    });
+  }
+
+  @override
+  Future<int> materializeOccurrence(
+    int templateId,
+    DateTime occurrenceDate,
+  ) async {
+    // Return existing materialized lesson if already created for this slot.
+    final existing = await (select(dbLessons)
+          ..where(
+            (l) =>
+                l.templateId.equals(templateId) &
+                l.templateDate.equals(occurrenceDate),
+          ))
+        .getSingleOrNull();
+    if (existing != null) return existing.id;
+
+    final template = await getTemplate(templateId);
+    final lesson = template.toVirtualLesson(occurrenceDate).copyWith(
+      isVirtual: false,
+    );
+    final lessonId = await createOrUpdateLesson(lesson);
+    await syncLessonMembership(lessonId, template.subjects);
+    return lessonId;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Recurring helpers
+  // ---------------------------------------------------------------------------
+
+  Future<List<RecurringTemplate>> _gatherTemplates(
+    JoinedSelectStatement query,
+  ) async {
+    final Map<int, _TemplateDetails> details = {};
+
+    for (final row in await query.get()) {
+      final tpl = row.readTable(dbRecurringTemplates);
+      final student = row.readTableOrNull(dbStudents);
+      final group = row.readTableOrNull(dbGroups);
+      final participant = row.readTableOrNull(dbRecurringParticipants);
+
+      final entry = details.putIfAbsent(
+        tpl.id,
+        () => _TemplateDetails(template: tpl),
+      );
+
+      if (student != null) entry.students[student.id] = student;
+      if (group != null) entry.groups[group.id] = group;
+      if (participant != null) {
+        entry.participantRows[participant.studentId] = participant;
+      }
+    }
+
+    return details.values.map((d) {
+      final tpl = d.template;
+      final minutes = tpl.startTimeMinutes;
+      final participants = d.students.values.map((s) {
+        final p = d.participantRows[s.id];
+        final groupId = p?.groupId;
+        return LessonParticipant(
+          student: s.toDomain(),
+          attended: false,
+          isPaid: false,
+          homeworkDone: false,
+          group: d.groups[groupId]?.toDomain(),
+        );
+      }).toList();
+
+      return RecurringTemplate(
+        id: tpl.id,
+        name: tpl.topic,
+        dayOfWeek: tpl.dayOfWeek,
+        startHour: minutes ~/ 60,
+        startMinute: minutes % 60,
+        duration: Duration(minutes: tpl.durationInMinutes),
+        note: tpl.note ?? '',
+        startDate: tpl.startDate,
+        endDate: tpl.endDate,
+        participants: participants,
+      );
+    }).toList();
+  }
+}
+
+class _TemplateDetails {
+  final DbRecurringTemplate template;
+  final Map<int, DbStudent> students = {};
+  final Map<int, DbGroup> groups = {};
+  final Map<int, DbRecurringParticipant> participantRows = {};
+
+  _TemplateDetails({required this.template});
 }

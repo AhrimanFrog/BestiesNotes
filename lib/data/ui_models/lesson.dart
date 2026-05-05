@@ -8,6 +8,10 @@ class Lesson {
   final Duration duration;
   final String note;
   final bool isCancelled;
+  /// Non-null when this lesson was generated from a recurring template.
+  final int? templateId;
+  /// True when this instance is virtual (not yet persisted to DB).
+  final bool isVirtual;
 
   const Lesson({
     this.id,
@@ -17,6 +21,8 @@ class Lesson {
     required this.duration,
     this.note = "",
     this.isCancelled = false,
+    this.templateId,
+    this.isVirtual = false,
   });
 
   bool get isNow =>
@@ -42,6 +48,8 @@ class Lesson {
     Duration? duration,
     String? note,
     bool? isCancelled,
+    int? templateId,
+    bool? isVirtual,
   }) {
     return Lesson(
       id: id ?? this.id,
@@ -51,6 +59,8 @@ class Lesson {
       duration: duration ?? this.duration,
       note: note ?? this.note,
       isCancelled: isCancelled ?? this.isCancelled,
+      templateId: templateId ?? this.templateId,
+      isVirtual: isVirtual ?? this.isVirtual,
     );
   }
 }

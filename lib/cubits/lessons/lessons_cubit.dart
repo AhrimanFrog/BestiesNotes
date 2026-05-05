@@ -7,18 +7,62 @@ part 'lessons_state.dart';
 
 class LessonsCubit extends Cubit<LessonsState> {
   final DataProvider _provider;
+  final RecurringProvider? _recurringProvider;
 
-  LessonsCubit(this._provider) : super(LessonsState());
+  LessonsCubit(this._provider, {RecurringProvider? recurringProvider})
+      : _recurringProvider = recurringProvider,
+        super(LessonsState());
 
   Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
     final dateFrom = from ?? state.dateFrom;
     final dateTo = to ?? state.dateTo;
     await _fetchLessons(
-      () async => await _provider.getLessonsForRange(dateFrom, dateTo),
+      () async {
+        final real = await _provider.getLessonsForRange(dateFrom, dateTo);
+        if (_recurringProvider == null) return real;
+        final templates = await _recurringProvider.getTemplates();
+        return _mergeWithVirtual(real, templates, dateFrom, dateTo);
+      },
       dateFrom: from,
       dateTo: to,
     );
   }
+
+  /// Materializes a virtual lesson occurrence and refreshes the schedule.
+  Future<int> materializeOccurrence(int templateId, DateTime date) async {
+    final lessonId =
+        await _recurringProvider!.materializeOccurrence(templateId, date);
+    await fetchLessons();
+    return lessonId;
+  }
+
+  static List<Lesson> _mergeWithVirtual(
+    List<Lesson> real,
+    List<RecurringTemplate> templates,
+    DateTime from,
+    DateTime to,
+  ) {
+    // Build a set of already-materialized (templateId, date) pairs.
+    final materialized = {
+      for (final l in real)
+        if (l.templateId != null) (l.templateId!, _dateOnly(l.start)),
+    };
+
+    final virtual = <Lesson>[];
+    for (final template in templates) {
+      for (final occurrence in template.occurrencesInRange(from, to)) {
+        final key = (template.id!, _dateOnly(occurrence));
+        if (!materialized.contains(key)) {
+          virtual.add(template.toVirtualLesson(occurrence));
+        }
+      }
+    }
+
+    return [...real, ...virtual]..sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  static DateTime _dateOnly(DateTime dt) =>
+      DateTime(dt.year, dt.month, dt.day);
 
   Future<void> fetchLessonsByStudentId(
     int studID, {
