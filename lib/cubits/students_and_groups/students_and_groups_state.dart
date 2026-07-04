@@ -65,7 +65,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     String? searchQuery,
     int? Function()? filterGroupId,
     bool? isLoading,
-    String? Function()? error,
+    String? error,
     int? activeDataIndex,
   }) {
     return StudentsAndGroupsState(
@@ -79,7 +79,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
           ? filterGroupId()
           : this.filterGroupId,
       isLoading: isLoading ?? this.isLoading,
-      error: error != null ? error() : this.error,
+      error: error,
       activeDataIndex: activeDataIndex ?? this.activeDataIndex,
     );
   }

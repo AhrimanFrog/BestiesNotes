@@ -1,6 +1,7 @@
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:equatable/equatable.dart';
 
-class Lesson {
+class Lesson extends Equatable {
   final int? id;
   final String name;
   final List<LessonParticipant> participants;
@@ -53,4 +54,14 @@ class Lesson {
       isCancelled: isCancelled ?? this.isCancelled,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    participants,
+    duration,
+    note,
+    isCancelled,
+  ];
 }

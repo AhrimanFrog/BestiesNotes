@@ -48,14 +48,14 @@ class LessonsState extends Equatable implements CubitState {
     DateTime? dateFrom,
     DateTime? dateTo,
     bool? isLoading,
-    String? Function()? error,
+    String? error,
   }) {
     return LessonsState(
       lessons: lessons ?? this.lessons,
       dateFrom: dateFrom ?? this.dateFrom,
       dateTo: dateTo ?? this.dateTo,
       isLoading: isLoading ?? this.isLoading,
-      error: error != null ? error() : this.error,
+      error: error,
     );
   }
 }

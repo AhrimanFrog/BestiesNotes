@@ -12,7 +12,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
     if (state.noMoreStudents) return;
-    emit(state.copyWith(isLoading: true, error: () => null));
+    emit(state.copyWith(isLoading: true));
     try {
       final students = await _provider.getStudents(
         offset: offset,
@@ -28,13 +28,13 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
   Future<void> fetchGroups({int offset = 0, limit = 100}) async {
     if (state.noMoreGroups) return;
-    emit(state.copyWith(isLoading: true, error: () => null));
+    emit(state.copyWith(isLoading: true));
     try {
       final groups = await _provider.getGroups(offset: offset, limit: limit);
       if (groups.isEmpty) {
@@ -44,7 +44,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
         state.copyWith(groups: [...state.groups, ...groups], isLoading: false),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 

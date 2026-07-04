@@ -34,10 +34,11 @@ class GroupPaymentsCubit extends Cubit<GroupPaymentsState> {
           unpaidLessons: unpaidLessons,
           paidThisMonth: stat.paidLessons,
           totalThisMonth: stat.totalLessons,
+          isLoading: false,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }

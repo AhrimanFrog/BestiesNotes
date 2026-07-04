@@ -21,7 +21,7 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
         state.copyWith(lessons: lessons, student: student, isLoading: false),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }

@@ -27,7 +27,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }

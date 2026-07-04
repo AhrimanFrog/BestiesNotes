@@ -8,7 +8,7 @@ class Rate extends Equatable {
   const Rate({required this.rate, required this.period});
 
   double calculateOwed(int unpaidLessons) =>
-      period == .daily ? rate * unpaidLessons : rate;
+      period == .perLesson ? rate * unpaidLessons : rate;
 
   @override
   String toString() => "$rate / ${period.name}";

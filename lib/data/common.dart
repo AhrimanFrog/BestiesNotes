@@ -1,1 +1,1 @@
-enum RatePeriod { daily, monthly }
+enum RatePeriod { perLesson, monthly }

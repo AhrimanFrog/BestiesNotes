@@ -77,6 +77,7 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       topic: lesson.name,
       start: lesson.start,
       durationInMinutes: lesson.duration.inMinutes,
+      note: Value(lesson.note),
       isCancelled: lesson.isCancelled,
       createdAt: now,
       updatedAt: now,

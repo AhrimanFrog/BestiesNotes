@@ -37,7 +37,7 @@ class _StudentFormState extends State<StudentForm> {
       text: student?.pricing.rate.toString() ?? '',
     );
     _noteController = TextEditingController(text: student?.note);
-    _selectedPeriod = student?.pricing.period ?? .daily;
+    _selectedPeriod = student?.pricing.period ?? .perLesson;
     _avatarPath = student?.iconPath;
   }
 

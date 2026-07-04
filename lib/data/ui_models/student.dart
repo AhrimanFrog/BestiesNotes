@@ -43,7 +43,7 @@ class Student extends Teachable {
       note = "",
       super(
         name: "Loading...",
-        pricing: const Rate(rate: 0, period: .daily),
+        pricing: const Rate(rate: 0, period: .perLesson),
         iconPath: null,
       );
 }

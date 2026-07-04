@@ -34,7 +34,7 @@ class _GroupFormState extends State<GroupForm> {
     _rateController = TextEditingController(
       text: group?.pricing.rate.toString() ?? '',
     );
-    _selectedPeriod = group?.pricing.period ?? RatePeriod.daily;
+    _selectedPeriod = group?.pricing.period ?? RatePeriod.perLesson;
     _avatarPath = group?.iconPath;
 
     if (group?.id != null) {

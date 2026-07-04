@@ -50,7 +50,7 @@ class RatePeriodField extends StatelessWidget {
               border: OutlineInputBorder(),
             ),
             items: const [
-              DropdownMenuItem(value: RatePeriod.daily, child: Text('Daily')),
+              DropdownMenuItem(value: RatePeriod.perLesson, child: Text('Daily')),
               DropdownMenuItem(
                 value: RatePeriod.monthly,
                 child: Text('Monthly'),

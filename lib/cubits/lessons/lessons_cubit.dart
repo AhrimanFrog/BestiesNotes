@@ -25,7 +25,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
-    _fetchLessons(
+    await _fetchLessons(
       () async =>
           _provider.getLessonsForStudent(studID, offset: offset, limit: limit),
     );
@@ -47,7 +47,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     DateTime? dateFrom,
     DateTime? dateTo,
   }) async {
-    emit(state.copyWith(isLoading: true, error: () => null));
+    emit(state.copyWith(isLoading: true));
     try {
       emit(
         state.copyWith(
@@ -58,7 +58,7 @@ class LessonsCubit extends Cubit<LessonsState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: () => e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
@@ -125,7 +125,7 @@ class LessonsCubit extends Cubit<LessonsState> {
         homeworkDone: homeworkDone,
       );
     } catch (e) {
-      emit(state.copyWith(lessons: previousLessons, error: () => e.toString()));
+      emit(state.copyWith(lessons: previousLessons, error:  e.toString()));
     }
   }
 }

@@ -19,7 +19,7 @@ class Group extends Teachable {
     : students = const {},
       super(
         name: 'Loading...',
-        pricing: const Rate(rate: 0, period: RatePeriod.daily),
+        pricing: const Rate(rate: 0, period: RatePeriod.perLesson),
         iconPath: null,
       );
 
