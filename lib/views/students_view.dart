@@ -66,14 +66,6 @@ class _StudentsPageState extends State<StudentsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showForm(context, null),
-          ),
-        ],
-      ),
       body: GradientBackground(
         child: BlocBuilder<StudentsAndGroupsCubit, StudentsAndGroupsState>(
           builder: (context, state) {
@@ -168,6 +160,10 @@ class _StudentsPageState extends State<StudentsPage>
             );
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () => _showForm(context, null),
       ),
     );
   }

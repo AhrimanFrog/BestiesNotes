@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/widgets/fields/input_field.dart';
+import 'package:besties_notes/widgets/helpers.dart';
 
 class RatePeriodField extends StatelessWidget {
   final TextEditingController rateController;
@@ -45,12 +46,12 @@ class RatePeriodField extends StatelessWidget {
         Flexible(
           child: DropdownButtonFormField<RatePeriod>(
             initialValue: selectedPeriod,
-            decoration: const InputDecoration(
-              labelText: 'Period',
-              border: OutlineInputBorder(),
-            ),
+            decoration: inputBorders('Period', null, null),
             items: const [
-              DropdownMenuItem(value: RatePeriod.perLesson, child: Text('Daily')),
+              DropdownMenuItem(
+                value: RatePeriod.perLesson,
+                child: Text('Daily'),
+              ),
               DropdownMenuItem(
                 value: RatePeriod.monthly,
                 child: Text('Monthly'),

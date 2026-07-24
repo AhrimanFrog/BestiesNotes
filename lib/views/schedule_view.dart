@@ -17,24 +17,6 @@ class SchedulePage extends StatelessWidget {
             icon: const Icon(Icons.calendar_today),
             onPressed: context.read<LessonsCubit>().goToCurrentWeek,
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              builder: (_) => MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(value: context.read<LessonsCubit>()),
-                  BlocProvider.value(
-                    value: context.read<StudentsAndGroupsCubit>(),
-                  ),
-                ],
-                child: LessonForm(null),
-              ),
-              backgroundColor: Colors.transparent,
-              useSafeArea: true,
-              isScrollControlled: true,
-            ),
-          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(44),
@@ -59,6 +41,22 @@ class SchedulePage extends StatelessWidget {
       ),
       body: BlocBuilder<LessonsCubit, LessonsState>(
         builder: (_, state) => LessonsListSection(state: state),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: context.read<LessonsCubit>()),
+              BlocProvider.value(value: context.read<StudentsAndGroupsCubit>()),
+            ],
+            child: LessonForm(null),
+          ),
+          backgroundColor: Colors.transparent,
+          useSafeArea: true,
+          isScrollControlled: true,
+        ),
+        child: const Icon(Icons.add), // Plus icon
       ),
     );
   }
