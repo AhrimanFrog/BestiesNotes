@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class StatusBadge extends StatelessWidget {
@@ -19,13 +18,7 @@ class StatusBadge extends StatelessWidget {
         color: accentColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(
-        label,
-        style: AppTextStyles.micro.copyWith(
-          fontWeight: FontWeight.w600,
-          color: accentColor,
-        ),
-      ),
+      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
     );
   }
 }

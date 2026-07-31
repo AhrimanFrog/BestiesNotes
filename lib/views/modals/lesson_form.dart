@@ -298,7 +298,7 @@ class _LessonFormState extends State<LessonForm> {
                       )
                     : Text(
                         lesson != null ? 'Update Lesson' : 'Create Lesson',
-                        style: const TextStyle(fontSize: 16),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
               ),
               if (lesson != null && !lesson!.isCancelled)
@@ -309,9 +309,9 @@ class _LessonFormState extends State<LessonForm> {
                     foregroundColor: AppColors.accentPink,
                     side: const BorderSide(color: AppColors.accentPink),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Cancel Lesson',
-                    style: TextStyle(fontSize: 16),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
             ],

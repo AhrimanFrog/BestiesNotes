@@ -18,11 +18,9 @@ class SeeAllRow extends StatelessWidget {
           children: [
             Text(
               'See all lessons',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.accentPink,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.accentPink),
             ),
             const Icon(
               Icons.chevron_right,

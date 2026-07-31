@@ -15,10 +15,7 @@ class NoteRow extends StatelessWidget {
         Row(
           spacing: 12,
           children: [
-            const Text(
-              'Note',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            Text('Note', style: Theme.of(context).textTheme.titleMedium),
             Icon(
               Icons.edit_note_outlined,
               size: 24,

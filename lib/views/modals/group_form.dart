@@ -198,7 +198,7 @@ class _GroupFormState extends State<GroupForm> {
                       )
                     : Text(
                         group != null ? 'Update Group' : 'Create Group',
-                        style: const TextStyle(fontSize: 16),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
               ),
             ],

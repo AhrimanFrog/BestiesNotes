@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class TitledSection extends StatelessWidget {
@@ -12,14 +11,7 @@ class TitledSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.mainText,
-          ),
-        ),
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         child,
       ],

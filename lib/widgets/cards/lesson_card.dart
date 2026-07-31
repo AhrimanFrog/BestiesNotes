@@ -90,17 +90,13 @@ class _LessonCardState extends State<LessonCard> {
             children: [
               Text(
                 lesson.start.toHoursAndMinsFormat(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: accentColor,
-                  fontWeight: FontWeight.bold,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   decoration: isCancelled ? TextDecoration.lineThrough : null,
                 ),
               ),
               Text(
                 lesson.end.toHoursAndMinsFormat(),
-                style: TextStyle(
-                  fontSize: 13,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: accentColor.withValues(alpha: 0.8),
                   decoration: isCancelled ? TextDecoration.lineThrough : null,
                 ),
@@ -127,10 +123,7 @@ class _LessonCardState extends State<LessonCard> {
                         lesson.subjects.length > 1
                             ? "${lesson.subjects.first.initials} & ${lesson.subjects.length - 1} more"
                             : lesson.subjects.first.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: AppColors.mainText,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           decoration: isCancelled
                               ? TextDecoration.lineThrough
                               : null,
@@ -138,13 +131,12 @@ class _LessonCardState extends State<LessonCard> {
                       ),
                       Text(
                         lesson.name,
-                        style: TextStyle(
-                          color: AppColors.secondaryText,
-                          fontSize: 13,
-                          decoration: isCancelled
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              decoration: isCancelled
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
                       ),
                     ],
                   ),
@@ -182,10 +174,7 @@ class _LessonCardState extends State<LessonCard> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     'No participants',
-                    style: TextStyle(
-                      color: AppColors.secondaryText,
-                      fontSize: 13,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 )
               else
@@ -234,10 +223,7 @@ class _LessonCardState extends State<LessonCard> {
           Expanded(
             child: Text(
               p.student.name,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.mainText,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 decoration: isCancelled ? TextDecoration.lineThrough : null,
               ),
             ),
@@ -304,6 +290,7 @@ class _LessonCardState extends State<LessonCard> {
     final color = active
         ? activeColor
         : AppColors.accentGrey.withValues(alpha: 0.4);
+    final textStyle = Theme.of(context).textTheme.labelSmall;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -329,11 +316,9 @@ class _LessonCardState extends State<LessonCard> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 9,
-              color: active ? color : AppColors.secondaryText,
-              fontWeight: active ? FontWeight.w600 : FontWeight.normal,
-            ),
+            style: active
+                ? textStyle?.copyWith(color: color, fontWeight: FontWeight.w600)
+                : textStyle,
           ),
         ],
       ),

@@ -114,19 +114,9 @@ class _StatRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: AppColors.secondaryText),
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
         const Spacer(),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.mainText,
-          ),
-        ),
+        Text(value, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
   }

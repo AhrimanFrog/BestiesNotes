@@ -32,11 +32,9 @@ class NavigationChip extends StatelessWidget {
             Icon(icon, size: 16, color: color),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: color),
             ),
             Icon(Icons.chevron_right, size: 16, color: color),
           ],

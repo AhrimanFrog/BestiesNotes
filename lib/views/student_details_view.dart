@@ -98,11 +98,7 @@ class _HeaderCard extends StatelessWidget {
                   children: [
                     Text(
                       student.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.mainText,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     if (student.contact.isNotEmpty)
                       Row(
@@ -115,10 +111,7 @@ class _HeaderCard extends StatelessWidget {
                           ),
                           Text(
                             student.contact,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.secondaryText,
-                            ),
+                            style: Theme.of(context).textTheme.labelMedium,
                           ),
                         ],
                       ),
@@ -147,10 +140,7 @@ class _HeaderCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     student.note,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.secondaryText,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium
                   ),
                 ),
               ],

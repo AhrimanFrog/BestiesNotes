@@ -95,14 +95,7 @@ class _GroupHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 4,
               children: [
-                Text(
-                  group.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.mainText,
-                  ),
-                ),
+                Text(group.name, style: Theme.of(context).textTheme.titleLarge),
                 Row(
                   spacing: 4,
                   children: [
@@ -113,10 +106,7 @@ class _GroupHeaderCard extends StatelessWidget {
                     ),
                     Text(
                       '${group.students.length} members',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.secondaryText,
-                      ),
+                      style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ],
                 ),

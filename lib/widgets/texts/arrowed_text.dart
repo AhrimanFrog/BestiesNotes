@@ -18,26 +18,17 @@ class ArrowedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = TextStyle(
+      fontSize: _fontSize,
+      color: _color,
+      fontWeight: _fontWeight,
+    );
     return Row(
       spacing: 8,
       children: [
-        Text(
-          origin,
-          style: TextStyle(
-            fontSize: _fontSize,
-            color: _color,
-            fontWeight: _fontWeight,
-          ),
-        ),
+        Text(origin, style: style),
         Icon(Icons.arrow_forward, size: _fontSize + 2, color: _color),
-        Text(
-          destination,
-          style: TextStyle(
-            fontSize: _fontSize,
-            color: _color,
-            fontWeight: _fontWeight,
-          ),
-        ),
+        Text(destination, style: style),
       ],
     );
   }

@@ -17,9 +17,8 @@ class InitialsCircle extends StatelessWidget {
       backgroundColor: circleColor.withValues(alpha: 0.2),
       child: Text(
         initials,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           color: circleColor.withValues(alpha: 0.9),
-          fontWeight: FontWeight.w700,
         ),
       ),
     );

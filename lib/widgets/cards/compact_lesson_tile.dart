@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
@@ -49,10 +48,7 @@ class CompactLessonTile extends StatelessWidget {
                 children: [
                   Text(
                     lesson.name,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.mainText,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       decoration: isCancelled
                           ? TextDecoration.lineThrough
                           : null,
@@ -60,10 +56,7 @@ class CompactLessonTile extends StatelessWidget {
                   ),
                   Text(
                     '${lesson.start.toDateFormat()}  ${lesson.start.toHoursAndMinsFormat()}',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.secondaryText,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
               ),

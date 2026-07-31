@@ -157,7 +157,7 @@ class _StudentFormState extends State<StudentForm> {
                       )
                     : Text(
                         student != null ? 'Update Student' : 'Create Student',
-                        style: const TextStyle(fontSize: 16),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
               ),
             ],

@@ -18,10 +18,7 @@ class TimeRow extends StatelessWidget {
         Row(
           spacing: 8,
           children: [
-            const Text(
-              'Time',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            Text('Time', style: Theme.of(context).textTheme.titleMedium),
             const Icon(Icons.access_time, size: 22),
           ],
         ),

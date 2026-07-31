@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class Tag extends StatelessWidget {
@@ -11,13 +10,10 @@ class Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.accentPink,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 14, color: Colors.black87),
-      ),
+      child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
     );
   }
 }

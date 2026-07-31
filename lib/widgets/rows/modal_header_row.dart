@@ -14,10 +14,7 @@ class ModalHeaderRow extends StatelessWidget {
       children: [
         Icon(icon, size: 28),
         Expanded(
-          child: Text(
-            title,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
         ),
         SmallIconButton(
           icon: Icons.close,

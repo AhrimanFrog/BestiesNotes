@@ -41,9 +41,9 @@ class ScholarsSelector extends StatelessWidget {
           ),
         ),
         child: selectedSubjects.isEmpty
-            ? const Text(
+            ? Text(
                 'Tap to select',
-                style: TextStyle(color: AppColors.secondaryText),
+                style: Theme.of(context).textTheme.labelSmall,
               )
             : Wrap(
                 spacing: 8,

@@ -23,10 +23,7 @@ class PersonRow<T extends Teachable> extends StatelessWidget {
             children: [
               Text(
                 subject.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
           ),
@@ -39,13 +36,10 @@ class PersonRow<T extends Teachable> extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text(
-                'Details',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(width: 4),
-              Icon(Icons.arrow_forward, size: 16),
+            children: [
+              Text('Details', style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_forward, size: 16),
             ],
           ),
         ),

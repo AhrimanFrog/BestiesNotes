@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class DayTitle extends StatelessWidget {
@@ -11,9 +10,9 @@ class DayTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(weekDay, style: AppTextStyles.headline),
+        Text(weekDay, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 4),
-        Text(date, style: AppTextStyles.caption),
+        Text(date, style: Theme.of(context).textTheme.labelMedium),
       ],
     );
   }

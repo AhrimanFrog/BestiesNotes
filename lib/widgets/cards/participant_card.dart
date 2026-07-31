@@ -40,11 +40,7 @@ class ParticipantCard extends StatelessWidget {
                 Text(
                   participant.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.mainText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -52,11 +48,7 @@ class ParticipantCard extends StatelessWidget {
                 Text(
                   additionalInfo,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.secondaryText,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium,
                 ),
                 // Action / Status Pill
                 StatusBadge(

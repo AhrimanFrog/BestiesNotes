@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:flutter/material.dart';
 
@@ -37,9 +36,9 @@ class StateTransitionWidget extends StatelessWidget {
         if (emptyExp && !state.isLoading && state.error == null)
           Positioned.fill(
             child: Center(
-              child: const Text(
+              child: Text(
                 'No entries yet',
-                style: TextStyle(color: AppColors.secondaryText, fontSize: 16),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           ),

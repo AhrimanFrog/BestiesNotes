@@ -54,14 +54,7 @@ class WeekNavigationBar extends StatelessWidget {
               onRangeSelection!(range);
             }
           },
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.mainText,
-            ),
-          ),
+          child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),
