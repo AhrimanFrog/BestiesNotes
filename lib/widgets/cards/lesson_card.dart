@@ -1,326 +1,132 @@
 import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
-import 'package:besties_notes/widgets/avatar/initials_circle.dart';
 import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LessonCard extends StatefulWidget {
+class LessonCard extends StatelessWidget {
   final Lesson lesson;
-  final VoidCallback onClick;
+  final VoidCallback onTap;
+  final VoidCallback? onCancel;
 
-  const LessonCard({super.key, required this.lesson, required this.onClick});
+  const LessonCard({
+    super.key,
+    required this.lesson,
+    required this.onTap,
+    this.onCancel,
+    this.featured = false,
+    this.showQuickActions = true,
+  });
 
-  @override
-  State<LessonCard> createState() => _LessonCardState();
-}
-
-class _LessonCardState extends State<LessonCard> {
-  bool _expanded = false;
-
-  // Pull the latest lesson from cubit state so optimistic updates are reflected
-  Lesson _currentLesson(LessonsState state) => state.lessons.firstWhere(
-    (l) => l.id == widget.lesson.id,
-    orElse: () => widget.lesson,
-  );
+  /// The next upcoming or currently running lesson — pulled forward visually.
+  final bool featured;
+  final bool showQuickActions;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LessonsCubit, LessonsState>(
-      builder: (context, state) {
-        final lesson = _currentLesson(state);
-        final isCancelled = lesson.isCancelled;
-        final accentColor = lesson.accentColor;
-
-        return Opacity(
-          opacity: isCancelled ? 0.55 : 1.0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: lesson.mainColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: isCancelled ? 0.06 : 0.12,
-                  ),
-                  spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+    return Material(
+      color: featured ? AppColors.accent : AppColors.surface,
+      borderRadius: BorderRadius.circular(18),
+      elevation: 0,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: featured ? AppColors.accent : Colors.transparent,
+              width: featured ? 2 : 1,
             ),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () => setState(() => _expanded = !_expanded),
-                  child: _buildHeader(lesson, accentColor, isCancelled),
-                ),
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeInOut,
-                  child: _expanded
-                      ? _buildParticipantList(
-                          context,
-                          lesson,
-                          accentColor,
-                          isCancelled,
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
+            boxShadow: featured
+                ? const [
+                    BoxShadow(
+                      color: Color(0x14762741),
+                      blurRadius: 16,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader(Lesson lesson, Color accentColor, bool isCancelled) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Time
-          Column(
+          padding: const EdgeInsets.all(16),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                lesson.start.toHoursAndMinsFormat(),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  decoration: isCancelled ? TextDecoration.lineThrough : null,
-                ),
-              ),
-              Text(
-                lesson.end.toHoursAndMinsFormat(),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: accentColor.withValues(alpha: 0.8),
-                  decoration: isCancelled ? TextDecoration.lineThrough : null,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-
-          // Avatar + details
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InitialsCircle(
-                  initials: lesson.subjects.first.initials,
-                  circleColor: accentColor,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        lesson.subjects.length > 1
-                            ? "${lesson.subjects.first.initials} & ${lesson.subjects.length - 1} more"
-                            : lesson.subjects.first.name,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          decoration: isCancelled
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                      Text(
-                        lesson.name,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              decoration: isCancelled
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                      ),
-                    ],
+              Row(
+                children: [
+                  StatusBadge(
+                    label: lesson.uiLabel,
+                    accentColor: lesson.accentColor,
                   ),
-                ),
-              ],
-            ),
-          ),
-          StatusBadge(label: lesson.uiLabel, accentColor: accentColor),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildParticipantList(
-    BuildContext context,
-    Lesson lesson,
-    Color accentColor,
-    bool isCancelled,
-  ) {
-    return Column(
-      children: [
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: accentColor.withValues(alpha: 0.2),
-          indent: 14,
-          endIndent: 14,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
-          child: Column(
-            children: [
-              if (lesson.participants.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'No participants',
+                  const Spacer(),
+                  Text(
+                    '${lesson.start.toHoursAndMinsFormat()} · ${lesson.duration.inMinutes} min',
                     style: Theme.of(context).textTheme.labelMedium,
+                    maxLines: 1,
                   ),
-                )
-              else
-                for (final p in lesson.participants)
-                  _buildParticipantRow(
-                    context,
-                    lesson,
-                    p,
-                    accentColor,
-                    isCancelled,
-                  ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  onPressed: widget.onClick,
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  color: accentColor,
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(),
-                  tooltip: 'Edit lesson',
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                lesson.name,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: lesson.isCancelled ? AppColors.muted : AppColors.text,
+                  decoration: lesson.isCancelled
+                      ? TextDecoration.lineThrough
+                      : null,
                 ),
               ),
+              const SizedBox(height: 2),
+              Text(
+                lesson.audienceLabel(),
+                style: Theme.of(context).textTheme.labelMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (showQuickActions &&
+                  lesson.isCancellable &&
+                  onCancel != null) ...[
+                const SizedBox(height: 10),
+                _SecondaryButton(label: 'Cancel lesson', onPressed: onCancel!),
+              ],
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildParticipantRow(
-    BuildContext context,
-    Lesson lesson,
-    LessonParticipant p,
-    Color accentColor,
-    bool isCancelled,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          InitialsCircle(
-            initials: p.student.initials,
-            circleColor: accentColor,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              p.student.name,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                decoration: isCancelled ? TextDecoration.lineThrough : null,
-              ),
-            ),
-          ),
-          Row(
-            spacing: 10,
-            children: [
-              _glowDot(
-                active: p.isPaid,
-                activeColor: AppColors.accentGreen,
-                icon: Icons.payments_outlined,
-                label: 'Paid',
-                onTap: isCancelled
-                    ? null
-                    : () =>
-                          context.read<LessonsCubit>().updateParticipantStatus(
-                            lesson.id!,
-                            p.student.id!,
-                            isPaid: !p.isPaid,
-                          ),
-              ),
-              _glowDot(
-                active: p.attended,
-                activeColor: accentColor,
-                icon: Icons.check_circle_outline,
-                label: 'Here',
-                onTap: isCancelled
-                    ? null
-                    : () =>
-                          context.read<LessonsCubit>().updateParticipantStatus(
-                            lesson.id!,
-                            p.student.id!,
-                            attended: !p.attended,
-                          ),
-              ),
-              _glowDot(
-                active: p.homeworkDone,
-                activeColor: accentColor,
-                icon: Icons.edit_document,
-                label: 'Homework',
-                onTap: isCancelled
-                    ? null
-                    : () =>
-                          context.read<LessonsCubit>().updateParticipantStatus(
-                            lesson.id!,
-                            p.student.id!,
-                            homeworkDone: !p.homeworkDone,
-                          ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
+}
 
-  Widget _glowDot({
-    required bool active,
-    required Color activeColor,
-    required IconData icon,
-    required String label,
-    VoidCallback? onTap,
-  }) {
-    final color = active
-        ? activeColor
-        : AppColors.accentGrey.withValues(alpha: 0.4);
-    final textStyle = Theme.of(context).textTheme.labelSmall;
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: active ? 0.15 : 0.08),
-              boxShadow: active
-                  ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.55),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Icon(icon, size: 16, color: color),
+class _SecondaryButton extends StatelessWidget {
+  const _SecondaryButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.softPink,
+          backgroundColor: AppColors.surface,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+            side: const BorderSide(color: AppColors.divider),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: active
-                ? textStyle?.copyWith(color: color, fontWeight: FontWeight.w600)
-                : textStyle,
+          textStyle: const TextStyle(
+            fontFamily: 'Karla',
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
           ),
-        ],
+        ),
+        child: Text(label),
       ),
     );
   }

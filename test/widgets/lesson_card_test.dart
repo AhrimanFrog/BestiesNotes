@@ -82,7 +82,7 @@ Widget buildCard(
     home: BlocProvider<LessonsCubit>.value(
       value: cubit,
       child: Scaffold(
-        body: LessonCard(lesson: lesson, onClick: onClick ?? () {}),
+        body: LessonCard(lesson: lesson, onTap: onClick ?? () {}),
       ),
     ),
   );
@@ -179,72 +179,6 @@ void main() {
       await tester.tap(find.text('Grammar'));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.edit_outlined), findsNothing);
-    });
-  });
-
-  group('participant toggle dots', () {
-    late Lesson lesson;
-
-    setUp(() {
-      lesson = makeLesson(participants: [makeParticipant(isPaid: false)]);
-      when(
-        () => cubit.updateParticipantStatus(
-          any(),
-          any(),
-          attended: any(named: 'attended'),
-          isPaid: any(named: 'isPaid'),
-          homeworkDone: any(named: 'homeworkDone'),
-        ),
-      ).thenAnswer((_) async {});
-    });
-
-    Future<void> expand(WidgetTester tester) async {
-      await tester.tap(find.text('Grammar'));
-      await tester.pumpAndSettle();
-    }
-
-    testWidgets('tapping Paid dot calls updateParticipantStatus', (
-      tester,
-    ) async {
-      await tester.pumpWidget(buildCard(lesson, cubit));
-      await expand(tester);
-      await tester.tap(find.text('Paid'));
-      verify(() => cubit.updateParticipantStatus(1, 1, isPaid: true)).called(1);
-    });
-
-    testWidgets('tapping Here dot calls updateParticipantStatus', (
-      tester,
-    ) async {
-      await tester.pumpWidget(buildCard(lesson, cubit));
-      await expand(tester);
-      await tester.tap(find.text('Here'));
-      verify(
-        () => cubit.updateParticipantStatus(1, 1, attended: true),
-      ).called(1);
-    });
-
-    testWidgets('tapping Homework dot calls updateParticipantStatus', (
-      tester,
-    ) async {
-      await tester.pumpWidget(buildCard(lesson, cubit));
-      await expand(tester);
-      await tester.tap(find.text('Homework'));
-      verify(
-        () => cubit.updateParticipantStatus(1, 1, homeworkDone: true),
-      ).called(1);
-    });
-
-    testWidgets('toggle dots are disabled for cancelled lessons', (
-      tester,
-    ) async {
-      final cancelledLesson = makeLesson(
-        isCancelled: true,
-        participants: [makeParticipant()],
-      );
-      await tester.pumpWidget(buildCard(cancelledLesson, cubit));
-      await expand(tester);
-      await tester.tap(find.text('Paid'));
-      verifyNever(() => cubit.updateParticipantStatus(any(), any()));
     });
   });
 

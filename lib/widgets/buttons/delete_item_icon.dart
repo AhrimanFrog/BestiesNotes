@@ -10,7 +10,7 @@ class DeleteItemIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.close, size: 20),
-      color: AppColors.secondaryText,
+      color: AppColors.muted,
       onPressed: onDelete,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),

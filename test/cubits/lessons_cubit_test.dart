@@ -1,5 +1,4 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -221,89 +220,6 @@ void main() {
     },
     act: (c) => c.cancelLesson(1),
     verify: (_) => verify(() => provider.updateCancellation(1, true)).called(1),
-  );
-
-  // ---------------------------------------------------------------------------
-  // updateParticipantStatus — optimistic update & rollback
-  // ---------------------------------------------------------------------------
-
-  final participant = LessonParticipant(
-    student: const Student(
-      id: 10,
-      name: 'Alice',
-      contact: '',
-      pricing: Rate(rate: 0, period: RatePeriod.monthly),
-    ),
-    attended: false,
-    isPaid: false,
-    homeworkDone: false,
-  );
-
-  final lessonWithParticipant = Lesson(
-    id: 1,
-    name: 'Math',
-    participants: [participant],
-    start: DateTime(2025, 1, 15, 10),
-    duration: const Duration(hours: 1),
-  );
-
-  blocTest<LessonsCubit, LessonsState>(
-    'updateParticipantStatus applies optimistic update immediately',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(lessons: [lessonWithParticipant]),
-    setUp: () {
-      when(
-        () => provider.updateParticipantStatus(
-          any(),
-          any(),
-          attended: any(named: 'attended'),
-          isPaid: any(named: 'isPaid'),
-          homeworkDone: any(named: 'homeworkDone'),
-        ),
-      ).thenAnswer((_) async {});
-    },
-    act: (c) => c.updateParticipantStatus(1, 10, attended: true),
-    expect: () => [
-      isA<LessonsState>().having(
-        (s) => s.lessons.first.participants.first.attended,
-        'attended',
-        true,
-      ),
-    ],
-  );
-
-  blocTest<LessonsCubit, LessonsState>(
-    'updateParticipantStatus rolls back and sets error when provider throws',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(lessons: [lessonWithParticipant]),
-    setUp: () {
-      when(
-        () => provider.updateParticipantStatus(
-          any(),
-          any(),
-          attended: any(named: 'attended'),
-          isPaid: any(named: 'isPaid'),
-          homeworkDone: any(named: 'homeworkDone'),
-        ),
-      ).thenThrow(Exception('save failed'));
-    },
-    act: (c) => c.updateParticipantStatus(1, 10, attended: true),
-    expect: () => [
-      // optimistic update
-      isA<LessonsState>().having(
-        (s) => s.lessons.first.participants.first.attended,
-        'attended',
-        true,
-      ),
-      // rollback
-      isA<LessonsState>()
-          .having(
-            (s) => s.lessons.first.participants.first.attended,
-            'attended',
-            false,
-          )
-          .having((s) => s.error, 'error', isNotNull),
-    ],
   );
 
   // ---------------------------------------------------------------------------

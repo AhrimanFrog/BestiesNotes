@@ -47,28 +47,26 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
               ),
             ],
           ),
-          body: GradientBackground(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _GroupHeaderCard(group: state.group),
-                const SizedBox(height: 12),
-                _NavigationChipsRow(groupId: widget.groupId),
-                const SizedBox(height: 20),
-                _MembersSection(state: state),
-                const SizedBox(height: 20),
-                StateTransitionWidget(
-                  state: state,
-                  child: RecentLessonsSection(
-                    lessons: state.lessons,
-                    onSeeAll: () => context.pushNamed(
-                      'group_lessons_history',
-                      pathParameters: {'id': '${widget.groupId}'},
-                    ),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            children: [
+              _GroupHeaderCard(group: state.group),
+              const SizedBox(height: 12),
+              _NavigationChipsRow(groupId: widget.groupId),
+              const SizedBox(height: 20),
+              _MembersSection(state: state),
+              const SizedBox(height: 20),
+              StateTransitionWidget(
+                state: state,
+                child: RecentLessonsSection(
+                  lessons: state.lessons,
+                  onSeeAll: () => context.pushNamed(
+                    'group_lessons_history',
+                    pathParameters: {'id': '${widget.groupId}'},
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -102,7 +100,7 @@ class _GroupHeaderCard extends StatelessWidget {
                     const Icon(
                       Icons.group_outlined,
                       size: 14,
-                      color: AppColors.secondaryText,
+                      color: AppColors.muted,
                     ),
                     Text(
                       '${group.students.length} members',

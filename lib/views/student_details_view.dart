@@ -47,26 +47,24 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
               ),
             ],
           ),
-          body: GradientBackground(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _HeaderCard(student: state.student),
-                const SizedBox(height: 12),
-                _NavigationChipsRow(student: state.student),
-                const SizedBox(height: 20),
-                StateTransitionWidget(
-                  state: state,
-                  child: RecentLessonsSection(
-                    lessons: state.lessons,
-                    onSeeAll: () => context.pushNamed(
-                      'stud_lessons_history',
-                      pathParameters: {'id': '${widget.studentId}'},
-                    ),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            children: [
+              _HeaderCard(student: state.student),
+              const SizedBox(height: 12),
+              _NavigationChipsRow(student: state.student),
+              const SizedBox(height: 20),
+              StateTransitionWidget(
+                state: state,
+                child: RecentLessonsSection(
+                  lessons: state.lessons,
+                  onSeeAll: () => context.pushNamed(
+                    'stud_lessons_history',
+                    pathParameters: {'id': '${widget.studentId}'},
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -107,7 +105,7 @@ class _HeaderCard extends StatelessWidget {
                           const Icon(
                             Icons.phone_outlined,
                             size: 14,
-                            color: AppColors.secondaryText,
+                            color: AppColors.muted,
                           ),
                           Text(
                             student.contact,
@@ -135,12 +133,12 @@ class _HeaderCard extends StatelessWidget {
                 const Icon(
                   Icons.notes_outlined,
                   size: 14,
-                  color: AppColors.secondaryText,
+                  color: AppColors.muted,
                 ),
                 Expanded(
                   child: Text(
                     student.note,
-                    style: Theme.of(context).textTheme.labelMedium
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ),
               ],

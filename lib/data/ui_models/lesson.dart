@@ -26,6 +26,8 @@ class Lesson extends Equatable {
 
   bool get isCompleted => DateTime.now().isAfter(end);
 
+  bool get isCancellable => !(isCancelled || isCompleted);
+
   DateTime get end => start.add(duration);
 
   List<Teachable> get subjects {
@@ -33,6 +35,14 @@ class Lesson extends Equatable {
         .map((p) => p.group == null ? p.student : p.group!)
         .toSet()
         .toList();
+  }
+
+  String audienceLabel() {
+    if (participants.isEmpty) return 'No one assigned';
+    final rest = participants.length - 1;
+    return rest > 0
+        ? '${participants.first} +$rest'
+        : participants.first.toString();
   }
 
   Lesson copyWith({

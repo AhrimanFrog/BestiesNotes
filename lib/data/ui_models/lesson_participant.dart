@@ -16,6 +16,9 @@ class LessonParticipant {
     this.group,
   });
 
+  @override
+  String toString() => group?.name ?? student.name;
+
   LessonParticipant copyWith({
     Student? student,
     bool? attended,

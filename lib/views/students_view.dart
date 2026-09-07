@@ -66,100 +66,94 @@ class _StudentsPageState extends State<StudentsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GradientBackground(
-        child: BlocBuilder<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-          builder: (context, state) {
-            final cubit = context.read<StudentsAndGroupsCubit>();
+      body: BlocBuilder<StudentsAndGroupsCubit, StudentsAndGroupsState>(
+        builder: (context, state) {
+          final cubit = context.read<StudentsAndGroupsCubit>();
 
-            return SafeArea(
-              minimum: EdgeInsets.all(inset),
-              child: Column(
-                children: [
-                  // Search bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: cubit.setSearchQuery,
-                      decoration: InputDecoration(
-                        hintText: _tabController.index == 0
-                            ? 'Search students...'
-                            : 'Search groups...',
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: AppColors.secondaryText,
-                        ),
-                        suffixIcon: state.searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(
-                                  Icons.clear,
-                                  color: AppColors.secondaryText,
-                                ),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  cubit.setSearchQuery('');
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: AppColors.softPink,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: AppColors.softPink,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: AppColors.accentPink,
-                            width: 2,
-                          ),
+          return SafeArea(
+            minimum: EdgeInsets.all(inset),
+            child: Column(
+              children: [
+                // Search bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: cubit.setSearchQuery,
+                    decoration: InputDecoration(
+                      hintText: _tabController.index == 0
+                          ? 'Search students...'
+                          : 'Search groups...',
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.muted,
+                      ),
+                      suffixIcon: state.searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.muted,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                cubit.setSearchQuery('');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: AppColors.softPink),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: AppColors.softPink),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: AppColors.accentPink,
+                          width: 2,
                         ),
                       ),
                     ),
                   ),
+                ),
 
-                  // Sub-tabs
-                  TabBar(
+                // Sub-tabs
+                TabBar(
+                  controller: _tabController,
+                  labelColor: AppColors.accentPink,
+                  unselectedLabelColor: AppColors.muted,
+                  indicatorColor: AppColors.accentPink,
+                  tabs: const [
+                    Tab(text: 'Students'),
+                    Tab(text: 'Groups'),
+                  ],
+                ),
+
+                // Tab content
+                Expanded(
+                  child: TabBarView(
                     controller: _tabController,
-                    labelColor: AppColors.accentPink,
-                    unselectedLabelColor: AppColors.secondaryText,
-                    indicatorColor: AppColors.accentPink,
-                    tabs: const [
-                      Tab(text: 'Students'),
-                      Tab(text: 'Groups'),
+                    children: [
+                      _buildStudentsTab(state, cubit),
+                      _buildGroupsTab(state),
                     ],
                   ),
-
-                  // Tab content
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildStudentsTab(state, cubit),
-                        _buildGroupsTab(state),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),

@@ -26,25 +26,23 @@ class _PaymentsViewState extends State<PaymentsView> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(title: Text('${state.student.name} — Payments')),
-          body: GradientBackground(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                _StatsCard(state: state),
-                const SizedBox(height: 20),
-                TitledSection(
-                  title: 'Unpaid Lessons',
-                  child: StateTransitionWidget(
-                    state: state,
-                    child: Column(
-                      children: state.unpaidLessons
-                          .map((l) => CompactLessonTile(lesson: l))
-                          .toList(),
-                    ),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            children: [
+              _StatsCard(state: state),
+              const SizedBox(height: 20),
+              TitledSection(
+                title: 'Unpaid Lessons',
+                child: StateTransitionWidget(
+                  state: state,
+                  child: Column(
+                    children: state.unpaidLessons
+                        .map((l) => CompactLessonTile(lesson: l))
+                        .toList(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

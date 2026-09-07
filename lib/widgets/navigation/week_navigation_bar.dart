@@ -19,8 +19,7 @@ class WeekNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final from = timeRange.start;
-    // dateTo is exclusive (midnight after the last day), display dateTo - 1 day
-    final to = timeRange.end.subtract(const Duration(days: 1));
+    final to = timeRange.end;
     final label = '${from.toDateFormat()} – ${to.toDateFormat()}';
 
     return Row(
@@ -44,7 +43,7 @@ class WeekNavigationBar extends StatelessWidget {
                     primary: AppColors.accentPink,
                     onPrimary: Colors.white,
                     surface: Colors.white,
-                    onSurface: AppColors.mainText,
+                    onSurface: AppColors.text,
                   ),
                 ),
                 child: child!,
@@ -54,7 +53,7 @@ class WeekNavigationBar extends StatelessWidget {
               onRangeSelection!(range);
             }
           },
-          child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+          child: Text(label, style: Theme.of(context).textTheme.titleMedium),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),

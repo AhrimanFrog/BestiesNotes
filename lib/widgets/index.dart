@@ -8,7 +8,7 @@ export 'cards/card_container.dart';
 export 'cards/compact_lesson_tile.dart';
 export 'cards/lesson_card.dart';
 export 'cards/participant_card.dart';
-export 'cards/schedule_card.dart';
+export 'cards/schedule_section.dart';
 
 export 'dialogs/deletion_dialog.dart';
 export 'dialogs/teachable_selection_dialog.dart';
@@ -19,7 +19,6 @@ export 'fields/input_field.dart';
 export 'fields/rate_period_field.dart';
 export 'fields/scholars_selector.dart';
 
-export 'layout/gradient_background.dart';
 export 'layout/state_transition_widget.dart';
 export 'layout/titled_section.dart';
 

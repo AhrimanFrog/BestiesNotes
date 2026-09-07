@@ -8,11 +8,11 @@ import 'package:besties_notes/widgets/texts/day_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ScheduleCard extends StatelessWidget {
+class ScheduleSection extends StatelessWidget {
   final List<Lesson> lessons;
   final DateTime date;
 
-  const ScheduleCard({super.key, required this.date, required this.lessons});
+  const ScheduleSection({super.key, required this.date, required this.lessons});
 
   @override
   Widget build(BuildContext context) {
@@ -20,16 +20,19 @@ class ScheduleCard extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          DayTitle(weekDay: date.capsWeekday(), date: date.toDateFormat()),
-          const SizedBox(width: 20),
           Expanded(
             child: Column(
               spacing: 14,
               children: [
+                DayTitle(
+                  weekDay: date.capsWeekday(),
+                  date: date.toDateFormat(),
+                  lessonsNumber: lessons.length,
+                ),
                 for (final lesson in lessons)
                   LessonCard(
                     lesson: lesson,
-                    onClick: () {
+                    onTap: () {
                       showModalBottomSheet(
                         context: context,
                         builder: (_) => MultiBlocProvider(

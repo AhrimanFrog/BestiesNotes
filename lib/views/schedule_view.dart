@@ -1,3 +1,4 @@
+import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/lesson_form.dart';
@@ -12,12 +13,8 @@ class SchedulePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: context.read<LessonsCubit>().goToCurrentWeek,
-          ),
-        ],
+        title: Text("Schedule", style: Theme.of(context).textTheme.titleLarge),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(44),
           child: BlocBuilder<LessonsCubit, LessonsState>(
@@ -28,10 +25,8 @@ class SchedulePage extends StatelessWidget {
                   start: state.dateFrom,
                   end: state.dateTo,
                 ),
-                onRangeSelection: (range) => lessonCubit.fetchLessons(
-                  from: range.start,
-                  to: range.end.add(const Duration(days: 1)),
-                ),
+                onRangeSelection: (range) =>
+                    lessonCubit.fetchLessons(from: range.start, to: range.end),
                 onTapLeft: lessonCubit.goToPreviousWeek,
                 onTapRight: lessonCubit.goToNextWeek,
               );
@@ -52,11 +47,12 @@ class SchedulePage extends StatelessWidget {
             ],
             child: LessonForm(null),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.accent,
           useSafeArea: true,
           isScrollControlled: true,
         ),
-        child: const Icon(Icons.add), // Plus icon
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
       ),
     );
   }

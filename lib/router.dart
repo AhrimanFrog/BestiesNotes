@@ -1,14 +1,10 @@
-import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
-import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/cubits/payments/group_payments_cubit.dart';
-import 'package:besties_notes/cubits/payments/payments_cubit.dart';
-import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
-import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
+import 'package:besties_notes/cubits/index.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
 import 'package:besties_notes/views/group_payments_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
+import 'package:besties_notes/views/modals/lesson_form.dart';
 import 'package:besties_notes/views/payments_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
@@ -41,6 +37,27 @@ final router = GoRouter(
                     LessonsCubit(context.read<DataProvider>())..fetchLessons(),
                 child: SchedulePage(),
               ),
+              routes: [
+                GoRoute(
+                  name: 'lesson',
+                  path: 'lesson/:id',
+                  builder: (context, state) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) =>
+                            LessonsCubit(context.read<DataProvider>())
+                              ..fetchLessons(),
+                      ),
+                      BlocProvider(
+                        create: (_) => StudentsAndGroupsCubit(
+                          context.read<DataProvider>(),
+                        ),
+                      ),
+                    ],
+                    child: LessonForm(null),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

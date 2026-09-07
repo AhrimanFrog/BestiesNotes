@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget build(String weekDay, String date) => MaterialApp(
-    home: Scaffold(body: DayTitle(weekDay: weekDay, date: date)),
+    home: Scaffold(
+      body: DayTitle(weekDay: weekDay, date: date, lessonsNumber: 0),
+    ),
   );
 
   testWidgets('renders weekDay text', (tester) async {
