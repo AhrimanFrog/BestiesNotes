@@ -2,13 +2,16 @@ import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cub
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/data_provider.dart';
+import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDataProvider extends Mock implements DataProvider {}
 
-const _rate = Rate(rate: 10.0, period: RatePeriod.monthly);
+class MockPaymentProvider extends Mock implements PaymentProvider {}
+
+const _rate = Rate(rate: 10.0, period: RatePeriod.perLesson);
 
 Student makeStudent({int? id = 1, String name = 'Alice', Group? group}) =>
     Student(id: id, name: name, contact: '123', pricing: _rate, group: group);
@@ -18,15 +21,29 @@ Group makeGroup({int? id = 1, String name = 'Group A'}) =>
 
 void main() {
   late MockDataProvider provider;
-
-  setUpAll(() {
-    registerFallbackValue(makeStudent());
-    registerFallbackValue(makeGroup());
-  });
+  late MockPaymentProvider payments;
 
   setUp(() {
     provider = MockDataProvider();
+    payments = MockPaymentProvider();
+    when(() => payments.getDebtors()).thenAnswer((_) async => []);
   });
+
+  StudentsAndGroupsCubit build() => StudentsAndGroupsCubit(provider, payments);
+
+  void stubStudents(List<Student> students) => when(
+    () => provider.getStudents(
+      offset: any(named: 'offset'),
+      limit: any(named: 'limit'),
+    ),
+  ).thenAnswer((_) async => students);
+
+  void stubGroups(List<Group> groups) => when(
+    () => provider.getGroups(
+      offset: any(named: 'offset'),
+      limit: any(named: 'limit'),
+    ),
+  ).thenAnswer((_) async => groups);
 
   // ---------------------------------------------------------------------------
   // fetchStudents
@@ -34,15 +51,15 @@ void main() {
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
     'fetchStudents emits [loading, loaded] on success',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getStudents(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => [makeStudent()]);
-    },
+    build: build,
+    setUp: () => stubStudents([makeStudent()]),
     act: (c) => c.fetchStudents(),
     expect: () => [
-      isA<StudentsAndGroupsState>().having((s) => s.isLoading, 'isLoading', true),
+      isA<StudentsAndGroupsState>().having(
+        (s) => s.isLoading,
+        'isLoading',
+        true,
+      ),
       isA<StudentsAndGroupsState>()
           .having((s) => s.isLoading, 'isLoading', false)
           .having((s) => s.students.length, 'students.length', 1),
@@ -51,16 +68,12 @@ void main() {
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
     'fetchStudents replaces existing students instead of appending',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(students: [makeStudent(id: 1, name: 'Alice')]),
-    setUp: () {
-      when(
-        () => provider.getStudents(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => [
-        makeStudent(id: 1, name: 'Alice'),
-        makeStudent(id: 2, name: 'Bob'),
-      ]);
-    },
+    build: build,
+    seed: () => StudentsAndGroupsState(students: [makeStudent(id: 1)]),
+    setUp: () => stubStudents([
+      makeStudent(id: 1, name: 'Alice'),
+      makeStudent(id: 2, name: 'Bob'),
+    ]),
     act: (c) async {
       await c.fetchStudents();
       await c.fetchStudents();
@@ -69,13 +82,36 @@ void main() {
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchStudents emits error on failure',
-    build: () => StudentsAndGroupsCubit(provider),
+    'fetchStudents records what each student owes',
+    build: build,
     setUp: () {
-      when(
-        () => provider.getStudents(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenThrow(Exception('db error'));
+      final alice = makeStudent(id: 1);
+      stubStudents([alice, makeStudent(id: 2, name: 'Bob')]);
+      when(() => payments.getDebtors()).thenAnswer(
+        (_) async => [
+          Debtor(
+            debtor: alice,
+            unpaidLessonDates: [DateTime(2025, 1, 1), DateTime(2025, 1, 8)],
+          ),
+        ],
+      );
     },
+    act: (c) => c.fetchStudents(),
+    verify: (c) {
+      expect(c.state.owedBy(makeStudent(id: 1)), 20);
+      expect(c.state.owedBy(makeStudent(id: 2)), 0);
+    },
+  );
+
+  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
+    'fetchStudents emits error on failure',
+    build: build,
+    setUp: () => when(
+      () => provider.getStudents(
+        offset: any(named: 'offset'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenThrow(Exception('db error')),
     act: (c) => c.fetchStudents(),
     expect: () => [
       anything,
@@ -84,20 +120,20 @@ void main() {
   );
 
   // ---------------------------------------------------------------------------
-  // fetchGroups
+  // fetchGroups / refresh
   // ---------------------------------------------------------------------------
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
     'fetchGroups emits [loading, loaded] on success',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getGroups(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => [makeGroup()]);
-    },
+    build: build,
+    setUp: () => stubGroups([makeGroup()]),
     act: (c) => c.fetchGroups(),
     expect: () => [
-      isA<StudentsAndGroupsState>().having((s) => s.isLoading, 'isLoading', true),
+      isA<StudentsAndGroupsState>().having(
+        (s) => s.isLoading,
+        'isLoading',
+        true,
+      ),
       isA<StudentsAndGroupsState>()
           .having((s) => s.isLoading, 'isLoading', false)
           .having((s) => s.groups.length, 'groups.length', 1),
@@ -105,303 +141,62 @@ void main() {
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchGroups replaces existing groups instead of appending',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(groups: [makeGroup(id: 1)]),
-    setUp: () {
-      when(
-        () => provider.getGroups(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => [makeGroup(id: 1)]);
-    },
-    act: (c) => c.fetchGroups(),
-    verify: (c) => expect(c.state.groups.length, 1),
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchGroups emits error on failure',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getGroups(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenThrow(Exception('db error'));
-    },
-    act: (c) => c.fetchGroups(),
-    expect: () => [
-      anything,
-      isA<StudentsAndGroupsState>().having((s) => s.error, 'error', isNotNull),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // createOrUpdateStudent
-  // ---------------------------------------------------------------------------
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateStudent adds new student to state',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.createOrUpdateStudent(any()),
-      ).thenAnswer((_) async => 42);
-    },
-    act: (c) => c.createOrUpdateStudent(makeStudent(id: null)),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.students.length, 'students.length', 1)
-          .having((s) => s.students.first.id, 'students.first.id', 42),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateStudent updates existing student in state',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(students: [makeStudent(id: 1, name: 'Alice')]),
-    setUp: () {
-      when(
-        () => provider.createOrUpdateStudent(any()),
-      ).thenAnswer((_) async => 1);
-    },
-    act: (c) => c.createOrUpdateStudent(makeStudent(id: 1, name: 'Alice Updated')),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.students.length, 'students.length', 1)
-          .having((s) => s.students.first.name, 'name', 'Alice Updated'),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // deleteStudent
-  // ---------------------------------------------------------------------------
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'deleteStudent removes student from state',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(students: [makeStudent(id: 1), makeStudent(id: 2, name: 'Bob')]),
-    setUp: () {
-      when(() => provider.deleteStudent(any())).thenAnswer((_) async {});
-    },
-    act: (c) => c.deleteStudent(1),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.students.length, 'students.length', 1)
-          .having((s) => s.students.first.id, 'id', 2),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // createOrUpdateGroup
-  // ---------------------------------------------------------------------------
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateGroup adds new group to state',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(() => provider.createOrUpdateGroup(any())).thenAnswer((_) async => 5);
-      when(
-        () => provider.syncGroupMemberships(any(), any()),
-      ).thenAnswer((_) async {});
-    },
-    act: (c) => c.createOrUpdateGroup(makeGroup(id: null)),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.groups.length, 'groups.length', 1)
-          .having((s) => s.groups.first.id, 'id', 5),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateGroup updates existing group in state',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(groups: [makeGroup(id: 1, name: 'G1')]),
-    setUp: () {
-      when(() => provider.createOrUpdateGroup(any())).thenAnswer((_) async => 1);
-      when(
-        () => provider.syncGroupMemberships(any(), any()),
-      ).thenAnswer((_) async {});
-    },
-    act: (c) => c.createOrUpdateGroup(makeGroup(id: 1, name: 'G1 Updated')),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.groups.length, 'groups.length', 1)
-          .having((s) => s.groups.first.name, 'name', 'G1 Updated'),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateGroup reflects membership changes on in-state students',
-    build: () => StudentsAndGroupsCubit(provider),
+    'refresh drops a group filter whose group was deleted',
+    build: build,
     seed: () => StudentsAndGroupsState(
-      students: [makeStudent(id: 10, name: 'Alice')],
-      groups: [],
+      groups: [makeGroup(id: 1), makeGroup(id: 2)],
+      filterGroupId: 2,
     ),
     setUp: () {
-      when(() => provider.createOrUpdateGroup(any())).thenAnswer((_) async => 3);
-      when(
-        () => provider.syncGroupMemberships(any(), any()),
-      ).thenAnswer((_) async {});
+      stubGroups([makeGroup(id: 1)]);
+      stubStudents([]);
     },
-    act: (c) => c.createOrUpdateGroup(
-      Group(
-        id: null,
-        name: 'New Group',
-        pricing: _rate,
-        students: {makeStudent(id: 10)},
-      ),
-    ),
-    expect: () => [
-      isA<StudentsAndGroupsState>().having(
-        (s) => s.students.first.group?.id,
-        'students.first.group.id',
-        3,
-      ),
-    ],
+    act: (c) => c.refresh(),
+    verify: (c) => expect(c.state.filterGroupId, isNull),
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'createOrUpdateGroup clears group from students removed from membership',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () {
-      final group = makeGroup(id: 2);
-      return StudentsAndGroupsState(
-        students: [makeStudent(id: 10, group: group)],
-        groups: [group],
-      );
-    },
+    'refresh keeps a filter whose group still exists',
+    build: build,
+    seed: () =>
+        StudentsAndGroupsState(groups: [makeGroup(id: 1)], filterGroupId: 1),
     setUp: () {
-      when(() => provider.createOrUpdateGroup(any())).thenAnswer((_) async => 2);
-      when(
-        () => provider.syncGroupMemberships(any(), any()),
-      ).thenAnswer((_) async {});
+      stubGroups([makeGroup(id: 1)]);
+      stubStudents([]);
     },
-    // Update group with no students — student 10 should lose its group ref
-    act: (c) => c.createOrUpdateGroup(makeGroup(id: 2)),
-    expect: () => [
-      isA<StudentsAndGroupsState>().having(
-        (s) => s.students.first.group,
-        'students.first.group',
-        isNull,
-      ),
-    ],
+    act: (c) => c.refresh(),
+    verify: (c) => expect(c.state.filterGroupId, 1),
   );
 
   // ---------------------------------------------------------------------------
-  // deleteGroup
-  // ---------------------------------------------------------------------------
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'deleteGroup removes the group from state',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(
-      groups: [makeGroup(id: 1), makeGroup(id: 2, name: 'B')],
-    ),
-    setUp: () {
-      when(() => provider.deleteGroup(any())).thenAnswer((_) async {});
-    },
-    act: (c) => c.deleteGroup(1),
-    expect: () => [
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.groups.length, 'groups.length', 1)
-          .having((s) => s.groups.first.id, 'id', 2),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'deleteGroup clears group reference from affected students',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () {
-      final group = makeGroup(id: 1);
-      return StudentsAndGroupsState(
-        groups: [group],
-        students: [makeStudent(id: 10, group: group)],
-      );
-    },
-    setUp: () {
-      when(() => provider.deleteGroup(any())).thenAnswer((_) async {});
-    },
-    act: (c) => c.deleteGroup(1),
-    expect: () => [
-      isA<StudentsAndGroupsState>().having(
-        (s) => s.students.first.group,
-        'students.first.group',
-        isNull,
-      ),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'deleteGroup resets filterGroupId when it matches the deleted group',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => StudentsAndGroupsState(
-      groups: [makeGroup(id: 1)],
-      filterGroupId: 1,
-    ),
-    setUp: () {
-      when(() => provider.deleteGroup(any())).thenAnswer((_) async {});
-    },
-    act: (c) => c.deleteGroup(1),
-    expect: () => [
-      isA<StudentsAndGroupsState>().having(
-        (s) => s.filterGroupId,
-        'filterGroupId',
-        isNull,
-      ),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // fetchGroupMembers
-  // ---------------------------------------------------------------------------
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchGroupMembers updates groupMembers in state',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getGroupMembers(any()),
-      ).thenAnswer((_) async => [makeStudent(id: 10)]);
-    },
-    act: (c) => c.fetchGroupMembers(1),
-    expect: () => [
-      isA<StudentsAndGroupsState>().having(
-        (s) => s.groupMembers.length,
-        'groupMembers.length',
-        1,
-      ),
-    ],
-  );
-
-  // ---------------------------------------------------------------------------
-  // setSearchQuery / setFilterGroup
+  // Search & filter
   // ---------------------------------------------------------------------------
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
     'setSearchQuery updates searchQuery',
-    build: () => StudentsAndGroupsCubit(provider),
+    build: build,
     act: (c) => c.setSearchQuery('ali'),
     expect: () => [
-      isA<StudentsAndGroupsState>().having((s) => s.searchQuery, 'searchQuery', 'ali'),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'setFilterGroup updates filterGroupId',
-    build: () => StudentsAndGroupsCubit(provider),
-    act: (c) => c.setFilterGroup(3),
-    expect: () => [
       isA<StudentsAndGroupsState>().having(
-        (s) => s.filterGroupId,
-        'filterGroupId',
-        3,
+        (s) => s.searchQuery,
+        'searchQuery',
+        'ali',
       ),
     ],
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'setFilterGroup clears filterGroupId when null is passed',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => const StudentsAndGroupsState(filterGroupId: 3),
-    act: (c) => c.setFilterGroup(null),
+    'setFilterGroup sets and clears filterGroupId',
+    build: build,
+    act: (c) => c
+      ..setFilterGroup(1)
+      ..setFilterGroup(null),
     expect: () => [
+      isA<StudentsAndGroupsState>().having(
+        (s) => s.filterGroupId,
+        'filterGroupId',
+        1,
+      ),
       isA<StudentsAndGroupsState>().having(
         (s) => s.filterGroupId,
         'filterGroupId',
@@ -409,16 +204,15 @@ void main() {
       ),
     ],
   );
-
-  // ---------------------------------------------------------------------------
-  // StudentsAndGroupsState computed properties (pure, no mock needed)
-  // ---------------------------------------------------------------------------
 
   group('StudentsAndGroupsState.filteredStudents', () {
     final group = makeGroup(id: 1);
     final alice = makeStudent(id: 1, name: 'Alice', group: group);
     final bob = makeStudent(id: 2, name: 'Bob');
-    final state = StudentsAndGroupsState(students: [alice, bob], groups: [group]);
+    final state = StudentsAndGroupsState(
+      students: [alice, bob],
+      groups: [group],
+    );
 
     test('returns all students when query and filter are empty', () {
       expect(state.filteredStudents.length, 2);
@@ -426,37 +220,34 @@ void main() {
 
     test('filters by name (case-insensitive)', () {
       final filtered = state.copyWith(searchQuery: 'ali').filteredStudents;
-      expect(filtered.length, 1);
-      expect(filtered.first.name, 'Alice');
+      expect(filtered.single.name, 'Alice');
     });
 
     test('filters by contact', () {
-      final withContact = Student(
+      const withContact = Student(
         id: 3,
         name: 'Carol',
         contact: 'carol@example.com',
         pricing: _rate,
       );
       final s = state.copyWith(students: [...state.students, withContact]);
-      final filtered = s.copyWith(searchQuery: 'carol@').filteredStudents;
-      expect(filtered.length, 1);
+      expect(s.copyWith(searchQuery: 'carol@').filteredStudents.length, 1);
     });
 
     test('filters by group id', () {
-      final filtered = state
-          .copyWith(filterGroupId: () => 1)
-          .filteredStudents;
-      expect(filtered.length, 1);
-      expect(filtered.first.id, 1);
+      final filtered = state.copyWith(filterGroupId: () => 1).filteredStudents;
+      expect(filtered.single.id, 1);
     });
 
     test('applies both search and group filter together', () {
-      // alice is in group 1 and matches 'ali', bob is not in any group
       final filtered = state
           .copyWith(searchQuery: 'ali', filterGroupId: () => 1)
           .filteredStudents;
-      expect(filtered.length, 1);
-      expect(filtered.first.name, 'Alice');
+      expect(filtered.single.name, 'Alice');
+    });
+
+    test('memberCount counts students in the group', () {
+      expect(state.memberCount(group), 1);
     });
   });
 
@@ -471,8 +262,7 @@ void main() {
 
     test('filters by name (case-insensitive)', () {
       final filtered = state.copyWith(searchQuery: 'alph').filteredGroups;
-      expect(filtered.length, 1);
-      expect(filtered.first.name, 'Alpha');
+      expect(filtered.single.name, 'Alpha');
     });
   });
 }

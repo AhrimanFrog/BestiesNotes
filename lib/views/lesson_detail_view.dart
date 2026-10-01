@@ -3,6 +3,7 @@ import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cub
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -50,15 +51,6 @@ class _LessonDetailViewState extends State<LessonDetailView> {
     }
   }
 
-  void _leaveEditing() {
-    UnsavedChangesScope.leaveEditing(
-      context,
-      isDirty: _cubit.state.isDirty,
-      onSave: _save,
-      onDiscard: _discard,
-    );
-  }
-
   Future<void> _confirmCancel() async {
     final confirmed = await showConfirmDialog(
       context,
@@ -97,102 +89,42 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       },
       builder: (context, state) {
         final lesson = state.lesson;
-
-        if (!state.isEditing && lesson == null) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: state.error != null
-                ? EmptyState(
-                    icon: Icons.error_outline_rounded,
-                    title: 'Lesson not found',
-                    message: 'It may have been deleted.',
-                    actionLabel: 'Back',
-                    onAction: () => context.pop(),
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        return UnsavedChangesScope(
+        return DetailScaffold(
+          noun: 'lesson',
+          isLoaded: lesson != null,
+          loadFailed: state.error != null,
           isEditing: state.isEditing,
+          isNew: state.isNew,
           isDirty: state.isDirty,
+          isSaving: state.isSaving,
+          onEdit: _cubit.startEditing,
           onSave: _save,
           onDiscard: _discard,
-          child: state.isEditing
-              ? _buildEditMode(state)
-              : _buildViewMode(lesson!),
+          menuActions: [
+            if (lesson?.isCancelled ?? false)
+              DetailMenuAction(
+                icon: Icons.restore_rounded,
+                label: 'Restore lesson',
+                onSelected: () => _cubit.setCancelled(false),
+              )
+            else
+              DetailMenuAction(
+                icon: Icons.event_busy_outlined,
+                label: 'Cancel lesson',
+                onSelected: _confirmCancel,
+              ),
+            DetailMenuAction(
+              icon: Icons.delete_outline_rounded,
+              label: 'Delete lesson',
+              destructive: true,
+              onSelected: _confirmDelete,
+            ),
+          ],
+          viewBuilder: (_) => _LessonOverview(lesson: lesson!),
+          editBuilder: (_) =>
+              _LessonEditForm(formKey: _formKey, draft: state.draft!),
         );
       },
-    );
-  }
-
-  Widget _buildViewMode(Lesson lesson) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          PopupMenuButton<VoidCallback>(
-            tooltip: 'More',
-            onSelected: (action) => action(),
-            itemBuilder: (_) => [
-              if (lesson.isCancelled)
-                PopupMenuItem(
-                  value: () => _cubit.setCancelled(false),
-                  child: const ListTile(
-                    leading: Icon(Icons.restore_rounded),
-                    title: Text('Restore lesson'),
-                  ),
-                )
-              else
-                PopupMenuItem(
-                  value: _confirmCancel,
-                  child: const ListTile(
-                    leading: Icon(Icons.event_busy_outlined),
-                    title: Text('Cancel lesson'),
-                  ),
-                ),
-              PopupMenuItem(
-                value: _confirmDelete,
-                child: ListTile(
-                  leading: Icon(
-                    Icons.delete_outline_rounded,
-                    color: context.tokens.danger,
-                  ),
-                  title: Text(
-                    'Delete lesson',
-                    style: TextStyle(color: context.tokens.danger),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: _LessonOverview(lesson: lesson),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _cubit.startEditing,
-        icon: const Icon(Icons.edit_outlined),
-        label: const Text('Edit'),
-      ),
-    );
-  }
-
-  Widget _buildEditMode(LessonInfoState state) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
-          tooltip: 'Close',
-          onPressed: _leaveEditing,
-        ),
-        title: Text(state.isNew ? 'New lesson' : 'Edit lesson'),
-      ),
-      body: _LessonEditForm(formKey: _formKey, draft: state.draft!),
-      bottomNavigationBar: _SaveBar(
-        saveLabel: state.isNew ? 'Create lesson' : 'Save',
-        isSaving: state.isSaving,
-        onSave: _save,
-        onDiscard: _discard,
-      ),
     );
   }
 }
@@ -436,13 +368,25 @@ class _ParticipantRow extends StatelessWidget {
       child: Row(
         spacing: AppSpacing.md,
         children: [
-          UserAvatar(teachable: p.student, size: 36),
+          // Avatar + name open the student's profile.
           Expanded(
-            child: Text(
-              p.student.name,
-              style: context.textTheme.bodyLarge,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: InkWell(
+              borderRadius: AppRadius.mdAll,
+              onTap: () => context.openStudent(id),
+              child: Row(
+                spacing: AppSpacing.md,
+                children: [
+                  UserAvatar(teachable: p.student, size: 36),
+                  Expanded(
+                    child: Text(
+                      p.student.name,
+                      style: context.textTheme.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           // Tight together so names keep their room; each stays 48dp.
@@ -696,58 +640,6 @@ class _LessonEditFormState extends State<_LessonEditForm> {
             onChanged: (v) => _cubit.updateDraft(note: v),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SaveBar extends StatelessWidget {
-  final String saveLabel;
-  final bool isSaving;
-  final VoidCallback onSave;
-  final VoidCallback onDiscard;
-
-  const _SaveBar({
-    required this.saveLabel,
-    required this.isSaving,
-    required this.onSave,
-    required this.onDiscard,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.tokens.surface,
-        border: Border(top: BorderSide(color: context.tokens.divider)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            spacing: AppSpacing.md,
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: isSaving ? null : onDiscard,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: context.tokens.textMuted,
-                  ),
-                  child: const Text('Discard'),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: SubmitButton(
-                  label: saveLabel,
-                  isSubmitting: isSaving,
-                  onPressed: onSave,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

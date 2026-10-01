@@ -32,7 +32,7 @@ class BestiesApp extends StatelessWidget {
       // Not lazy, so the lists are ready before anything asks for them.
       child: BlocProvider(
         lazy: false,
-        create: (_) => StudentsAndGroupsCubit(db)
+        create: (_) => StudentsAndGroupsCubit(db, db)
           ..fetchStudents()
           ..fetchGroups(),
         child: MaterialApp.router(
@@ -52,7 +52,9 @@ void _registerFontLicenses() {
       ('Caprasimo', 'assets/fonts/OFL-Caprasimo.txt'),
       ('Karla', 'assets/fonts/OFL-Karla.txt'),
     ]) {
-      yield LicenseEntryWithLineBreaks([family], await rootBundle.loadString(file));
+      yield LicenseEntryWithLineBreaks([
+        family,
+      ], await rootBundle.loadString(file));
     }
   });
 }

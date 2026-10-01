@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/common.dart';
+import 'package:besties_notes/data/money.dart';
 import 'package:equatable/equatable.dart';
 
 class Rate extends Equatable {
@@ -26,12 +27,7 @@ class Rate extends Equatable {
   };
 
   @override
-  String toString() {
-    final amount = rate == rate.roundToDouble()
-        ? rate.toStringAsFixed(0)
-        : rate.toStringAsFixed(2);
-    return '$amount / $periodLabel';
-  }
+  String toString() => '${formatAmount(rate)} / $periodLabel';
 
   @override
   List<Object?> get props => [rate, period];

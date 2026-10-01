@@ -1,12 +1,9 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
-import 'package:besties_notes/views/modals/group_form.dart';
-import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class StudentsPage extends StatefulWidget {
   const StudentsPage({super.key});
@@ -39,37 +36,16 @@ class _StudentsPageState extends State<StudentsPage>
     super.dispose();
   }
 
-  Future<void> _confirmDeletion(BuildContext context, Teachable teachable) async {
-    final cubit = context.read<StudentsAndGroupsCubit>();
-    final confirmed = await showConfirmDialog(
-      context,
-      title: 'Delete ${teachable.name}?',
-      message: teachable is Group
-          ? 'Members stay, they just leave the group.'
-          : 'Their lesson history and payments will be removed too.',
-      confirmLabel: 'Delete',
-      destructive: true,
-    );
-    if (!confirmed) return;
-    if (teachable is Group) {
-      await cubit.deleteGroup(teachable.id!);
-    } else {
-      await cubit.deleteStudent(teachable.id!);
-    }
+  /// Detail screens can change anything listed here (including balances via
+  /// lessons), so refresh on return.
+  Future<void> _thenRefresh(Future<void> route) async {
+    await route;
+    if (mounted) await context.read<StudentsAndGroupsCubit>().refresh();
   }
 
-  void _showForm(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => BlocProvider.value(
-        value: context.read<StudentsAndGroupsCubit>(),
-        child: _onGroupsTab ? const GroupForm(null) : const StudentForm(null),
-      ),
-      useSafeArea: true,
-      isScrollControlled: true,
-      useRootNavigator: true,
-    );
-  }
+  void _showForm(BuildContext context) => _thenRefresh(
+    _onGroupsTab ? context.createGroup() : context.createStudent(),
+  );
 
   void _clearSearch(StudentsAndGroupsCubit cubit) {
     _searchController.clear();
@@ -140,6 +116,8 @@ class _StudentsPageState extends State<StudentsPage>
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Both tabs' FABs live on in the shell; default hero tags clash.
+        heroTag: null,
         onPressed: () => _showForm(context),
         icon: Icon(
           _onGroupsTab ? Icons.group_add_outlined : Icons.person_add_outlined,
@@ -155,7 +133,8 @@ class _StudentsPageState extends State<StudentsPage>
     required StudentsAndGroupsCubit cubit,
     required bool groups,
   }) {
-    final filtering = state.searchQuery.isNotEmpty || state.filterGroupId != null;
+    final filtering =
+        state.searchQuery.isNotEmpty || state.filterGroupId != null;
     if (filtering) {
       return EmptyState(
         icon: Icons.search_off_rounded,
@@ -249,11 +228,8 @@ class _StudentsPageState extends State<StudentsPage>
               for (final student in filtered)
                 ParticipantCard(
                   participant: student,
-                  onTap: () => context.pushNamed(
-                    'student',
-                    pathParameters: {'id': '${student.id!}'},
-                  ),
-                  onDelete: () => _confirmDeletion(context, student),
+                  owed: state.owedBy(student),
+                  onTap: () => _thenRefresh(context.openStudent(student.id!)),
                 ),
             ]),
           ),
@@ -277,11 +253,11 @@ class _StudentsPageState extends State<StudentsPage>
         for (final group in filtered)
           ParticipantCard(
             participant: group,
-            onTap: () => context.pushNamed(
-              'group',
-              pathParameters: {'id': '${group.id!}'},
-            ),
-            onDelete: () => _confirmDeletion(context, group),
+            subtitle: switch (state.memberCount(group)) {
+              1 => '1 member',
+              final n => '$n members',
+            },
+            onTap: () => _thenRefresh(context.openGroup(group.id!)),
           ),
       ]),
     );

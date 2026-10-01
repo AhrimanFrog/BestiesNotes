@@ -9,16 +9,16 @@ import 'package:besties_notes/views/payments_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:besties_notes/views/students_view.dart';
+import 'package:besties_notes/widgets/navigation/main_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:besties_notes/widgets/navigation/main_bottom_bar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Lesson screens are top-level so any tab can open them; they cover the
-/// bottom bar.
-extension LessonNavigation on BuildContext {
+/// Detail screens are top-level so any tab can open them; they cover the
+/// bottom bar. Each future completes when the screen closes.
+extension AppNavigation on BuildContext {
   Future<void> openLesson(int lessonId) => push('/lesson/$lessonId');
 
   Future<void> createLesson({DateTime? date}) => push(
@@ -29,14 +29,26 @@ extension LessonNavigation on BuildContext {
           : null,
     ).toString(),
   );
+
+  Future<void> openStudent(int id) => push('/student/$id');
+  Future<void> createStudent() => push('/student/new');
+  Future<void> openStudentPayments(int id) => push('/student/$id/payments');
+  Future<void> openStudentHistory(int id) => push('/student/$id/history');
+
+  Future<void> openGroup(int id) => push('/group/$id');
+  Future<void> createGroup() => push('/group/new');
+  Future<void> openGroupPayments(int id) => push('/group/$id/payments');
+  Future<void> openGroupHistory(int id) => push('/group/$id/history');
 }
+
+int _id(GoRouterState state) => int.parse(state.pathParameters['id']!);
 
 final router = GoRouter(
   initialLocation: '/schedule',
   navigatorKey: _rootNavigatorKey,
   routes: [
+    // ── Lessons ──────────────────────────────────────────────────────────────
     GoRoute(
-      name: 'new_lesson',
       path: '/lesson/new',
       builder: (context, state) => BlocProvider(
         create: (_) => LessonInfoCubit(context.read<DataProvider>())
@@ -47,14 +59,101 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-      name: 'lesson',
       path: '/lesson/:id',
       builder: (context, state) => BlocProvider(
-        create: (_) => LessonInfoCubit(context.read<DataProvider>())
-          ..load(int.parse(state.pathParameters['id']!)),
+        create: (_) =>
+            LessonInfoCubit(context.read<DataProvider>())..load(_id(state)),
         child: const LessonDetailView(),
       ),
     ),
+
+    // ── Students ─────────────────────────────────────────────────────────────
+    GoRoute(
+      path: '/student/new',
+      builder: (context, state) => BlocProvider(
+        create: (_) => StudentDetailsCubit(
+          context.read<DataProvider>(),
+          context.read<PaymentProvider>(),
+        )..startNew(),
+        child: const StudentDetailsView(),
+      ),
+    ),
+    GoRoute(
+      path: '/student/:id',
+      builder: (context, state) => BlocProvider(
+        create: (_) => StudentDetailsCubit(
+          context.read<DataProvider>(),
+          context.read<PaymentProvider>(),
+        )..load(_id(state)),
+        child: const StudentDetailsView(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'history',
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                LessonsCubit(context.read<DataProvider>())
+                  ..fetchLessonsByStudentId(_id(state)),
+            child: const LessonsHistoryView(),
+          ),
+        ),
+        GoRoute(
+          path: 'payments',
+          builder: (context, state) => BlocProvider(
+            create: (_) => PaymentsCubit(
+              context.read<PaymentProvider>(),
+              context.read<DataProvider>(),
+            ),
+            child: PaymentsView(studentId: _id(state)),
+          ),
+        ),
+      ],
+    ),
+
+    // ── Groups ───────────────────────────────────────────────────────────────
+    GoRoute(
+      path: '/group/new',
+      builder: (context, state) => BlocProvider(
+        create: (_) => GroupDetailsCubit(
+          context.read<DataProvider>(),
+          context.read<PaymentProvider>(),
+        )..startNew(),
+        child: const GroupDetailsView(),
+      ),
+    ),
+    GoRoute(
+      path: '/group/:id',
+      builder: (context, state) => BlocProvider(
+        create: (_) => GroupDetailsCubit(
+          context.read<DataProvider>(),
+          context.read<PaymentProvider>(),
+        )..load(_id(state)),
+        child: const GroupDetailsView(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'history',
+          builder: (context, state) => BlocProvider(
+            create: (_) =>
+                LessonsCubit(context.read<DataProvider>())
+                  ..fetchLessonsByGroupId(_id(state)),
+            child: const LessonsHistoryView(),
+          ),
+        ),
+        GoRoute(
+          path: 'payments',
+          builder: (context, state) => BlocProvider(
+            create: (_) => GroupPaymentsCubit(
+              context.read<PaymentProvider>(),
+              context.read<DataProvider>(),
+            ),
+            child: GroupPaymentsView(groupId: _id(state)),
+          ),
+        ),
+      ],
+    ),
+
+    // ── Tabs ─────────────────────────────────────────────────────────────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           MainBottomBar(navigationShell: navigationShell),
@@ -62,7 +161,6 @@ final router = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              name: 'schedule',
               path: '/schedule',
               builder: (context, state) => BlocProvider(
                 create: (_) =>
@@ -75,87 +173,8 @@ final router = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              name: 'scholars',
               path: '/scholars',
-              builder: (context, state) => StudentsPage(),
-              routes: [
-                GoRoute(
-                  name: 'student',
-                  path: 'student/:id',
-                  builder: (context, state) => BlocProvider(
-                    create: (_) =>
-                        StudentDetailsCubit(context.read<DataProvider>()),
-                    child: StudentDetailsView(
-                      studentId: int.parse(state.pathParameters['id']!),
-                    ),
-                  ),
-                  routes: [
-                    GoRoute(
-                      name: 'stud_lessons_history',
-                      path: 'lessons_history',
-                      builder: (context, state) => BlocProvider(
-                        create: (_) =>
-                            LessonsCubit(context.read<DataProvider>())
-                              ..fetchLessonsByStudentId(
-                                int.parse(state.pathParameters['id']!),
-                              ),
-                        child: LessonsHistoryView(),
-                      ),
-                    ),
-                    GoRoute(
-                      name: 'stud_payments',
-                      path: 'payments',
-                      builder: (context, state) => BlocProvider(
-                        create: (_) => PaymentsCubit(
-                          context.read<PaymentProvider>(),
-                          context.read<DataProvider>(),
-                        ),
-                        child: PaymentsView(
-                          studentId: int.parse(state.pathParameters['id']!),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                GoRoute(
-                  name: 'group',
-                  path: 'group/:id',
-                  builder: (context, state) => BlocProvider(
-                    create: (_) =>
-                        GroupDetailsCubit(context.read<DataProvider>()),
-                    child: GroupDetailsView(
-                      groupId: int.parse(state.pathParameters['id']!),
-                    ),
-                  ),
-                  routes: [
-                    GoRoute(
-                      name: 'group_lessons_history',
-                      path: 'lessons_history',
-                      builder: (context, state) => BlocProvider(
-                        create: (_) =>
-                            LessonsCubit(context.read<DataProvider>())
-                              ..fetchLessonsByGroupId(
-                                int.parse(state.pathParameters['id']!),
-                              ),
-                        child: LessonsHistoryView(),
-                      ),
-                    ),
-                    GoRoute(
-                      name: 'group_payments',
-                      path: 'payments',
-                      builder: (context, state) => BlocProvider(
-                        create: (_) => GroupPaymentsCubit(
-                          context.read<PaymentProvider>(),
-                          context.read<DataProvider>(),
-                        ),
-                        child: GroupPaymentsView(
-                          groupId: int.parse(state.pathParameters['id']!),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              builder: (context, state) => const StudentsPage(),
             ),
           ],
         ),

@@ -2,7 +2,7 @@ export 'avatar/avatar_stack.dart';
 export 'avatar/initials_circle.dart';
 export 'avatar/user_avatar.dart';
 
-export 'buttons/delete_item_icon.dart';
+export 'buttons/save_bar.dart';
 export 'buttons/submit_button.dart';
 
 export 'calendar/month_grid.dart';
@@ -24,6 +24,7 @@ export 'fields/input_field.dart';
 export 'fields/rate_period_field.dart';
 export 'fields/scholars_selector.dart';
 
+export 'layout/detail_scaffold.dart';
 export 'layout/empty_state.dart';
 export 'layout/section.dart';
 export 'layout/state_transition_widget.dart';
@@ -33,7 +34,6 @@ export 'navigation/main_bottom_bar.dart';
 export 'navigation/navigation_chip.dart';
 export 'navigation/period_navigator.dart';
 
-export 'rows/modal_header_row.dart';
 export 'rows/stat_row.dart';
 
 export 'sections/recent_lessons_section.dart';

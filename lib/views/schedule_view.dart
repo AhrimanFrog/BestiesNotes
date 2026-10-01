@@ -118,6 +118,8 @@ class SchedulePage extends StatelessWidget {
             ),
           ),
           floatingActionButton: FloatingActionButton.extended(
+            // Both tabs' FABs live on in the shell; default hero tags clash.
+            heroTag: null,
             onPressed: () => _create(context, state.defaultNewLessonDay),
             icon: const Icon(Icons.add_rounded),
             label: const Text('Lesson'),

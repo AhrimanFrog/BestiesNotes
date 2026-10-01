@@ -9,12 +9,14 @@ class RatePeriodField extends StatelessWidget {
   final TextEditingController rateController;
   final RatePeriod selectedPeriod;
   final ValueChanged<RatePeriod> onPeriodChanged;
+  final ValueChanged<String>? onRateChanged;
 
   const RatePeriodField({
     super.key,
     required this.rateController,
     required this.selectedPeriod,
     required this.onPeriodChanged,
+    this.onRateChanged,
   });
 
   @override
@@ -26,6 +28,7 @@ class RatePeriodField extends StatelessWidget {
         Expanded(
           child: InputField(
             rateController,
+            onChanged: onRateChanged,
             label: 'Rate',
             hint: '420',
             icon: const Icon(Icons.attach_money),
@@ -48,6 +51,10 @@ class RatePeriodField extends StatelessWidget {
         Flexible(
           child: DropdownButtonFormField<RatePeriod>(
             initialValue: selectedPeriod,
+            // Fit the slot (ellipsizing) instead of overflowing it.
+            isExpanded: true,
+            // Dropdowns default to titleMedium, the display font here.
+            style: context.textTheme.bodyLarge,
             decoration: const InputDecoration(labelText: 'Period'),
             items: const [
               DropdownMenuItem(

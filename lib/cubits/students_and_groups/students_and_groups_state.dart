@@ -3,7 +3,10 @@ part of 'students_and_groups_cubit.dart';
 class StudentsAndGroupsState extends Equatable implements CubitState {
   final List<Student> students;
   final List<Group> groups;
-  final Set<Student> groupMembers;
+
+  /// Amount owed per student id; students who owe nothing are absent.
+  final Map<int, double> owed;
+
   final String searchQuery;
   final int? filterGroupId;
   final int activeDataIndex;
@@ -15,13 +18,18 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   const StudentsAndGroupsState({
     this.students = const [],
     this.groups = const [],
-    this.groupMembers = const {},
+    this.owed = const {},
     this.searchQuery = '',
     this.filterGroupId,
     this.isLoading = false,
     this.error,
     this.activeDataIndex = 0,
   });
+
+  double owedBy(Student student) => owed[student.id] ?? 0;
+
+  int memberCount(Group group) =>
+      students.where((s) => s.group?.id == group.id).length;
 
   List<Student> get filteredStudents {
     var result = students;
@@ -55,7 +63,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   StudentsAndGroupsState copyWith({
     List<Student>? students,
     List<Group>? groups,
-    Set<Student>? groupMembers,
+    Map<int, double>? owed,
     String? searchQuery,
     int? Function()? filterGroupId,
     bool? isLoading,
@@ -65,8 +73,8 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     return StudentsAndGroupsState(
       students: students ?? this.students,
       groups: groups ?? this.groups,
+      owed: owed ?? this.owed,
       searchQuery: searchQuery ?? this.searchQuery,
-      groupMembers: groupMembers ?? this.groupMembers,
       filterGroupId: filterGroupId != null
           ? filterGroupId()
           : this.filterGroupId,
@@ -80,7 +88,7 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   List<Object?> get props => [
     students,
     groups,
-    groupMembers,
+    owed,
     searchQuery,
     filterGroupId,
     isLoading,
