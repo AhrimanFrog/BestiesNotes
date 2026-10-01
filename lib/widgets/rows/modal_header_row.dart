@@ -13,9 +13,7 @@ class ModalHeaderRow extends StatelessWidget {
       spacing: AppSpacing.md,
       children: [
         Icon(icon, size: 26, color: context.tokens.accent),
-        Expanded(
-          child: Text(title, style: context.textTheme.headlineSmall),
-        ),
+        Expanded(child: Text(title, style: context.textTheme.headlineSmall)),
         IconButton.filledTonal(
           icon: const Icon(Icons.close_rounded),
           tooltip: 'Close',

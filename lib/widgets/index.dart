@@ -11,7 +11,7 @@ export 'cards/participant_card.dart';
 export 'cards/schedule_section.dart';
 
 export 'dialogs/confirm_dialog.dart';
-export 'dialogs/teachable_selection_dialog.dart';
+export 'dialogs/subject_picker_sheet.dart';
 
 export 'feedback/snackbars.dart';
 
@@ -24,6 +24,7 @@ export 'fields/scholars_selector.dart';
 export 'layout/empty_state.dart';
 export 'layout/section.dart';
 export 'layout/state_transition_widget.dart';
+export 'layout/unsaved_changes_scope.dart';
 
 export 'navigation/main_bottom_bar.dart';
 export 'navigation/navigation_chip.dart';

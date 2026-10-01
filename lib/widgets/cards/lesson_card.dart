@@ -44,7 +44,7 @@ class LessonCard extends StatelessWidget {
               StatusBadge(label: lesson.uiLabel, tone: tone),
               const Spacer(),
               Text(
-                '${lesson.start.toHoursAndMinsFormat()} · ${lesson.duration.inMinutes} min',
+                '${lesson.start.formatTime(context)} · ${lesson.duration.inMinutes} min',
                 style: context.textTheme.labelMedium,
                 maxLines: 1,
               ),

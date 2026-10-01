@@ -43,6 +43,16 @@ abstract class DataProvider {
 
   Future<void> updateCancellation(int lessonId, bool isCancelled);
 
+  Future<void> deleteLesson(int lessonId);
+
+  /// Sets the given statuses for every participant of the lesson.
+  Future<void> updateAllParticipantStatuses(
+    int lessonId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  });
+
   Future<void> updateParticipantStatus(
     int lessonId,
     int studentId, {

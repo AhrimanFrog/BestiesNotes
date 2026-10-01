@@ -1,4 +1,20 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 extension DatetimeExt on DateTime {
+  /// Clock time in the device's 12/24-hour preference.
+  String formatTime(BuildContext context) =>
+      MaterialLocalizations.of(context).formatTimeOfDay(
+        TimeOfDay.fromDateTime(this),
+        alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+      );
+
+  /// "Thu, 1 Oct 2026".
+  String toLongDateFormat() => DateFormat('EEE, d MMM y').format(this);
+
+  /// "1 Oct 2026" — fits half-width fields.
+  String toMediumDateFormat() => DateFormat('d MMM y').format(this);
+
   DateTime get dateOnly => DateTime(year, month, day);
 
   /// Calendar-day arithmetic. Unlike `add(Duration(days: n))` this doesn't
@@ -9,12 +25,6 @@ extension DatetimeExt on DateTime {
   /// [weekStart] is a [DateTime.monday]..[DateTime.sunday] constant.
   DateTime startOfWeek(int weekStart) =>
       dateOnly.addDays(-((weekday - weekStart) % 7));
-
-  String toHoursAndMinsFormat() {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '$h:$m';
-  }
 
   String toDateFormat() {
     final d = day.toString().padLeft(2, '0');

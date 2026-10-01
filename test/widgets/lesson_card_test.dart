@@ -33,7 +33,20 @@ void main() {
     testWidgets('shows topic, time and duration', (tester) async {
       await tester.pumpThemed(LessonCard(lesson: makeLesson(), onTap: () {}));
       expect(find.text('Present Simple'), findsOneWidget);
-      expect(find.text('10:00 · 45 min'), findsOneWidget);
+      expect(find.text('10:00 AM · 45 min'), findsOneWidget);
+    });
+
+    testWidgets('follows the device 24-hour setting', (tester) async {
+      await tester.pumpThemed(
+        MediaQuery(
+          data: const MediaQueryData(alwaysUse24HourFormat: true),
+          child: LessonCard(
+            lesson: makeLesson(start: DateTime(2025, 1, 15, 14, 30)),
+            onTap: () {},
+          ),
+        ),
+      );
+      expect(find.text('14:30 · 45 min'), findsOneWidget);
     });
 
     testWidgets('shows a single participant by name', (tester) async {

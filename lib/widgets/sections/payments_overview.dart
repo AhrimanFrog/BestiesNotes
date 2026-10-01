@@ -12,6 +12,7 @@ class PaymentsOverview extends StatelessWidget {
   final int paidThisMonth;
   final int totalThisMonth;
   final VoidCallback? onRetry;
+  final ValueChanged<Lesson>? onLessonTap;
 
   /// Extra stat rows shown under the main ones (e.g. a group's member count).
   final List<Widget> extraStats;
@@ -24,6 +25,7 @@ class PaymentsOverview extends StatelessWidget {
     required this.paidThisMonth,
     required this.totalThisMonth,
     this.onRetry,
+    this.onLessonTap,
     this.extraStats = const [],
   });
 
@@ -85,7 +87,12 @@ class PaymentsOverview extends StatelessWidget {
                     spacing: AppSpacing.sm,
                     children: [
                       for (final lesson in unpaidLessons)
-                        CompactLessonTile(lesson: lesson),
+                        CompactLessonTile(
+                          lesson: lesson,
+                          onTap: onLessonTap != null
+                              ? () => onLessonTap!(lesson)
+                              : null,
+                        ),
                     ],
                   ),
           ),

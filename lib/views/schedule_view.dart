@@ -1,6 +1,5 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/views/modals/lesson_form.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,20 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SchedulePage extends StatelessWidget {
   const SchedulePage({super.key});
 
-  void _createLesson(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<LessonsCubit>()),
-          BlocProvider.value(value: context.read<StudentsAndGroupsCubit>()),
-        ],
-        child: LessonForm(null),
-      ),
-      useSafeArea: true,
-      isScrollControlled: true,
-      useRootNavigator: true,
-    );
+  /// Lesson screens can change anything shown here, so refresh on return.
+  Future<void> _thenRefresh(BuildContext context, Future<void> route) async {
+    await route;
+    if (context.mounted) await context.read<LessonsCubit>().refresh();
   }
 
   @override
@@ -51,17 +40,19 @@ class SchedulePage extends StatelessWidget {
       body: BlocBuilder<LessonsCubit, LessonsState>(
         builder: (_, state) => LessonsListSection(
           state: state,
+          onLessonTap: (lesson) =>
+              _thenRefresh(context, context.openLesson(lesson.id!)),
           empty: EmptyState(
             icon: Icons.event_available_outlined,
             title: 'A free week',
             message: 'No lessons planned for these dates.',
             actionLabel: 'Plan a lesson',
-            onAction: () => _createLesson(context),
+            onAction: () => _thenRefresh(context, context.createLesson()),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _createLesson(context),
+        onPressed: () => _thenRefresh(context, context.createLesson()),
         icon: const Icon(Icons.add_rounded),
         label: const Text('Lesson'),
       ),

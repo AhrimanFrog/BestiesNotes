@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/payments/group_payments_cubit.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/rows/stat_row.dart';
 import 'package:besties_notes/widgets/sections/payments_overview.dart';
@@ -35,6 +36,12 @@ class _GroupPaymentsViewState extends State<GroupPaymentsView> {
             totalThisMonth: state.totalThisMonth,
             onRetry: () =>
                 context.read<GroupPaymentsCubit>().load(widget.groupId),
+            onLessonTap: (lesson) async {
+              await context.openLesson(lesson.id!);
+              if (context.mounted) {
+                context.read<GroupPaymentsCubit>().load(widget.groupId);
+              }
+            },
             extraStats: [
               StatRow(
                 icon: Icons.group_outlined,

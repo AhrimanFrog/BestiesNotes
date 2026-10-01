@@ -70,13 +70,11 @@ class _GroupFormState extends State<GroupForm> {
       return;
     }
 
-    final selected = await showDialog<List<Teachable>>(
-      context: context,
-      builder: (context) => TeachableSelectionDialog(
-        title: 'Select Students',
-        available: allStudents,
-        selected: _selectedStudents,
-      ),
+    final selected = await showSubjectPicker(
+      context,
+      title: 'Members',
+      available: allStudents,
+      selected: _selectedStudents,
     );
 
     if (selected != null) {

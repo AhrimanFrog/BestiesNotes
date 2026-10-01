@@ -1,6 +1,7 @@
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -79,6 +80,12 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
                     'group_lessons_history',
                     pathParameters: {'id': '${widget.groupId}'},
                   ),
+                  onLessonTap: (lesson) async {
+                    await context.openLesson(lesson.id!);
+                    if (context.mounted) {
+                      context.read<GroupDetailsCubit>().load(widget.groupId);
+                    }
+                  },
                 ),
               ],
             ),

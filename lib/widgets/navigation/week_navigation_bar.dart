@@ -34,23 +34,32 @@ class WeekNavigationBar extends StatelessWidget {
           tooltip: 'Previous week',
           onPressed: onTapLeft,
         ),
-        TextButton(
-          onPressed: () async {
-            final range = await showDateRangePicker(
-              context: context,
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-              initialDateRange: DateTimeRange(start: from, end: lastDay),
-            );
-            if (range != null && onRangeSelection != null) {
-              // The picker's end is inclusive; the app's ranges are not.
-              onRangeSelection!(
-                DateTimeRange(start: range.start, end: range.end.addDays(1)),
-              );
-            }
-          },
-          style: TextButton.styleFrom(foregroundColor: context.tokens.text),
-          child: Text(label, style: context.textTheme.titleSmall),
+        Flexible(
+          // Shrinks instead of overflowing with large system text.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: TextButton(
+              onPressed: () async {
+                final range = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  initialDateRange: DateTimeRange(start: from, end: lastDay),
+                );
+                if (range != null && onRangeSelection != null) {
+                  // The picker's end is inclusive; the app's ranges are not.
+                  onRangeSelection!(
+                    DateTimeRange(
+                      start: range.start,
+                      end: range.end.addDays(1),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(foregroundColor: context.tokens.text),
+              child: Text(label, style: context.textTheme.titleSmall),
+            ),
+          ),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),

@@ -49,11 +49,7 @@ class AppCard extends StatelessWidget {
         color: color ?? tokens.surface,
         borderRadius: AppRadius.xlAll,
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: content,
-        ),
+        child: InkWell(onTap: onTap, onLongPress: onLongPress, child: content),
       ),
     );
   }

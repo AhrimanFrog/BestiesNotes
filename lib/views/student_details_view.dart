@@ -1,6 +1,7 @@
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -78,6 +79,14 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
                     'stud_lessons_history',
                     pathParameters: {'id': '${widget.studentId}'},
                   ),
+                  onLessonTap: (lesson) async {
+                    await context.openLesson(lesson.id!);
+                    if (context.mounted) {
+                      context.read<StudentDetailsCubit>().load(
+                        widget.studentId,
+                      );
+                    }
+                  },
                 ),
               ],
             ),

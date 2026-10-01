@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/cards/schedule_section.dart';
 import 'package:besties_notes/widgets/layout/empty_state.dart';
@@ -7,11 +8,17 @@ import 'package:flutter/material.dart';
 
 class LessonsListSection extends StatelessWidget {
   final LessonsState state;
+  final ValueChanged<Lesson> onLessonTap;
 
   /// Shown when there are no lessons; defaults to a generic message.
   final Widget? empty;
 
-  const LessonsListSection({super.key, required this.state, this.empty});
+  const LessonsListSection({
+    super.key,
+    required this.state,
+    required this.onLessonTap,
+    this.empty,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +35,11 @@ class LessonsListSection extends StatelessWidget {
         padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 96),
         children: [
           for (final entry in state.getLessonsByDate().entries)
-            ScheduleSection(date: entry.key, lessons: entry.value),
+            ScheduleSection(
+              date: entry.key,
+              lessons: entry.value,
+              onLessonTap: onLessonTap,
+            ),
         ],
       ),
     );

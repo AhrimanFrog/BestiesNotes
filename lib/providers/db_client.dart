@@ -125,6 +125,27 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     );
   }
 
+  /// Participants go with it (cascade).
+  @override
+  Future<void> deleteLesson(int lessonId) {
+    return (delete(dbLessons)..where((l) => l.id.equals(lessonId))).go();
+  }
+
+  @override
+  Future<void> updateAllParticipantStatuses(
+    int lessonId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  }) {
+    return _updateStatuses(
+      (p) => p.lessonId.equals(lessonId),
+      attended: attended,
+      isPaid: isPaid,
+      homeworkDone: homeworkDone,
+    );
+  }
+
   @override
   Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects) {
     return transaction(() async {

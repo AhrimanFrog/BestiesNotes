@@ -61,7 +61,11 @@ class ParticipantCard extends StatelessWidget {
           ),
         ),
         if (onDelete != null)
-          Positioned(top: 0, right: 0, child: DeleteItemIcon(onDelete: onDelete)),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: DeleteItemIcon(onDelete: onDelete),
+          ),
       ],
     );
   }

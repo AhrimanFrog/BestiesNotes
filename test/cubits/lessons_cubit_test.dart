@@ -178,48 +178,63 @@ void main() {
   );
 
   // ---------------------------------------------------------------------------
-  // createOrUpdateLesson
+  // refresh
   // ---------------------------------------------------------------------------
 
   blocTest<LessonsCubit, LessonsState>(
-    'createOrUpdateLesson saves lesson and refetches',
+    'refresh re-runs the range query for the currently shown week',
     build: () => LessonsCubit(provider),
     setUp: () {
-      when(
-        () => provider.createOrUpdateLesson(any()),
-      ).thenAnswer((_) async => 1);
-      when(
-        () => provider.syncLessonMembership(any(), any()),
-      ).thenAnswer((_) async {});
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => [makeLesson()]);
-    },
-    act: (c) => c.createOrUpdateLesson(makeLesson(), const []),
-    verify: (_) {
-      verify(() => provider.createOrUpdateLesson(any())).called(1);
-      verify(() => provider.syncLessonMembership(any(), any())).called(1);
-      verify(() => provider.getLessonsForRange(any(), any())).called(1);
-    },
-  );
-
-  // ---------------------------------------------------------------------------
-  // cancelLesson
-  // ---------------------------------------------------------------------------
-
-  blocTest<LessonsCubit, LessonsState>(
-    'cancelLesson cancels lesson and refetches',
-    build: () => LessonsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.updateCancellation(any(), any()),
-      ).thenAnswer((_) async {});
       when(
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
-    act: (c) => c.cancelLesson(1),
-    verify: (_) => verify(() => provider.updateCancellation(1, true)).called(1),
+    act: (c) async {
+      await c.fetchLessons();
+      await c.goToNextWeek();
+      await c.refresh();
+    },
+    verify: (c) {
+      final calls = verify(
+        () => provider.getLessonsForRange(captureAny(), any()),
+      ).captured;
+      expect(calls, hasLength(3));
+      // The refresh used the week navigated to, not the original one.
+      expect(calls.last, calls[1]);
+      expect(c.state.dateFrom, calls.last);
+    },
+  );
+
+  blocTest<LessonsCubit, LessonsState>(
+    'refresh re-runs a per-student query',
+    build: () => LessonsCubit(provider),
+    setUp: () {
+      when(
+        () => provider.getLessonsForStudent(
+          any(),
+          offset: any(named: 'offset'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => [makeLesson()]);
+    },
+    act: (c) async {
+      await c.fetchLessonsByStudentId(7);
+      await c.refresh();
+    },
+    verify: (_) => verify(
+      () => provider.getLessonsForStudent(
+        7,
+        offset: any(named: 'offset'),
+        limit: any(named: 'limit'),
+      ),
+    ).called(2),
+  );
+
+  blocTest<LessonsCubit, LessonsState>(
+    'refresh before any query does nothing',
+    build: () => LessonsCubit(provider),
+    act: (c) => c.refresh(),
+    expect: () => [],
   );
 
   // ---------------------------------------------------------------------------

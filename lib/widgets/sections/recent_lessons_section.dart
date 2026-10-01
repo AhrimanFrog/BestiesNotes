@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 class RecentLessonsSection extends StatelessWidget {
   final List<Lesson> lessons;
   final VoidCallback? onSeeAll;
+  final ValueChanged<Lesson>? onLessonTap;
 
   const RecentLessonsSection({
     super.key,
     this.lessons = const [],
     this.onSeeAll,
+    this.onLessonTap,
   });
 
   @override
@@ -29,7 +31,12 @@ class RecentLessonsSection extends StatelessWidget {
               spacing: AppSpacing.sm,
               children: [
                 for (final lesson in lessons.take(3))
-                  CompactLessonTile(lesson: lesson),
+                  CompactLessonTile(
+                    lesson: lesson,
+                    onTap: onLessonTap != null
+                        ? () => onLessonTap!(lesson)
+                        : null,
+                  ),
               ],
             ),
     );

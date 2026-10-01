@@ -11,6 +11,7 @@ class InputField extends StatelessWidget {
   final TextInputType? textInputType;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? formatters;
+  final ValueChanged<String>? onChanged;
 
   const InputField(
     this._controller, {
@@ -22,6 +23,7 @@ class InputField extends StatelessWidget {
     this.textInputType,
     this.formatters,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -38,6 +40,7 @@ class InputField extends StatelessWidget {
       maxLines: maxLines ?? 1,
       validator: validator ?? validateNotEmpty,
       inputFormatters: formatters,
+      onChanged: onChanged,
       textCapitalization: textInputType == null
           ? TextCapitalization.sentences
           : TextCapitalization.none,

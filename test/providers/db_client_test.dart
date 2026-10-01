@@ -663,6 +663,37 @@ void main() {
       expect(lesson.participants.map((p) => p.student.id), [b]);
     });
 
+    test('deleteLesson removes the lesson and its participants', () async {
+      final id = await db.createOrUpdateStudent(makeStudent());
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      await db.syncLessonMembership(lessonId, [makeStudent(id: id)]);
+
+      await db.deleteLesson(lessonId);
+      expect(() => db.getLesson(lessonId), throwsStateError);
+      expect(await db.select(db.dbLessonParticipants).get(), isEmpty);
+    });
+
+    test('updateAllParticipantStatuses touches only that lesson', () async {
+      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+      final l1 = await db.createOrUpdateLesson(makeLesson());
+      final l2 = await db.createOrUpdateLesson(makeLesson());
+      for (final l in [l1, l2]) {
+        await db.syncLessonMembership(l, [
+          makeStudent(id: a),
+          makeStudent(id: b),
+        ]);
+      }
+
+      await db.updateAllParticipantStatuses(l1, isPaid: true);
+
+      final first = await db.getLesson(l1);
+      final second = await db.getLesson(l2);
+      expect(first.participants.every((p) => p.isPaid), isTrue);
+      expect(first.participants.every((p) => !p.attended), isTrue);
+      expect(second.participants.every((p) => !p.isPaid), isTrue);
+    });
+
     test('deleting a group detaches its members', () async {
       final groupId = await db.createOrUpdateGroup(makeGroup());
       final id = await db.createOrUpdateStudent(makeStudent());

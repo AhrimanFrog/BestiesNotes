@@ -1,3 +1,4 @@
+import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
@@ -12,21 +13,36 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   _registerFontLicenses();
 
-  final db = DbClient();
+  runApp(BestiesApp(db: DbClient()));
+}
 
-  runApp(
-    MultiRepositoryProvider(
+class BestiesApp extends StatelessWidget {
+  final DbClient db;
+
+  const BestiesApp({super.key, required this.db});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<DataProvider>(create: (_) => db),
-        RepositoryProvider<PaymentProvider>(create: (_) => db),
+        RepositoryProvider<DataProvider>.value(value: db),
+        RepositoryProvider<PaymentProvider>.value(value: db),
       ],
-      child: MaterialApp.router(
-        title: 'Besties Notes',
-        theme: buildLightTheme(),
-        routerConfig: router,
+      // App-wide: the students tab and every lesson's subject picker use it.
+      // Not lazy, so the lists are ready before anything asks for them.
+      child: BlocProvider(
+        lazy: false,
+        create: (_) => StudentsAndGroupsCubit(db)
+          ..fetchStudents()
+          ..fetchGroups(),
+        child: MaterialApp.router(
+          title: 'Besties Notes',
+          theme: buildLightTheme(),
+          routerConfig: router,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The bundled fonts are OFL-licensed, which requires shipping the license.

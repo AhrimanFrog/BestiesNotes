@@ -23,7 +23,12 @@ class InkWellSelector extends StatelessWidget {
       borderRadius: AppRadius.lgAll,
       child: InputDecorator(
         decoration: InputDecoration(labelText: title, prefixIcon: Icon(icon)),
-        child: Text(body, style: context.textTheme.bodyLarge),
+        child: Text(
+          body,
+          style: context.textTheme.bodyLarge,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }

@@ -42,7 +42,7 @@ class CompactLessonTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${lesson.start.toDateFormat()} · ${lesson.start.toHoursAndMinsFormat()}',
+                  '${lesson.start.toDateFormat()} · ${lesson.start.formatTime(context)}',
                   style: context.textTheme.labelMedium,
                 ),
               ],

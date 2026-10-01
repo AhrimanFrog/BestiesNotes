@@ -11,7 +11,14 @@ class LessonsCubit extends Cubit<LessonsState> {
 
   LessonsCubit(this._provider) : super(LessonsState());
 
+  /// Re-runs the last query, e.g. after a lesson was edited elsewhere.
+  Future<void> Function()? _lastQuery;
+
+  Future<void> refresh() => _lastQuery?.call() ?? Future.value();
+
   Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
+    // Re-fetching the range reads it from state, so it follows navigation.
+    _lastQuery = fetchLessons;
     final dateFrom = from ?? state.dateFrom;
     final dateTo = to ?? state.dateTo;
     await _fetchLessons(
@@ -26,6 +33,8 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
+    _lastQuery = () =>
+        fetchLessonsByStudentId(studID, offset: offset, limit: limit);
     await _fetchLessons(
       () async =>
           _provider.getLessonsForStudent(studID, offset: offset, limit: limit),
@@ -37,6 +46,8 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
+    _lastQuery = () =>
+        fetchLessonsByGroupId(groupId, offset: offset, limit: limit);
     await _fetchLessons(
       () async =>
           _provider.getLessonsForGroup(groupId, offset: offset, limit: limit),
@@ -77,18 +88,4 @@ class LessonsCubit extends Cubit<LessonsState> {
     from: LessonsState.defaultDateFrom(),
     to: LessonsState.defaultDateTo(),
   );
-
-  Future<void> createOrUpdateLesson(
-    Lesson lesson,
-    List<Teachable> subjects,
-  ) async {
-    final lessonId = await _provider.createOrUpdateLesson(lesson);
-    await _provider.syncLessonMembership(lessonId, subjects);
-    await fetchLessons();
-  }
-
-  Future<void> cancelLesson(int lessonId) async {
-    await _provider.updateCancellation(lessonId, true);
-    await fetchLessons();
-  }
 }
