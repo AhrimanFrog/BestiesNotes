@@ -2242,10 +2242,7 @@ final class $$DbLessonsTableReferences
   _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
-        aliasName: $_aliasNameGenerator(
-          db.dbLessons.id,
-          db.dbLessonParticipants.lessonId,
-        ),
+        aliasName: 'db_lessons__id__db_lesson_participants__lesson_id',
       );
 
   $$DbLessonParticipantsTableProcessedTableManager
@@ -2607,7 +2604,7 @@ final class $$DbGroupsTableReferences
   static MultiTypedResultKey<$DbStudentsTable, List<DbStudent>>
   _dbStudentsRefsTable(_$DbClient db) => MultiTypedResultKey.fromTable(
     db.dbStudents,
-    aliasName: $_aliasNameGenerator(db.dbGroups.id, db.dbStudents.groupId),
+    aliasName: 'db_groups__id__db_students__group_id',
   );
 
   $$DbStudentsTableProcessedTableManager get dbStudentsRefs {
@@ -2629,10 +2626,7 @@ final class $$DbGroupsTableReferences
   _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
-        aliasName: $_aliasNameGenerator(
-          db.dbGroups.id,
-          db.dbLessonParticipants.groupId,
-        ),
+        aliasName: 'db_groups__id__db_lesson_participants__group_id',
       );
 
   $$DbLessonParticipantsTableProcessedTableManager
@@ -3079,9 +3073,8 @@ final class $$DbStudentsTableReferences
     extends BaseReferences<_$DbClient, $DbStudentsTable, DbStudent> {
   $$DbStudentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $DbGroupsTable _groupIdTable(_$DbClient db) => db.dbGroups.createAlias(
-    $_aliasNameGenerator(db.dbStudents.groupId, db.dbGroups.id),
-  );
+  static $DbGroupsTable _groupIdTable(_$DbClient db) =>
+      db.dbGroups.createAlias('db_students__group_id__db_groups__id');
 
   $$DbGroupsTableProcessedTableManager? get groupId {
     final $_column = $_itemColumn<int>('group_id');
@@ -3104,10 +3097,7 @@ final class $$DbStudentsTableReferences
   _dbLessonParticipantsRefsTable(_$DbClient db) =>
       MultiTypedResultKey.fromTable(
         db.dbLessonParticipants,
-        aliasName: $_aliasNameGenerator(
-          db.dbStudents.id,
-          db.dbLessonParticipants.studentId,
-        ),
+        aliasName: 'db_students__id__db_lesson_participants__student_id',
       );
 
   $$DbLessonParticipantsTableProcessedTableManager
@@ -3614,10 +3604,8 @@ final class $$DbLessonParticipantsTableReferences
     super.$_typedResult,
   );
 
-  static $DbLessonsTable _lessonIdTable(_$DbClient db) =>
-      db.dbLessons.createAlias(
-        $_aliasNameGenerator(db.dbLessonParticipants.lessonId, db.dbLessons.id),
-      );
+  static $DbLessonsTable _lessonIdTable(_$DbClient db) => db.dbLessons
+      .createAlias('db_lesson_participants__lesson_id__db_lessons__id');
 
   $$DbLessonsTableProcessedTableManager get lessonId {
     final $_column = $_itemColumn<int>('lesson_id')!;
@@ -3633,13 +3621,8 @@ final class $$DbLessonParticipantsTableReferences
     );
   }
 
-  static $DbStudentsTable _studentIdTable(_$DbClient db) =>
-      db.dbStudents.createAlias(
-        $_aliasNameGenerator(
-          db.dbLessonParticipants.studentId,
-          db.dbStudents.id,
-        ),
-      );
+  static $DbStudentsTable _studentIdTable(_$DbClient db) => db.dbStudents
+      .createAlias('db_lesson_participants__student_id__db_students__id');
 
   $$DbStudentsTableProcessedTableManager get studentId {
     final $_column = $_itemColumn<int>('student_id')!;
@@ -3656,7 +3639,7 @@ final class $$DbLessonParticipantsTableReferences
   }
 
   static $DbGroupsTable _groupIdTable(_$DbClient db) => db.dbGroups.createAlias(
-    $_aliasNameGenerator(db.dbLessonParticipants.groupId, db.dbGroups.id),
+    'db_lesson_participants__group_id__db_groups__id',
   );
 
   $$DbGroupsTableProcessedTableManager? get groupId {
