@@ -1,8 +1,11 @@
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/teachable.dart';
+import 'package:besties_notes/theme/app_theme.dart';
+import 'package:besties_notes/widgets/avatar/user_avatar.dart';
+import 'package:besties_notes/widgets/buttons/delete_item_icon.dart';
+import 'package:besties_notes/widgets/cards/app_card.dart';
+import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/widgets/index.dart';
 
 class ParticipantCard extends StatelessWidget {
   final Teachable participant;
@@ -16,55 +19,50 @@ class ParticipantCard extends StatelessWidget {
     this.onDelete,
   });
 
-  String get additionalInfo => (participant is Student)
-      ? (participant as Student).group?.name ?? (participant as Student).contact
-      : 'Group';
+  String get additionalInfo => switch (participant) {
+    Student(:final group?) => group.name,
+    Student(:final contact) => contact,
+    _ => 'Group',
+  };
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        fit: .expand,
-        children: [
-          CardContainer(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 6,
-              children: [
-                // Avatar Section
-                UserAvatar(teachable: participant),
-
-                // Name Section
-                Text(
-                  participant.name,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                Text(
-                  additionalInfo,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-                // Action / Status Pill
-                StatusBadge(
-                  label: participant.pricing.toString(),
-                  accentColor: AppColors.accentPink,
-                ),
-              ],
-            ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        AppCard(
+          onTap: onTap,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: AppSpacing.xs,
+            children: [
+              UserAvatar(teachable: participant),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                participant.name,
+                textAlign: TextAlign.center,
+                style: context.textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                additionalInfo,
+                textAlign: TextAlign.center,
+                style: context.textTheme.labelMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              StatusBadge(
+                label: participant.pricing.toString(),
+                tone: StatusTone.accent,
+              ),
+            ],
           ),
-          Positioned(
-            top: 4,
-            right: 4,
-            child: DeleteItemIcon(onDelete: onDelete),
-          ),
-        ],
-      ),
+        ),
+        if (onDelete != null)
+          Positioned(top: 0, right: 0, child: DeleteItemIcon(onDelete: onDelete)),
+      ],
     );
   }
 }

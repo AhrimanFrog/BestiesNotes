@@ -1,4 +1,3 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/views/modals/lesson_form.dart';
@@ -9,14 +8,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SchedulePage extends StatelessWidget {
   const SchedulePage({super.key});
 
+  void _createLesson(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: context.read<LessonsCubit>()),
+          BlocProvider.value(value: context.read<StudentsAndGroupsCubit>()),
+        ],
+        child: LessonForm(null),
+      ),
+      useSafeArea: true,
+      isScrollControlled: true,
+      useRootNavigator: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Schedule", style: Theme.of(context).textTheme.titleLarge),
-        centerTitle: false,
+        title: const Text('Schedule'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(44),
+          preferredSize: const Size.fromHeight(48),
           child: BlocBuilder<LessonsCubit, LessonsState>(
             builder: (ctx, state) {
               final lessonCubit = ctx.read<LessonsCubit>();
@@ -35,24 +49,21 @@ class SchedulePage extends StatelessWidget {
         ),
       ),
       body: BlocBuilder<LessonsCubit, LessonsState>(
-        builder: (_, state) => LessonsListSection(state: state),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          builder: (_) => MultiBlocProvider(
-            providers: [
-              BlocProvider.value(value: context.read<LessonsCubit>()),
-              BlocProvider.value(value: context.read<StudentsAndGroupsCubit>()),
-            ],
-            child: LessonForm(null),
+        builder: (_, state) => LessonsListSection(
+          state: state,
+          empty: EmptyState(
+            icon: Icons.event_available_outlined,
+            title: 'A free week',
+            message: 'No lessons planned for these dates.',
+            actionLabel: 'Plan a lesson',
+            onAction: () => _createLesson(context),
           ),
-          backgroundColor: AppColors.accent,
-          useSafeArea: true,
-          isScrollControlled: true,
         ),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _createLesson(context),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Lesson'),
       ),
     );
   }

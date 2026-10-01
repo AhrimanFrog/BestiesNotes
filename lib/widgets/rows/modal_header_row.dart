@@ -1,5 +1,5 @@
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/widgets/index.dart' show SmallIconButton;
 
 class ModalHeaderRow extends StatelessWidget {
   final String title;
@@ -10,15 +10,20 @@ class ModalHeaderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: 12,
+      spacing: AppSpacing.md,
       children: [
-        Icon(icon, size: 28),
+        Icon(icon, size: 26, color: context.tokens.accent),
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+          child: Text(title, style: context.textTheme.headlineSmall),
         ),
-        SmallIconButton(
-          icon: Icons.close,
-          onClick: () => Navigator.pop(context),
+        IconButton.filledTonal(
+          icon: const Icon(Icons.close_rounded),
+          tooltip: 'Close',
+          style: IconButton.styleFrom(
+            backgroundColor: context.tokens.surfaceMuted,
+            foregroundColor: context.tokens.text,
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ],
     );

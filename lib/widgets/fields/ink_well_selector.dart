@@ -1,6 +1,7 @@
-import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A tappable, input-styled field that opens a picker (date, time, …).
 class InkWellSelector extends StatelessWidget {
   final String title;
   final String body;
@@ -15,31 +16,14 @@ class InkWellSelector extends StatelessWidget {
     this.onTap,
   });
 
-  static final _borderRadius = BorderRadius.circular(16);
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: _borderRadius,
+      borderRadius: AppRadius.lgAll,
       child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: title,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius: _borderRadius,
-            borderSide: const BorderSide(color: AppColors.softPink),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: _borderRadius,
-            borderSide: const BorderSide(color: AppColors.softPink),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: _borderRadius,
-            borderSide: const BorderSide(color: AppColors.accentPink, width: 2),
-          ),
-        ),
-        child: Text(body),
+        decoration: InputDecoration(labelText: title, prefixIcon: Icon(icon)),
+        child: Text(body, style: context.textTheme.bodyLarge),
       ),
     );
   }

@@ -15,6 +15,10 @@ abstract class Teachable extends Equatable {
     this.iconPath,
   });
 
+  /// Picks this entity's color in the subject palette. Groups are shifted so
+  /// student #1 and group #1 don't share a color.
+  int? get colorSeed => id;
+
   String get initials => name
       .split(' ')
       .map((word) => word.isNotEmpty ? word[0].toUpperCase() : '')

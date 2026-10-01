@@ -1,24 +1,42 @@
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A small pill label colored by a semantic [StatusTone].
 class StatusBadge extends StatelessWidget {
-  final Color accentColor;
   final String label;
+  final StatusTone tone;
+  final IconData? icon;
 
   const StatusBadge({
     super.key,
     required this.label,
-    required this.accentColor,
+    this.tone = StatusTone.neutral,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.tokens.tone(tone);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: accentColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+      decoration: BoxDecoration(
+        color: colors.bg,
+        borderRadius: AppRadius.pillAll,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppSpacing.xs,
+        children: [
+          if (icon != null) Icon(icon, size: 12, color: colors.fg),
+          Text(
+            label,
+            style: context.textTheme.labelSmall?.copyWith(color: colors.fg),
+          ),
+        ],
+      ),
     );
   }
 }

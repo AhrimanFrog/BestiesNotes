@@ -2,6 +2,8 @@ import 'package:besties_notes/widgets/navigation/week_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/pump_app.dart';
+
 void main() {
   // 13.01.2025 – 19.01.2025 (end is exclusive midnight, so display end - 1 day)
   final range = DateTimeRange(
@@ -9,14 +11,8 @@ void main() {
     end: DateTime(2025, 1, 20),
   );
 
-  Widget build({VoidCallback? onLeft, VoidCallback? onRight}) => MaterialApp(
-    home: Scaffold(
-      body: WeekNavigationBar(
-        timeRange: range,
-        onTapLeft: onLeft,
-        onTapRight: onRight,
-      ),
-    ),
+  Widget build({VoidCallback? onLeft, VoidCallback? onRight}) => themed(
+    WeekNavigationBar(timeRange: range, onTapLeft: onLeft, onTapRight: onRight),
   );
 
   testWidgets('displays formatted date range label', (tester) async {

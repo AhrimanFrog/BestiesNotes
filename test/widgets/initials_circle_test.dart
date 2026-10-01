@@ -1,16 +1,22 @@
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/avatar/initials_circle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/pump_app.dart';
+
 void main() {
-  Widget build(String initials) => MaterialApp(
-    home: Scaffold(
-      body: InitialsCircle(initials: initials, circleColor: Colors.pink),
-    ),
-  );
+  const colors = TonePair(Colors.purple, Colors.white);
 
   testWidgets('renders initials text', (tester) async {
-    await tester.pumpWidget(build('AS'));
+    await tester.pumpThemed(const InitialsCircle(initials: 'AS', colors: colors));
     expect(find.text('AS'), findsOneWidget);
+  });
+
+  testWidgets('truncates long initials to two letters', (tester) async {
+    await tester.pumpThemed(
+      const InitialsCircle(initials: 'ABCD', colors: colors),
+    );
+    expect(find.text('AB'), findsOneWidget);
   });
 }

@@ -1,7 +1,7 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +31,10 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(state.student.name),
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Edit',
                 onPressed: () async {
                   // Edit through the shell's cubit so the students list
                   // updates too, then reload this screen.
@@ -44,9 +44,9 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
                       value: context.read<StudentsAndGroupsCubit>(),
                       child: StudentForm(state.student),
                     ),
-                    backgroundColor: Colors.transparent,
                     useSafeArea: true,
                     isScrollControlled: true,
+                    useRootNavigator: true,
                   );
                   if (context.mounted) {
                     context.read<StudentDetailsCubit>().load(widget.studentId);
@@ -55,24 +55,32 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
               ),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              _HeaderCard(student: state.student),
-              const SizedBox(height: 12),
-              _NavigationChipsRow(student: state.student),
-              const SizedBox(height: 20),
-              StateTransitionWidget(
-                state: state,
-                child: RecentLessonsSection(
+          body: StateTransitionWidget(
+            state: state,
+            isEmpty: false,
+            onRetry: () =>
+                context.read<StudentDetailsCubit>().load(widget.studentId),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                0,
+                AppSpacing.screen,
+                AppSpacing.xxxl,
+              ),
+              children: [
+                _HeaderCard(student: state.student),
+                const SizedBox(height: AppSpacing.md),
+                _NavigationChipsRow(student: state.student),
+                const SizedBox(height: AppSpacing.xxl),
+                RecentLessonsSection(
                   lessons: state.lessons,
                   onSeeAll: () => context.pushNamed(
                     'stud_lessons_history',
                     pathParameters: {'id': '${widget.studentId}'},
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -89,41 +97,37 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
+    final muted = context.tokens.textMuted;
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            spacing: 16,
+            spacing: AppSpacing.lg,
             children: [
-              UserAvatar(teachable: student),
+              UserAvatar(teachable: student, size: 64),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
+                  spacing: AppSpacing.xs,
                   children: [
-                    Text(
-                      student.name,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(student.name, style: context.textTheme.titleLarge),
                     if (student.contact.isNotEmpty)
                       Row(
-                        spacing: 4,
+                        spacing: AppSpacing.xs,
                         children: [
-                          const Icon(
-                            Icons.phone_outlined,
-                            size: 14,
-                            color: AppColors.muted,
-                          ),
-                          Text(
-                            student.contact,
-                            style: Theme.of(context).textTheme.labelMedium,
+                          Icon(Icons.phone_outlined, size: 14, color: muted),
+                          Flexible(
+                            child: Text(
+                              student.contact,
+                              style: context.textTheme.bodySmall,
+                            ),
                           ),
                         ],
                       ),
                     StatusBadge(
                       label: student.pricing.toString(),
-                      accentColor: AppColors.accentPink,
+                      tone: StatusTone.accent,
                     ),
                   ],
                 ),
@@ -131,23 +135,16 @@ class _HeaderCard extends StatelessWidget {
             ],
           ),
           if (student.note.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            const Divider(height: 1, color: AppColors.softPink),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.md),
+            const Divider(),
+            const SizedBox(height: AppSpacing.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 6,
+              spacing: AppSpacing.sm,
               children: [
-                const Icon(
-                  Icons.notes_outlined,
-                  size: 14,
-                  color: AppColors.muted,
-                ),
+                Icon(Icons.notes_outlined, size: 16, color: muted),
                 Expanded(
-                  child: Text(
-                    student.note,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
+                  child: Text(student.note, style: context.textTheme.bodyMedium),
                 ),
               ],
             ),
@@ -170,19 +167,19 @@ class _NavigationChipsRow extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 8,
+        spacing: AppSpacing.sm,
         children: [
           if (student.group != null)
             NavigationChip(
               icon: Icons.group_outlined,
               label: student.group!.name,
-              color: AppColors.accentPink,
+              tone: StatusTone.accent,
               onTap: () => context.go('/scholars/group/${student.group!.id}'),
             ),
           NavigationChip(
             icon: Icons.payments_outlined,
             label: 'Payments',
-            color: AppColors.accentGreen,
+            tone: StatusTone.done,
             onTap: () => context.pushNamed(
               'stud_payments',
               pathParameters: {'id': '${student.id}'},

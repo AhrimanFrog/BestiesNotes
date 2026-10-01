@@ -1,7 +1,9 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// "‹  06.01.2025 – 12.01.2025  ›". [timeRange] is half-open: its `end` is
+/// the exclusive midnight after the last shown day.
 class WeekNavigationBar extends StatelessWidget {
   final DateTimeRange timeRange;
   final Function(DateTimeRange)? onRangeSelection;
@@ -19,45 +21,41 @@ class WeekNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final from = timeRange.start;
-    final to = timeRange.end;
-    final label = '${from.toDateFormat()} – ${to.toDateFormat()}';
+    final lastDay = timeRange.end.addDays(-1);
+    final label = '${from.toDateFormat()} – ${lastDay.toDateFormat()}';
+    final accent = context.tokens.accent;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
           icon: const Icon(Icons.chevron_left),
-          color: AppColors.accentPink,
+          color: accent,
+          tooltip: 'Previous week',
           onPressed: onTapLeft,
         ),
-        GestureDetector(
-          onTap: () async {
+        TextButton(
+          onPressed: () async {
             final range = await showDateRangePicker(
               context: context,
-              firstDate: DateTime(2020),
-              lastDate: DateTime(2030),
-              initialDateRange: DateTimeRange(start: from, end: to),
-              builder: (context, child) => Theme(
-                data: Theme.of(context).copyWith(
-                  colorScheme: ColorScheme.light(
-                    primary: AppColors.accentPink,
-                    onPrimary: Colors.white,
-                    surface: Colors.white,
-                    onSurface: AppColors.text,
-                  ),
-                ),
-                child: child!,
-              ),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+              initialDateRange: DateTimeRange(start: from, end: lastDay),
             );
             if (range != null && onRangeSelection != null) {
-              onRangeSelection!(range);
+              // The picker's end is inclusive; the app's ranges are not.
+              onRangeSelection!(
+                DateTimeRange(start: range.start, end: range.end.addDays(1)),
+              );
             }
           },
-          child: Text(label, style: Theme.of(context).textTheme.titleMedium),
+          style: TextButton.styleFrom(foregroundColor: context.tokens.text),
+          child: Text(label, style: context.textTheme.titleSmall),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),
-          color: AppColors.accentPink,
+          color: accent,
+          tooltip: 'Next week',
           onPressed: onTapRight,
         ),
       ],

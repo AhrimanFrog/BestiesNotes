@@ -37,12 +37,14 @@ class Lesson extends Equatable {
         .toList();
   }
 
+  /// "Anna", "Anna +2" — counts students and groups, not group members.
   String audienceLabel() {
-    if (participants.isEmpty) return 'No one assigned';
-    final rest = participants.length - 1;
+    final subjects = this.subjects;
+    if (subjects.isEmpty) return 'No one assigned';
+    final rest = subjects.length - 1;
     return rest > 0
-        ? '${participants.first} +$rest'
-        : participants.first.toString();
+        ? '${subjects.first.name} +$rest'
+        : subjects.first.name;
   }
 
   Lesson copyWith({

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/fields/input_field.dart';
-import 'package:besties_notes/widgets/helpers.dart';
 
 class RatePeriodField extends StatelessWidget {
   final TextEditingController rateController;
@@ -21,6 +21,7 @@ class RatePeriodField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.md,
       children: [
         Expanded(
           child: InputField(
@@ -47,7 +48,7 @@ class RatePeriodField extends StatelessWidget {
         Flexible(
           child: DropdownButtonFormField<RatePeriod>(
             initialValue: selectedPeriod,
-            decoration: inputBorders('Period', null, null),
+            decoration: const InputDecoration(labelText: 'Period'),
             items: const [
               DropdownMenuItem(
                 value: RatePeriod.perLesson,

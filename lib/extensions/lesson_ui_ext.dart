@@ -1,23 +1,16 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
-import 'package:flutter/material.dart';
+import 'package:besties_notes/theme/app_tokens.dart';
 
 extension LessonUIExt on Lesson {
-  Color get accentColor {
-    if (isCancelled) return AppColors.accentGrey;
-    if (isCompleted) return AppColors.accentGreen;
-    return isNow ? AppColors.accentPink : AppColors.pastelBlue;
-  }
-
-  Color get mainColor {
-    if (isCancelled) return AppColors.softGrey;
-    if (isCompleted) return AppColors.softGreen;
-    return isNow ? AppColors.softWarmPink : AppColors.softPastelBlue;
+  StatusTone get statusTone {
+    if (isCancelled) return StatusTone.cancelled;
+    if (isCompleted) return StatusTone.done;
+    return isNow ? StatusTone.now : StatusTone.scheduled;
   }
 
   String get uiLabel {
     if (isCancelled) return 'Cancelled';
     if (isCompleted) return 'Completed';
-    return isNow ? 'In Progress' : 'Scheduled';
+    return isNow ? 'In progress' : 'Scheduled';
   }
 }

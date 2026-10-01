@@ -1,7 +1,7 @@
-import 'package:besties_notes/widgets/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// A text field styled by the app's `InputDecorationTheme`.
 class InputField extends StatelessWidget {
   final TextEditingController _controller;
   final String label;
@@ -28,11 +28,19 @@ class InputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: _controller,
-      decoration: inputBorders(label, hint, icon),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: icon,
+        alignLabelWithHint: (maxLines ?? 1) > 1,
+      ),
       keyboardType: textInputType,
       maxLines: maxLines ?? 1,
       validator: validator ?? validateNotEmpty,
       inputFormatters: formatters,
+      textCapitalization: textInputType == null
+          ? TextCapitalization.sentences
+          : TextCapitalization.none,
     );
   }
 

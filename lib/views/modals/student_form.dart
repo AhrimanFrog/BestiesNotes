@@ -4,6 +4,7 @@ import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cub
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 
 class StudentForm extends StatefulWidget {
@@ -73,14 +74,7 @@ class _StudentFormState extends State<StudentForm> {
       await cubit.createOrUpdateStudent(student);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error creating student: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) showErrorSnackBar(context, 'Could not save student: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -90,39 +84,47 @@ class _StudentFormState extends State<StudentForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xxl,
+          0,
+          AppSpacing.xxl,
+          AppSpacing.xxl,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 24,
+            spacing: AppSpacing.lg,
             children: [
               ModalHeaderRow(
-                title: student != null ? 'Edit Student' : 'New Student',
-                icon: student != null ? Icons.edit : Icons.person_add,
+                title: student != null ? 'Edit student' : 'New student',
+                icon: student != null
+                    ? Icons.edit_outlined
+                    : Icons.person_add_outlined,
               ),
               Expanded(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 16,
+                    spacing: AppSpacing.lg,
                     children: [
                       AvatarPickerField(
                         avatarPath: _avatarPath,
-                        defaultIcon: Icons.person,
+                        defaultIcon: Icons.person_outline_rounded,
                         onChanged: (path) => setState(() => _avatarPath = path),
                       ),
                       InputField(
                         _nameController,
                         label: 'Name',
                         hint: 'Enter student name',
-                        icon: Icon(Icons.person),
+                        icon: const Icon(Icons.person_outline_rounded),
                       ),
                       InputField(
                         _contactController,
                         label: 'Contact',
-                        hint: 'E.g. phone number or tag in messanger',
-                        icon: Icon(Icons.phone),
+                        hint: 'Phone number or messenger handle',
+                        icon: const Icon(Icons.phone_outlined),
                       ),
                       RatePeriodField(
                         rateController: _rateController,
@@ -132,8 +134,8 @@ class _StudentFormState extends State<StudentForm> {
                       ),
                       InputField(
                         _noteController,
-                        label: 'Notes (Optional)',
-                        icon: Icon(Icons.notes),
+                        label: 'Notes (optional)',
+                        icon: const Icon(Icons.notes_outlined),
                         validator: (_) => null,
                         maxLines: 3,
                       ),
@@ -141,26 +143,10 @@ class _StudentFormState extends State<StudentForm> {
                   ),
                 ),
               ),
-              FilledButton(
-                onPressed: _isSubmitting ? null : _submitForm,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        student != null ? 'Update Student' : 'Create Student',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+              SubmitButton(
+                label: student != null ? 'Save changes' : 'Add student',
+                isSubmitting: _isSubmitting,
+                onPressed: _submitForm,
               ),
             ],
           ),

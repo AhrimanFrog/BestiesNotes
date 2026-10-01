@@ -1,7 +1,7 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/views/modals/group_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +31,10 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(state.group.name),
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Edit',
                 onPressed: () async {
                   // Edit through the shell's cubit so the groups list
                   // updates too, then reload this screen.
@@ -44,9 +44,9 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
                       value: context.read<StudentsAndGroupsCubit>(),
                       child: GroupForm(state.group),
                     ),
-                    backgroundColor: Colors.transparent,
                     useSafeArea: true,
                     isScrollControlled: true,
+                    useRootNavigator: true,
                   );
                   if (context.mounted) {
                     context.read<GroupDetailsCubit>().load(widget.groupId);
@@ -55,26 +55,33 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
               ),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            children: [
-              _GroupHeaderCard(group: state.group),
-              const SizedBox(height: 12),
-              _NavigationChipsRow(groupId: widget.groupId),
-              const SizedBox(height: 20),
-              _MembersSection(state: state),
-              const SizedBox(height: 20),
-              StateTransitionWidget(
-                state: state,
-                child: RecentLessonsSection(
+          body: StateTransitionWidget(
+            state: state,
+            isEmpty: false,
+            onRetry: () => context.read<GroupDetailsCubit>().load(widget.groupId),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                0,
+                AppSpacing.screen,
+                AppSpacing.xxxl,
+              ),
+              children: [
+                _GroupHeaderCard(group: state.group),
+                const SizedBox(height: AppSpacing.md),
+                _NavigationChipsRow(groupId: widget.groupId),
+                const SizedBox(height: AppSpacing.xxl),
+                _MembersSection(members: state.group.students),
+                const SizedBox(height: AppSpacing.xxl),
+                RecentLessonsSection(
                   lessons: state.lessons,
                   onSeeAll: () => context.pushNamed(
                     'group_lessons_history',
                     pathParameters: {'id': '${widget.groupId}'},
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -91,34 +98,35 @@ class _GroupHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
+    final count = group.students.length;
+    return AppCard(
       child: Row(
-        spacing: 16,
+        spacing: AppSpacing.lg,
         children: [
-          UserAvatar(teachable: group),
+          UserAvatar(teachable: group, size: 64),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
+              spacing: AppSpacing.xs,
               children: [
-                Text(group.name, style: Theme.of(context).textTheme.titleLarge),
+                Text(group.name, style: context.textTheme.titleLarge),
                 Row(
-                  spacing: 4,
+                  spacing: AppSpacing.xs,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.group_outlined,
                       size: 14,
-                      color: AppColors.muted,
+                      color: context.tokens.textMuted,
                     ),
                     Text(
-                      '${group.students.length} members',
-                      style: Theme.of(context).textTheme.labelMedium,
+                      count == 1 ? '1 member' : '$count members',
+                      style: context.textTheme.bodySmall,
                     ),
                   ],
                 ),
                 StatusBadge(
                   label: group.pricing.toString(),
-                  accentColor: AppColors.accentPink,
+                  tone: StatusTone.accent,
                 ),
               ],
             ),
@@ -138,21 +146,16 @@ class _NavigationChipsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 8,
-        children: [
-          NavigationChip(
-            icon: Icons.payments_outlined,
-            label: 'Payments',
-            color: AppColors.accentGreen,
-            onTap: () => context.pushNamed(
-              'group_payments',
-              pathParameters: {'id': '$groupId'},
-            ),
-          ),
-        ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: NavigationChip(
+        icon: Icons.payments_outlined,
+        label: 'Payments',
+        tone: StatusTone.done,
+        onTap: () => context.pushNamed(
+          'group_payments',
+          pathParameters: {'id': '$groupId'},
+        ),
       ),
     );
   }
@@ -161,33 +164,37 @@ class _NavigationChipsRow extends StatelessWidget {
 // ─── Members ─────────────────────────────────────────────────────────────────
 
 class _MembersSection extends StatelessWidget {
-  final GroupDetailsState state;
+  final Set<Student> members;
 
-  const _MembersSection({required this.state});
+  const _MembersSection({required this.members});
 
   @override
   Widget build(BuildContext context) {
-    final students = state.group.students;
-    return TitledSection(
+    return Section(
       title: 'Members',
-      child: StateTransitionWidget(
-        state: state,
-        isEmpty: students.isEmpty,
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.65,
-          ),
-          itemCount: students.length,
-          itemBuilder: (context, index) {
-            return ParticipantCard(participant: students.elementAt(index));
-          },
-        ),
-      ),
+      child: members.isEmpty
+          ? const EmptyState(
+              icon: Icons.group_add_outlined,
+              title: 'No members yet',
+              compact: true,
+            )
+          : AppCard(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+              child: Column(
+                children: [
+                  for (final student in members)
+                    ListTile(
+                      leading: UserAvatar(teachable: student, size: 40),
+                      title: Text(student.name),
+                      subtitle: student.contact.isNotEmpty
+                          ? Text(student.contact)
+                          : null,
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.go('/scholars/student/${student.id}'),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 }

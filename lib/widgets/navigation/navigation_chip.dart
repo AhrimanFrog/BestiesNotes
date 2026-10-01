@@ -1,43 +1,49 @@
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A pill that links to a related screen ("Payments ›").
 class NavigationChip extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final StatusTone tone;
   final VoidCallback? onTap;
 
   const NavigationChip({
     super.key,
     required this.icon,
     required this.label,
-    required this.color,
+    this.tone = StatusTone.accent,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.35)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 6,
-          children: [
-            Icon(icon, size: 16, color: color),
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: color),
+    final colors = context.tokens.tone(tone);
+    return Material(
+      color: colors.bg,
+      borderRadius: AppRadius.pillAll,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.pillAll,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 40),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: AppSpacing.xs + 2,
+              children: [
+                Icon(icon, size: 18, color: colors.fg),
+                Text(
+                  label,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: colors.fg,
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, size: 18, color: colors.fg),
+              ],
             ),
-            Icon(Icons.chevron_right, size: 16, color: color),
-          ],
+          ),
         ),
       ),
     );

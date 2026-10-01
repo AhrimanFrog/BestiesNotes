@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 
 class GroupForm extends StatefulWidget {
@@ -65,11 +66,7 @@ class _GroupFormState extends State<GroupForm> {
     final allStudents = cubit.state.students;
 
     if (allStudents.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No students available. Create some first.'),
-        ),
-      );
+      showInfoSnackBar(context, 'No students yet. Add some first.');
       return;
     }
 
@@ -91,11 +88,7 @@ class _GroupFormState extends State<GroupForm> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedStudents.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one student to the group.'),
-        ),
-      );
+      showErrorSnackBar(context, 'Add at least one student to the group');
       return;
     }
 
@@ -116,14 +109,7 @@ class _GroupFormState extends State<GroupForm> {
       await cubit.createOrUpdateGroup(group);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving group: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) showErrorSnackBar(context, 'Could not save group: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -133,33 +119,41 @@ class _GroupFormState extends State<GroupForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xxl,
+          0,
+          AppSpacing.xxl,
+          AppSpacing.xxl,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 24,
+            spacing: AppSpacing.lg,
             children: [
               ModalHeaderRow(
-                title: group != null ? 'Edit Group' : 'New Group',
-                icon: group != null ? Icons.edit : Icons.group_add,
+                title: group != null ? 'Edit group' : 'New group',
+                icon: group != null
+                    ? Icons.edit_outlined
+                    : Icons.group_add_outlined,
               ),
               Expanded(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 16,
+                    spacing: AppSpacing.lg,
                     children: [
                       AvatarPickerField(
                         avatarPath: _avatarPath,
-                        defaultIcon: Icons.groups,
+                        defaultIcon: Icons.groups_outlined,
                         onChanged: (path) => setState(() => _avatarPath = path),
                       ),
                       InputField(
                         _nameController,
-                        label: 'Group Name',
+                        label: 'Group name',
                         hint: 'Enter group name',
-                        icon: const Icon(Icons.groups),
+                        icon: const Icon(Icons.groups_outlined),
                       ),
                       RatePeriodField(
                         rateController: _rateController,
@@ -180,26 +174,10 @@ class _GroupFormState extends State<GroupForm> {
                   ),
                 ),
               ),
-              FilledButton(
-                onPressed: _isSubmitting ? null : _submitForm,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        group != null ? 'Update Group' : 'Create Group',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+              SubmitButton(
+                label: group != null ? 'Save changes' : 'Create group',
+                isSubmitting: _isSubmitting,
+                onPressed: _submitForm,
               ),
             ],
           ),

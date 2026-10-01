@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 
 class AvatarPickerField extends StatelessWidget {
   final String? avatarPath;
@@ -47,74 +47,79 @@ class AvatarPickerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    const size = 88.0;
+
     return Center(
-      child: GestureDetector(
-        onTap: () => _pickAvatar(context),
-        child: Stack(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.accentPink, width: 2),
-                color: AppColors.softWarmPink,
-              ),
-              child: avatarPath != null
-                  ? ClipOval(
-                      child: Image.file(
-                        File(avatarPath!),
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Icon(defaultIcon, size: 40, color: AppColors.accentPink),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.accentPink,
+      child: Semantics(
+        button: true,
+        label: avatarPath != null ? 'Change photo' : 'Add photo',
+        child: GestureDetector(
+          onTap: () => _pickAvatar(context),
+          child: Stack(
+            children: [
+              Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  color: tokens.accentSoft,
                 ),
-                child: const Icon(
-                  Icons.camera_alt,
-                  size: 16,
-                  color: Colors.white,
+                child: avatarPath != null
+                    ? ClipOval(
+                        child: Image.file(
+                          File(avatarPath!),
+                          width: size,
+                          height: size,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Icon(defaultIcon, size: 40, color: tokens.accent),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: tokens.accent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: tokens.bg, width: 2),
+                  ),
+                  child: Icon(
+                    Icons.photo_camera_rounded,
+                    size: 16,
+                    color: tokens.onAccent,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _imageSourceModal(BuildContext ctx) {
+    final danger = ctx.tokens.danger;
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from Gallery'),
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('Choose from gallery'),
             onTap: () => Navigator.pop(ctx, ImageSource.gallery),
           ),
           ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a Photo'),
+            leading: const Icon(Icons.photo_camera_outlined),
+            title: const Text('Take a photo'),
             onTap: () => Navigator.pop(ctx, ImageSource.camera),
           ),
           if (avatarPath != null)
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text(
-                'Remove Photo',
-                style: TextStyle(color: Colors.red),
-              ),
+              leading: Icon(Icons.delete_outline_rounded, color: danger),
+              title: Text('Remove photo', style: TextStyle(color: danger)),
               onTap: () {
                 onChanged(null);
                 Navigator.pop(ctx);

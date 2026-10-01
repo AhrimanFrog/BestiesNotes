@@ -1,5 +1,5 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -103,28 +103,16 @@ class _LessonFormState extends State<LessonForm> {
   }
 
   Future<void> _cancelLesson() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancel Lesson'),
-        content: const Text('Are you sure you want to cancel this lesson?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.accentPink,
-            ),
-            child: const Text('Yes, cancel it'),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Cancel this lesson?',
+      message: 'It stays in the schedule, marked as cancelled.',
+      confirmLabel: 'Cancel lesson',
+      cancelLabel: 'Keep it',
+      destructive: true,
     );
 
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     setState(() => _isSubmitting = true);
 
     try {
@@ -132,14 +120,7 @@ class _LessonFormState extends State<LessonForm> {
       await cubit.cancelLesson(lesson!.id!);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error cancelling lesson: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) showErrorSnackBar(context, 'Could not cancel lesson: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -148,12 +129,7 @@ class _LessonFormState extends State<LessonForm> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedSubjects.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one student or group'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showErrorSnackBar(context, 'Pick at least one student or group');
       return;
     }
 
@@ -181,14 +157,7 @@ class _LessonFormState extends State<LessonForm> {
       await cubit.createOrUpdateLesson(lesson, _selectedSubjects);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving lesson: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) showErrorSnackBar(context, 'Could not save lesson: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -198,28 +167,36 @@ class _LessonFormState extends State<LessonForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xxl,
+          0,
+          AppSpacing.xxl,
+          AppSpacing.xxl,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 24,
+            spacing: AppSpacing.lg,
             children: [
               ModalHeaderRow(
-                title: lesson != null ? 'Edit Lesson' : 'New Lesson',
-                icon: lesson != null ? Icons.edit : Icons.add_box,
+                title: lesson != null ? 'Edit lesson' : 'New lesson',
+                icon: lesson != null
+                    ? Icons.edit_outlined
+                    : Icons.event_available_outlined,
               ),
               Expanded(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 16,
+                    spacing: AppSpacing.lg,
                     children: [
                       InputField(
                         _nameController,
-                        label: 'Lesson Name',
+                        label: 'Topic',
                         hint: 'E.g. Present Simple',
-                        icon: const Icon(Icons.book),
+                        icon: const Icon(Icons.menu_book_outlined),
                       ),
                       ScholarsSelector(
                         label: 'Students / Groups',
@@ -232,21 +209,21 @@ class _LessonFormState extends State<LessonForm> {
                         }),
                       ),
                       Row(
+                        spacing: AppSpacing.md,
                         children: [
                           Expanded(
                             child: InkWellSelector(
                               title: 'Date',
                               body: _selectedDate.toDateFormat(),
-                              icon: Icons.calendar_today,
+                              icon: Icons.calendar_today_outlined,
                               onTap: _selectDate,
                             ),
                           ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: InkWellSelector(
                               title: 'Time',
                               body: _selectedTime.format(context),
-                              icon: Icons.access_time,
+                              icon: Icons.schedule_outlined,
                               onTap: _selectTime,
                             ),
                           ),
@@ -256,7 +233,7 @@ class _LessonFormState extends State<LessonForm> {
                         _durationController,
                         label: 'Duration (minutes)',
                         hint: '60',
-                        icon: const Icon(Icons.timer),
+                        icon: const Icon(Icons.timer_outlined),
                         textInputType: TextInputType.number,
                         formatters: [FilteringTextInputFormatter.digitsOnly],
                         validator: (value) {
@@ -272,8 +249,8 @@ class _LessonFormState extends State<LessonForm> {
                       ),
                       InputField(
                         _noteController,
-                        label: 'Notes (Optional)',
-                        icon: const Icon(Icons.notes),
+                        label: 'Notes (optional)',
+                        icon: const Icon(Icons.notes_outlined),
                         validator: (_) => null,
                         maxLines: 3,
                       ),
@@ -281,39 +258,18 @@ class _LessonFormState extends State<LessonForm> {
                   ),
                 ),
               ),
-              FilledButton(
-                onPressed: _isSubmitting ? null : _submitForm,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        lesson != null ? 'Update Lesson' : 'Create Lesson',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+              SubmitButton(
+                label: lesson != null ? 'Save changes' : 'Create lesson',
+                isSubmitting: _isSubmitting,
+                onPressed: _submitForm,
               ),
               if (lesson != null && !lesson!.isCancelled)
                 OutlinedButton(
                   onPressed: _isSubmitting ? null : _cancelLesson,
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    foregroundColor: AppColors.accentPink,
-                    side: const BorderSide(color: AppColors.accentPink),
+                    foregroundColor: context.tokens.danger,
                   ),
-                  child: Text(
-                    'Cancel Lesson',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  child: const Text('Cancel lesson'),
                 ),
             ],
           ),

@@ -1,69 +1,55 @@
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/theme/app_theme.dart';
+import 'package:besties_notes/widgets/cards/app_card.dart';
 import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
 
 class CompactLessonTile extends StatelessWidget {
   final Lesson lesson;
+  final VoidCallback? onTap;
 
-  const CompactLessonTile({super.key, required this.lesson});
+  const CompactLessonTile({super.key, required this.lesson, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final color = lesson.accentColor;
+    final tone = lesson.statusTone;
     final isCancelled = lesson.isCancelled;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 3,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Text(
-                    lesson.name,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      decoration: isCancelled
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
+    return AppCard(
+      onTap: onTap,
+      stripeColor: context.tokens.tone(tone).fg,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.md,
+      ),
+      child: Row(
+        spacing: AppSpacing.md,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  lesson.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: isCancelled ? context.tokens.textMuted : null,
+                    decoration: isCancelled ? TextDecoration.lineThrough : null,
                   ),
-                  Text(
-                    '${lesson.start.toDateFormat()}  ${lesson.start.toHoursAndMinsFormat()}',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                ],
-              ),
+                ),
+                Text(
+                  '${lesson.start.toDateFormat()} · ${lesson.start.toHoursAndMinsFormat()}',
+                  style: context.textTheme.labelMedium,
+                ),
+              ],
             ),
-            StatusBadge(label: lesson.uiLabel, accentColor: color),
-          ],
-        ),
+          ),
+          StatusBadge(label: lesson.uiLabel, tone: tone),
+        ],
       ),
     );
   }
