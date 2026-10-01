@@ -2,84 +2,186 @@ import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
 import 'package:besties_notes/theme/app_theme.dart';
+import 'package:besties_notes/widgets/avatar/avatar_stack.dart';
 import 'package:besties_notes/widgets/cards/app_card.dart';
 import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
 
+/// A lesson in the schedule: time on the left, then topic, who's coming and,
+/// once it has started, attendance and payment at a glance.
 class LessonCard extends StatelessWidget {
   final Lesson lesson;
   final VoidCallback onTap;
-  final VoidCallback? onCancel;
 
-  /// The next upcoming or currently running lesson — pulled forward visually.
+  /// The lesson happening now or up next — pulled forward visually.
   final bool featured;
-  final bool showQuickActions;
+
+  /// Color the stripe by the (first) student/group instead of by status.
+  final bool colorBySubject;
 
   const LessonCard({
     super.key,
     required this.lesson,
     required this.onTap,
-    this.onCancel,
     this.featured = false,
-    this.showQuickActions = true,
+    this.colorBySubject = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final tone = lesson.statusTone;
-    final isCancelled = lesson.isCancelled;
+    final cancelled = lesson.isCancelled;
+    final subjects = lesson.subjects;
 
+    final stripe = colorBySubject && subjects.isNotEmpty
+        ? tokens.subjectColor(subjects.first.colorSeed).fg
+        : tokens.tone(tone).fg;
+
+    // Featured stands out by elevation and its "Up next" badge; a tinted
+    // background would swallow the badge.
     return AppCard(
       onTap: onTap,
       raised: featured,
-      color: featured ? tokens.accentSoft : null,
-      stripeColor: tokens.tone(tone).fg,
-      child: Column(
+      stripeColor: stripe,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.xs,
+        spacing: AppSpacing.md,
         children: [
-          Row(
-            children: [
-              StatusBadge(label: lesson.uiLabel, tone: tone),
-              const Spacer(),
-              Text(
-                '${lesson.start.formatTime(context)} · ${lesson.duration.inMinutes} min',
-                style: context.textTheme.labelMedium,
-                maxLines: 1,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            lesson.name,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: isCancelled ? tokens.textMuted : null,
-              decoration: isCancelled ? TextDecoration.lineThrough : null,
-            ),
-          ),
-          Text(
-            lesson.audienceLabel(),
-            style: context.textTheme.bodySmall,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (showQuickActions && lesson.isCancellable && onCancel != null)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.sm),
-              child: OutlinedButton(
-                onPressed: onCancel,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 40),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                  ),
+          _TimeColumn(lesson: lesson),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.xs,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpacing.sm,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        lesson.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: cancelled ? tokens.textMuted : null,
+                          decoration: cancelled
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ),
+                    ?_badge,
+                  ],
                 ),
-                child: const Text('Cancel lesson'),
-              ),
+                Row(
+                  spacing: AppSpacing.sm,
+                  children: [
+                    if (subjects.isNotEmpty) AvatarStack(subjects: subjects),
+                    Expanded(
+                      child: Text(
+                        lesson.audienceLabel(),
+                        style: context.textTheme.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_showsTracking)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: _Tracking(lesson: lesson),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
+    );
+  }
+
+  /// "Scheduled" is the default and would only add noise.
+  Widget? get _badge {
+    if (featured && !lesson.isNow) {
+      return const StatusBadge(label: 'Up next', tone: StatusTone.accent);
+    }
+    if (lesson.statusTone == StatusTone.scheduled) return null;
+    return StatusBadge(label: lesson.uiLabel, tone: lesson.statusTone);
+  }
+
+  bool get _showsTracking =>
+      !lesson.isCancelled &&
+      lesson.participants.isNotEmpty &&
+      (lesson.isNow || lesson.isCompleted);
+}
+
+class _TimeColumn extends StatelessWidget {
+  final Lesson lesson;
+
+  const _TimeColumn({required this.lesson});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 56,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              lesson.start.formatTime(context),
+              style: context.textTheme.titleSmall,
+            ),
+          ),
+          Text(
+            '${lesson.duration.inMinutes} min',
+            style: context.textTheme.labelMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "2/3 present" and, if anyone hasn't paid, "1 unpaid".
+class _Tracking extends StatelessWidget {
+  final Lesson lesson;
+
+  const _Tracking({required this.lesson});
+
+  @override
+  Widget build(BuildContext context) {
+    final participants = lesson.participants;
+    final present = participants.where((p) => p.attended).length;
+    final unpaid = participants.where((p) => !p.isPaid).length;
+    final muted = context.tokens.textMuted;
+
+    return Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.xs,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: AppSpacing.xs,
+          children: [
+            Icon(Icons.how_to_reg_outlined, size: 16, color: muted),
+            Text(
+              '$present/${participants.length} present',
+              style: context.textTheme.labelMedium,
+            ),
+          ],
+        ),
+        if (unpaid > 0)
+          StatusBadge(
+            label: '$unpaid unpaid',
+            tone: StatusTone.warning,
+            icon: Icons.payments_outlined,
+          ),
+      ],
     );
   }
 }

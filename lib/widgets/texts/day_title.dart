@@ -1,55 +1,68 @@
+import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// "MON  28 Sep  •" with an optional "add lesson on this day" button.
 class DayTitle extends StatelessWidget {
-  final String weekDay;
-  final String date;
-  final int lessonsNumber;
-  final bool isToday;
+  final DateTime date;
+  final VoidCallback? onAdd;
+
+  /// Dims the title, e.g. for a day without lessons.
+  final bool muted;
 
   const DayTitle({
     super.key,
-    required this.weekDay,
     required this.date,
-    required this.lessonsNumber,
-    this.isToday = false,
+    this.onAdd,
+    this.muted = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final color = isToday ? tokens.accent : tokens.text;
+    final isToday = date.isToday;
+    final color = isToday
+        ? tokens.accent
+        : muted
+        ? tokens.textMuted
+        : tokens.text;
 
-    return Row(
-      spacing: AppSpacing.sm,
-      children: [
-        Text(
-          weekDay,
-          style: context.textTheme.titleSmall?.copyWith(color: color),
-        ),
-        Text(date, style: context.textTheme.labelMedium),
-        if (isToday) const _TodayDot(),
-        const Spacer(),
-        Text(
-          lessonsNumber == 1 ? '1 lesson' : '$lessonsNumber lessons',
-          style: context.textTheme.labelMedium,
-        ),
-      ],
-    );
-  }
-}
-
-class _TodayDot extends StatelessWidget {
-  const _TodayDot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(
-        color: context.tokens.accent,
-        shape: BoxShape.circle,
+    return SizedBox(
+      height: kMinTapTarget,
+      child: Row(
+        spacing: AppSpacing.sm,
+        children: [
+          Text(
+            date.capsWeekday(),
+            style: context.textTheme.titleSmall?.copyWith(color: color),
+          ),
+          Text(date.toDayMonthFormat(), style: context.textTheme.labelMedium),
+          if (isToday)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: tokens.accentSoft,
+                borderRadius: AppRadius.pillAll,
+              ),
+              child: Text(
+                'Today',
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: tokens.tone(StatusTone.accent).fg,
+                ),
+              ),
+            ),
+          const Spacer(),
+          if (onAdd != null)
+            IconButton(
+              icon: const Icon(Icons.add_rounded, size: 20),
+              color: tokens.textMuted,
+              tooltip: 'Add lesson on ${date.toLongDateFormat()}',
+              onPressed: onAdd,
+            ),
+        ],
       ),
     );
   }

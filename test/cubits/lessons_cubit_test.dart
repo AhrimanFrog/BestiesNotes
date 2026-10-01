@@ -84,98 +84,115 @@ void main() {
     ],
   );
 
-  blocTest<LessonsCubit, LessonsState>(
-    'fetchLessons uses custom date range when provided',
-    build: () => LessonsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) =>
-        c.fetchLessons(from: DateTime(2025, 3, 1), to: DateTime(2025, 3, 7)),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 3, 1),
-          DateTime(2025, 3, 7),
-        ),
-      ).called(1);
-    },
-  );
-
   // ---------------------------------------------------------------------------
-  // Week navigation
+  // Calendar navigation
   // ---------------------------------------------------------------------------
 
-  blocTest<LessonsCubit, LessonsState>(
-    'goToPreviousWeek shifts dateFrom and dateTo back by 7 days',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2025, 1, 20),
-      dateTo: DateTime(2025, 1, 27),
-    ),
-    setUp: () {
+  group('navigation', () {
+    setUp(() {
       when(
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToPreviousWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 1, 13),
-          DateTime(2025, 1, 20),
-        ),
-      ).called(1);
-    },
-  );
+    });
 
-  blocTest<LessonsCubit, LessonsState>(
-    'goToNextWeek shifts dateFrom and dateTo forward by 7 days',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2025, 1, 20),
-      dateTo: DateTime(2025, 1, 27),
-    ),
-    setUp: () {
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToNextWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 1, 27),
-          DateTime(2025, 2, 3),
-        ),
-      ).called(1);
-    },
-  );
+    // Wednesday 22 Jan 2025.
+    LessonsState onWednesday({CalendarView view = CalendarView.week}) =>
+        LessonsState(anchor: DateTime(2025, 1, 22), view: view);
 
-  blocTest<LessonsCubit, LessonsState>(
-    'goToCurrentWeek resets to default date range',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2024, 1, 1),
-      dateTo: DateTime(2024, 1, 7),
-    ),
-    setUp: () {
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToCurrentWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          LessonsState.defaultDateFrom(),
-          LessonsState.defaultDateTo(),
+    void expectFetched(DateTime from, DateTime to) =>
+        verify(() => provider.getLessonsForRange(from, to)).called(1);
+
+    blocTest<LessonsCubit, LessonsState>(
+      'fetchLessons loads the anchor week, Monday to Monday',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.fetchLessons(),
+      verify: (_) =>
+          expectFetched(DateTime(2025, 1, 20), DateTime(2025, 1, 27)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'a Sunday week start shifts the range',
+      build: () => LessonsCubit(provider, weekStart: DateTime.sunday),
+      act: (c) => c.jumpTo(DateTime(2025, 1, 22)),
+      verify: (_) =>
+          expectFetched(DateTime(2025, 1, 19), DateTime(2025, 1, 26)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToPrevious / goToNext step a week in week view',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) async {
+        await c.goToPrevious();
+        await c.goToNext();
+        await c.goToNext();
+      },
+      verify: (c) {
+        expectFetched(DateTime(2025, 1, 13), DateTime(2025, 1, 20));
+        expectFetched(DateTime(2025, 1, 27), DateTime(2025, 2, 3));
+        expect(c.state.anchor, DateTime(2025, 1, 29));
+      },
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'month view loads the six-week grid around the month',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.setView(CalendarView.month),
+      // January 2025 starts on a Wednesday: the grid starts Mon 30 Dec.
+      verify: (_) =>
+          expectFetched(DateTime(2024, 12, 30), DateTime(2025, 2, 10)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToNext in month view lands on the 1st of the next month',
+      build: () => LessonsCubit(provider),
+      seed: () =>
+          LessonsState(anchor: DateTime(2025, 1, 31), view: CalendarView.month),
+      act: (c) => c.goToNext(),
+      verify: (c) => expect(c.state.anchor, DateTime(2025, 2, 1)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'selecting a day of the same month does not refetch',
+      build: () => LessonsCubit(provider),
+      seed: () => onWednesday(view: CalendarView.month),
+      act: (c) => c.selectDay(DateTime(2025, 1, 9)),
+      expect: () => [
+        isA<LessonsState>().having(
+          (s) => s.anchor,
+          'anchor',
+          DateTime(2025, 1, 9),
         ),
-      ).called(1);
-    },
-  );
+      ],
+      verify: (_) =>
+          verifyNever(() => provider.getLessonsForRange(any(), any())),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'selecting a trailing day of the next month moves the grid',
+      build: () => LessonsCubit(provider),
+      seed: () => onWednesday(view: CalendarView.month),
+      act: (c) => c.selectDay(DateTime(2025, 2, 3)),
+      verify: (c) {
+        expect(c.state.anchor, DateTime(2025, 2, 3));
+        expectFetched(DateTime(2025, 1, 27), DateTime(2025, 3, 10));
+      },
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToToday anchors on today',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.goToToday(),
+      verify: (c) {
+        final now = DateTime.now();
+        expect(c.state.anchor, DateTime(now.year, now.month, now.day));
+        expect(c.state.showsToday, isTrue);
+      },
+    );
+  });
 
   // ---------------------------------------------------------------------------
   // refresh
@@ -191,7 +208,7 @@ void main() {
     },
     act: (c) async {
       await c.fetchLessons();
-      await c.goToNextWeek();
+      await c.goToNext();
       await c.refresh();
     },
     verify: (c) {

@@ -16,6 +16,10 @@ class StateTransitionWidget extends StatelessWidget {
   /// Offered on the error state when set.
   final VoidCallback? onRetry;
 
+  /// Dims the content with a spinner while loading. Turn off for screens
+  /// that reload often and quickly (calendar paging) to avoid flicker.
+  final bool loadingOverlay;
+
   const StateTransitionWidget({
     super.key,
     required this.state,
@@ -23,6 +27,7 @@ class StateTransitionWidget extends StatelessWidget {
     this.isEmpty,
     this.empty,
     this.onRetry,
+    this.loadingOverlay = true,
   });
 
   @override
@@ -33,7 +38,7 @@ class StateTransitionWidget extends StatelessWidget {
     return Stack(
       children: [
         child,
-        if (state.isLoading)
+        if (state.isLoading && loadingOverlay)
           Positioned.fill(
             child: ColoredBox(
               color: context.tokens.bg.withValues(alpha: 0.6),

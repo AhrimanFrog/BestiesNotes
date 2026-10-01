@@ -6,30 +6,29 @@ import 'package:flutter_test/flutter_test.dart';
 import '../helpers/pump_app.dart';
 
 void main() {
-  Widget build({int lessons = 0, bool isToday = false}) => DayTitle(
-    weekDay: 'MON',
-    date: '13.01.2025',
-    lessonsNumber: lessons,
-    isToday: isToday,
-  );
-
   testWidgets('renders weekday and date', (tester) async {
-    await tester.pumpThemed(build());
+    await tester.pumpThemed(DayTitle(date: DateTime(2025, 1, 13)));
     expect(find.text('MON'), findsOneWidget);
-    expect(find.text('13.01.2025'), findsOneWidget);
+    expect(find.text('13 Jan'), findsOneWidget);
+    expect(find.text('Today'), findsNothing);
   });
 
-  testWidgets('pluralizes the lesson count', (tester) async {
-    await tester.pumpThemed(build(lessons: 1));
-    expect(find.text('1 lesson'), findsOneWidget);
-
-    await tester.pumpThemed(build(lessons: 3));
-    expect(find.text('3 lessons'), findsOneWidget);
-  });
-
-  testWidgets('highlights today in the accent color', (tester) async {
-    await tester.pumpThemed(build(isToday: true));
-    final weekday = tester.widget<Text>(find.text('MON'));
+  testWidgets('marks today in the accent color', (tester) async {
+    await tester.pumpThemed(DayTitle(date: DateTime.now()));
+    expect(find.text('Today'), findsOneWidget);
+    final weekday = tester.widget<Text>(find.byType(Text).first);
     expect(weekday.style?.color, AppTokens.light.accent);
+  });
+
+  testWidgets('add button only when onAdd is set', (tester) async {
+    await tester.pumpThemed(DayTitle(date: DateTime(2025, 1, 13)));
+    expect(find.byIcon(Icons.add_rounded), findsNothing);
+
+    var added = false;
+    await tester.pumpThemed(
+      DayTitle(date: DateTime(2025, 1, 13), onAdd: () => added = true),
+    );
+    await tester.tap(find.byIcon(Icons.add_rounded));
+    expect(added, isTrue);
   });
 }

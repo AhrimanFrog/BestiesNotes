@@ -1,8 +1,11 @@
+export 'avatar/avatar_stack.dart';
 export 'avatar/initials_circle.dart';
 export 'avatar/user_avatar.dart';
 
 export 'buttons/delete_item_icon.dart';
 export 'buttons/submit_button.dart';
+
+export 'calendar/month_grid.dart';
 
 export 'cards/app_card.dart';
 export 'cards/compact_lesson_tile.dart';
@@ -28,7 +31,7 @@ export 'layout/unsaved_changes_scope.dart';
 
 export 'navigation/main_bottom_bar.dart';
 export 'navigation/navigation_chip.dart';
-export 'navigation/week_navigation_bar.dart';
+export 'navigation/period_navigator.dart';
 
 export 'rows/modal_header_row.dart';
 export 'rows/stat_row.dart';

@@ -9,8 +9,17 @@ void main() {
   const colors = TonePair(Colors.purple, Colors.white);
 
   testWidgets('renders initials text', (tester) async {
-    await tester.pumpThemed(const InitialsCircle(initials: 'AS', colors: colors));
+    await tester.pumpThemed(
+      const InitialsCircle(initials: 'AS', colors: colors),
+    );
     expect(find.text('AS'), findsOneWidget);
+  });
+
+  testWidgets('tiny circles show a single letter', (tester) async {
+    await tester.pumpThemed(
+      const InitialsCircle(initials: 'AS', colors: colors, size: 24),
+    );
+    expect(find.text('A'), findsOneWidget);
   });
 
   testWidgets('truncates long initials to two letters', (tester) async {
