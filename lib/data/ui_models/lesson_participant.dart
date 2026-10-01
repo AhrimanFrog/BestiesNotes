@@ -1,7 +1,9 @@
+import 'package:equatable/equatable.dart';
+
 import 'student.dart';
 import 'group.dart';
 
-class LessonParticipant {
+class LessonParticipant extends Equatable {
   final Student student;
   final bool attended;
   final bool isPaid;
@@ -18,6 +20,9 @@ class LessonParticipant {
 
   @override
   String toString() => group?.name ?? student.name;
+
+  @override
+  List<Object?> get props => [student, attended, isPaid, homeworkDone, group];
 
   LessonParticipant copyWith({
     Student? student,

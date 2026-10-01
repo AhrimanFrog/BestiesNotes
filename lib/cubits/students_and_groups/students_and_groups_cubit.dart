@@ -10,39 +10,22 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
 
   StudentsAndGroupsCubit(this._provider) : super(StudentsAndGroupsState());
 
-  Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
-    if (state.noMoreStudents) return;
+  /// Loads every student. A tutor has a few dozen at most, so no paging.
+  Future<void> fetchStudents() async {
     emit(state.copyWith(isLoading: true));
     try {
-      final students = await _provider.getStudents(
-        offset: offset,
-        limit: limit,
-      );
-      if (students.isEmpty) {
-        return emit(state.copyWith(noMoreStudents: true, isLoading: false));
-      }
-      emit(
-        state.copyWith(
-          students: [...state.students, ...students],
-          isLoading: false,
-        ),
-      );
+      final students = await _provider.getStudents();
+      emit(state.copyWith(students: students, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
-  Future<void> fetchGroups({int offset = 0, limit = 100}) async {
-    if (state.noMoreGroups) return;
+  Future<void> fetchGroups() async {
     emit(state.copyWith(isLoading: true));
     try {
-      final groups = await _provider.getGroups(offset: offset, limit: limit);
-      if (groups.isEmpty) {
-        return emit(state.copyWith(noMoreGroups: true, isLoading: false));
-      }
-      emit(
-        state.copyWith(groups: [...state.groups, ...groups], isLoading: false),
-      );
+      final groups = await _provider.getGroups();
+      emit(state.copyWith(groups: groups, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -59,12 +42,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
               .map((s) => s.id == student.id ? studentWithId : s)
               .toList();
 
-    emit(
-      state.copyWith(
-        students: updatedStudents,
-        noMoreStudents: isNew ? false : null,
-      ),
-    );
+    emit(state.copyWith(students: updatedStudents));
   }
 
   Future<void> deleteStudent(int studentId) async {
@@ -98,13 +76,7 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
         ? [...state.groups, groupWithId]
         : state.groups.map((g) => g.id == group.id ? groupWithId : g).toList();
 
-    emit(
-      state.copyWith(
-        groups: updatedGroups,
-        students: updatedStudents,
-        noMoreGroups: isNew ? false : null,
-      ),
-    );
+    emit(state.copyWith(groups: updatedGroups, students: updatedStudents));
   }
 
   Future<void> deleteGroup(int groupId) async {

@@ -8,9 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  final db = DbClient();
-
   WidgetsFlutterBinding.ensureInitialized();
+
+  final db = DbClient();
 
   runApp(
     MultiRepositoryProvider(

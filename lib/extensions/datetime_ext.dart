@@ -1,4 +1,15 @@
 extension DatetimeExt on DateTime {
+  DateTime get dateOnly => DateTime(year, month, day);
+
+  /// Calendar-day arithmetic. Unlike `add(Duration(days: n))` this doesn't
+  /// drift by an hour across DST changes.
+  DateTime addDays(int days) => DateTime(year, month, day + days);
+
+  /// Midnight of the first day of the week containing this date.
+  /// [weekStart] is a [DateTime.monday]..[DateTime.sunday] constant.
+  DateTime startOfWeek(int weekStart) =>
+      dateOnly.addDays(-((weekday - weekStart) % 7));
+
   String toHoursAndMinsFormat() {
     final h = hour.toString().padLeft(2, '0');
     final m = minute.toString().padLeft(2, '0');

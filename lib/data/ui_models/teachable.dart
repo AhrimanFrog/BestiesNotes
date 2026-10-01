@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import 'rate.dart';
 
-abstract class Teachable {
+abstract class Teachable extends Equatable {
   final int? id;
   final String name;
   final Rate pricing;
@@ -17,4 +19,9 @@ abstract class Teachable {
       .split(' ')
       .map((word) => word.isNotEmpty ? word[0].toUpperCase() : '')
       .join();
+
+  /// Equatable 3 no longer compares runtimeType, so keep a Student and a Group
+  /// with identical base fields from being equal.
+  @override
+  List<Object?> get props => [runtimeType, id, name, pricing, iconPath];
 }

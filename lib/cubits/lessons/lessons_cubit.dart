@@ -1,5 +1,6 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +37,7 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
-    _fetchLessons(
+    await _fetchLessons(
       () async =>
           _provider.getLessonsForGroup(groupId, offset: offset, limit: limit),
     );
@@ -63,13 +64,13 @@ class LessonsCubit extends Cubit<LessonsState> {
   }
 
   Future<void> goToPreviousWeek() => fetchLessons(
-    from: state.dateFrom.subtract(const Duration(days: 7)),
-    to: state.dateTo.subtract(const Duration(days: 7)),
+    from: state.dateFrom.addDays(-7),
+    to: state.dateTo.addDays(-7),
   );
 
   Future<void> goToNextWeek() => fetchLessons(
-    from: state.dateFrom.add(const Duration(days: 7)),
-    to: state.dateTo.add(const Duration(days: 7)),
+    from: state.dateFrom.addDays(7),
+    to: state.dateTo.addDays(7),
   );
 
   Future<void> goToCurrentWeek() => fetchLessons(

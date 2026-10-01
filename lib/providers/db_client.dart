@@ -16,8 +16,27 @@ part 'db_client.g.dart';
 class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
+  /// v6 is the first tracked baseline: older dev builds had diverging schemas
+  /// under the same version number, so they are wiped on upgrade. Every change
+  /// from here on gets a real step (`dart run drift_dev make-migrations`).
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 6) {
+        for (final table in allTables.toList().reversed) {
+          await m.deleteTable(table.actualTableName);
+        }
+        await m.createAll();
+      }
+    },
+    // SQLite ships with foreign keys off; without this the cascade and
+    // set-null rules in db_models.dart never run.
+    beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'besties_notes_db');
@@ -27,10 +46,11 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   // Lessons
   // ---------------------------------------------------------------------------
 
+  /// Lessons starting in the half-open range `[from, to)`.
   @override
   Future<List<Lesson>> getLessonsForRange(DateTime from, DateTime to) async {
     final queryRes = _lessonsQuery()
-      ..where(dbLessons.start.isBetweenValues(from, to))
+      ..where(_startsWithin(from, to))
       ..orderBy([OrderingTerm.asc(dbLessons.start)]);
 
     return await _gatherLessonDetailsIntoLesson(queryRes);
@@ -48,12 +68,13 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     int studentId, {
     int offset = 0,
     int limit = 100,
-  }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.studentId.equals(studentId))
-      ..limit(limit, offset: offset)
-      ..orderBy([.desc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
+  }) {
+    return _lessonsWhereParticipant(
+      dbLessonParticipants.studentId.equals(studentId),
+      descending: true,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   @override
@@ -61,12 +82,13 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     int groupId, {
     int offset = 0,
     int limit = 100,
-  }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.groupId.equals(groupId))
-      ..limit(limit, offset: offset)
-      ..orderBy([OrderingTerm.desc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
+  }) {
+    return _lessonsWhereParticipant(
+      dbLessonParticipants.groupId.equals(groupId),
+      descending: true,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   @override
@@ -125,7 +147,18 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
               attended: false,
               groupId: Value(value),
             ),
-        ], mode: InsertMode.insertOrIgnore);
+        ],
+          // Keep existing statuses, but refresh how the student was assigned
+          // (individually vs. through a group).
+          onConflict: DoUpdate<$DbLessonParticipantsTable, DbLessonParticipant>.withExcluded(
+            (_, excluded) =>
+                DbLessonParticipantsCompanion.custom(groupId: excluded.groupId),
+            target: [
+              dbLessonParticipants.lessonId,
+              dbLessonParticipants.studentId,
+            ],
+          ),
+        );
       });
 
       await (delete(dbLessonParticipants)..where(
@@ -184,8 +217,11 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   }
 
   @override
-  Future<List<Student>> getStudents({int offset = 0, int limit = 100}) async {
-    final query = (select(dbStudents)..limit(limit, offset: offset)).join([
+  Future<List<Student>> getStudents({int offset = 0, int? limit}) async {
+    final students = select(dbStudents)
+      ..orderBy([(s) => OrderingTerm.asc(s.name)]);
+    if (limit != null) students.limit(limit, offset: offset);
+    final query = students.join([
       leftOuterJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
     ]);
 
@@ -205,9 +241,11 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       id: student.id != null ? Value(student.id!) : .absent(),
       name: student.name,
       contact: student.contact,
+      avatarPath: Value(student.iconPath),
       payRate: student.pricing.rate,
       period: student.pricing.period,
       notes: student.note,
+      groupId: Value(student.group?.id),
       createdAt: now,
       updatedAt: now,
     );
@@ -238,22 +276,31 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   }
 
   @override
-  Future<List<Group>> getGroups({int offset = 0, int limit = 100}) async {
-    final query = select(dbGroups)..limit(limit, offset: offset);
+  Future<List<Group>> getGroups({int offset = 0, int? limit}) async {
+    final query = select(dbGroups)..orderBy([(g) => OrderingTerm.asc(g.name)]);
+    if (limit != null) query.limit(limit, offset: offset);
     return (await query.get()).map((g) => g.toDomain()).toList();
   }
 
   @override
   Future<int> createOrUpdateGroup(Group group) {
     final now = DateTime.now().millisecondsSinceEpoch;
-    return into(dbGroups).insertOnConflictUpdate(
-      DbGroupsCompanion.insert(
-        id: group.id != null ? Value(group.id!) : .absent(),
-        name: group.name,
-        payRate: group.pricing.rate,
-        period: group.pricing.period,
-        createdAt: now,
-        updatedAt: now,
+    final companion = DbGroupsCompanion.insert(
+      id: group.id != null ? Value(group.id!) : .absent(),
+      name: group.name,
+      avatarPath: Value(group.iconPath),
+      payRate: group.pricing.rate,
+      period: group.pricing.period,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return into(dbGroups).insert(
+      companion,
+      onConflict: DoUpdate(
+        (_) => companion.copyWith(
+          createdAt: const Value.absent(),
+          updatedAt: Value(now),
+        ),
       ),
     );
   }
@@ -312,7 +359,7 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
         ),
       ])
       ..where(dbLessonParticipants.studentId.equals(studentId))
-      ..where(dbLessons.start.isBetweenValues(from, to));
+      ..where(_startsWithin(from, to) & dbLessons.isCancelled.equals(false));
 
     final row = await query.getSingleOrNull();
     return (
@@ -329,7 +376,7 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
   }) async {
     final query = _lessonsQuery()
       ..where(dbLessonParticipants.groupId.equals(groupId))
-      ..where(dbLessons.start.isBetweenValues(from, to));
+      ..where(_startsWithin(from, to) & dbLessons.isCancelled.equals(false));
     final rows = await query.get();
 
     if (rows.isEmpty) return (paidLessons: 0, totalLessons: 0);
@@ -360,34 +407,30 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     bool paymentStatus, {
     int limit = 100,
     int offset = 0,
-  }) async {
-    final query = _lessonsQuery()
-      ..where(dbLessonParticipants.isPaid.equals(paymentStatus))
-      ..orderBy([OrderingTerm.asc(dbLessons.start)])
-      ..limit(limit, offset: offset);
-    return await _gatherLessonDetailsIntoLesson(query);
+  }) {
+    return _lessonsWhereParticipant(
+      dbLessonParticipants.isPaid.equals(paymentStatus),
+      limit: limit,
+      offset: offset,
+    );
   }
 
   @override
-  Future<List<Lesson>> getUnpaidLessonsForStudent(int studentId) async {
-    final query = _lessonsQuery()
-      ..where(
-        dbLessonParticipants.isPaid.equals(false) &
-            dbLessonParticipants.studentId.equals(studentId),
-      )
-      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
+  Future<List<Lesson>> getUnpaidLessonsForStudent(int studentId) {
+    return _lessonsWhereParticipant(
+      dbLessonParticipants.isPaid.equals(false) &
+          dbLessonParticipants.studentId.equals(studentId) &
+          _isBillable(),
+    );
   }
 
   @override
-  Future<List<Lesson>> getUnpaidLessonsForGroup(int groupId) async {
-    final query = _lessonsQuery()
-      ..where(
-        dbLessonParticipants.groupId.equals(groupId) &
-            dbLessonParticipants.isPaid.equals(false),
-      )
-      ..orderBy([OrderingTerm.asc(dbLessons.start)]);
-    return await _gatherLessonDetailsIntoLesson(query);
+  Future<List<Lesson>> getUnpaidLessonsForGroup(int groupId) {
+    return _lessonsWhereParticipant(
+      dbLessonParticipants.groupId.equals(groupId) &
+          dbLessonParticipants.isPaid.equals(false) &
+          _isBillable(),
+    );
   }
 
   @override
@@ -397,25 +440,73 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
         dbStudents,
         dbStudents.id.equalsExp(dbLessonParticipants.studentId),
       ),
-    ])..where(dbLessonParticipants.isPaid.equals(false));
+      innerJoin(dbLessons, dbLessons.id.equalsExp(dbLessonParticipants.lessonId)),
+    ])..where(dbLessonParticipants.isPaid.equals(false) & _isBillable());
 
-    Map<int, Student> studs = {};
-    Map<int, int> unpaidCount = {};
+    final Map<int, Student> studs = {};
+    final Map<int, List<DateTime>> unpaidDates = {};
 
     for (final row in await query.get()) {
       final stud = row.readTable(dbStudents);
       studs.putIfAbsent(stud.id, () => stud.toDomain());
-      unpaidCount[stud.id] = (unpaidCount[stud.id] ?? 0) + 1;
+      unpaidDates.putIfAbsent(stud.id, () => []).add(
+        row.readTable(dbLessons).start,
+      );
     }
 
-    return unpaidCount.entries
-        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessons: e.value))
+    return unpaidDates.entries
+        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessonDates: e.value))
         .toList();
   }
 
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
+
+  Expression<bool> _startsWithin(DateTime from, DateTime to) =>
+      dbLessons.start.isBiggerOrEqualValue(from) &
+      dbLessons.start.isSmallerThanValue(to);
+
+  /// A lesson can be owed for once it has started and wasn't cancelled.
+  Expression<bool> _isBillable() =>
+      dbLessons.isCancelled.equals(false) &
+      dbLessons.start.isSmallerThanValue(DateTime.now());
+
+  /// Loads full lessons (with *all* their participants) for which at least one
+  /// participant row matches [participantFilter]. Filtering ids first keeps
+  /// other participants in the result and makes [limit] count lessons rather
+  /// than joined rows.
+  Future<List<Lesson>> _lessonsWhereParticipant(
+    Expression<bool> participantFilter, {
+    bool descending = false,
+    int? limit,
+    int offset = 0,
+  }) async {
+    final ordering = OrderingTerm(
+      expression: dbLessons.start,
+      mode: descending ? OrderingMode.desc : OrderingMode.asc,
+    );
+    final idsQuery = selectOnly(dbLessons, distinct: true)
+      ..addColumns([dbLessons.id, dbLessons.start])
+      ..join([
+        innerJoin(
+          dbLessonParticipants,
+          dbLessonParticipants.lessonId.equalsExp(dbLessons.id),
+          useColumns: false,
+        ),
+      ])
+      ..where(participantFilter)
+      ..orderBy([ordering]);
+    if (limit != null) idsQuery.limit(limit, offset: offset);
+
+    final ids = [for (final row in await idsQuery.get()) row.read(dbLessons.id)!];
+    if (ids.isEmpty) return [];
+
+    final query = _lessonsQuery()
+      ..where(dbLessons.id.isIn(ids))
+      ..orderBy([ordering]);
+    return _gatherLessonDetailsIntoLesson(query);
+  }
 
   JoinedSelectStatement _lessonsQuery() {
     return (select(dbLessons)).join([

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:besties_notes/data/common.dart';
+import 'package:besties_notes/data/ui_models/rate.dart';
 import 'package:besties_notes/widgets/fields/input_field.dart';
 import 'package:besties_notes/widgets/helpers.dart';
 
@@ -29,13 +30,13 @@ class RatePeriodField extends StatelessWidget {
             icon: const Icon(Icons.attach_money),
             textInputType: const TextInputType.numberWithOptions(decimal: true),
             formatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*')),
             ],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter a rate';
               }
-              final rate = double.tryParse(value);
+              final rate = Rate.tryParseAmount(value);
               if (rate == null || rate <= 0) {
                 return 'Please enter a valid rate';
               }
@@ -50,7 +51,7 @@ class RatePeriodField extends StatelessWidget {
             items: const [
               DropdownMenuItem(
                 value: RatePeriod.perLesson,
-                child: Text('Daily'),
+                child: Text('Per lesson'),
               ),
               DropdownMenuItem(
                 value: RatePeriod.monthly,

@@ -70,6 +70,7 @@ class Lesson extends Equatable {
     id,
     name,
     participants,
+    start,
     duration,
     note,
     isCancelled,

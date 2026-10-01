@@ -2,7 +2,6 @@ import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
-import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/views/modals/student_form.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -36,14 +35,23 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
-                onPressed: () => showModalBottomSheet(
-                  context: context,
-                  builder: (_) => BlocProvider(
-                    create: (_) =>
-                        StudentsAndGroupsCubit(context.read<DataProvider>()),
-                    child: StudentForm(state.student),
-                  ),
-                ),
+                onPressed: () async {
+                  // Edit through the shell's cubit so the students list
+                  // updates too, then reload this screen.
+                  await showModalBottomSheet(
+                    context: context,
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<StudentsAndGroupsCubit>(),
+                      child: StudentForm(state.student),
+                    ),
+                    backgroundColor: Colors.transparent,
+                    useSafeArea: true,
+                    isScrollControlled: true,
+                  );
+                  if (context.mounted) {
+                    context.read<StudentDetailsCubit>().load(widget.studentId);
+                  }
+                },
               ),
             ],
           ),
@@ -179,12 +187,6 @@ class _NavigationChipsRow extends StatelessWidget {
               'stud_payments',
               pathParameters: {'id': '${student.id}'},
             ),
-          ),
-          NavigationChip(
-            icon: Icons.route_outlined,
-            label: 'Roadmap',
-            color: AppColors.pastelBlue,
-            onTap: () {}, // TODO: navigate to roadmap page
           ),
         ],
       ),

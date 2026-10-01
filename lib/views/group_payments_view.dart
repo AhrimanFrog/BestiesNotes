@@ -81,7 +81,7 @@ class _StatsCard extends StatelessWidget {
             color: AppColors.accentGreen,
             label: 'Amount owed',
             value: state.amountOwed > 0
-                ? '${state.amountOwed.toStringAsFixed(0)} / ${state.group.pricing.period.name}'
+                ? state.amountOwed.toStringAsFixed(0)
                 : '—',
           ),
           const Divider(height: 1, color: AppColors.softPink),

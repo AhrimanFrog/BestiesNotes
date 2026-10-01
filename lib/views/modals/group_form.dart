@@ -106,7 +106,7 @@ class _GroupFormState extends State<GroupForm> {
         id: this.group?.id,
         name: _nameController.text.trim(),
         pricing: Rate(
-          rate: double.parse(_rateController.text),
+          rate: Rate.tryParseAmount(_rateController.text)!,
           period: _selectedPeriod,
         ),
         iconPath: _avatarPath,

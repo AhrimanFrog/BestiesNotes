@@ -19,11 +19,11 @@ abstract class DataProvider {
 
   Future<Student> getStudent(int studentId);
 
-  Future<List<Student>> getStudents({int offset = 0, int limit = 100});
+  Future<List<Student>> getStudents({int offset = 0, int? limit});
 
   Future<Group> getGroup(int groupId);
 
-  Future<List<Group>> getGroups({int offset = 0, int limit = 100});
+  Future<List<Group>> getGroups({int offset = 0, int? limit});
 
   Future<List<Lesson>> getLessonsForGroup(
     int groupId, {

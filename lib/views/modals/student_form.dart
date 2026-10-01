@@ -61,11 +61,13 @@ class _StudentFormState extends State<StudentForm> {
         name: _nameController.text.trim(),
         contact: _contactController.text.trim(),
         pricing: Rate(
-          rate: double.parse(_rateController.text),
+          rate: Rate.tryParseAmount(_rateController.text)!,
           period: _selectedPeriod,
         ),
         note: _noteController.text.trim(),
         iconPath: _avatarPath,
+        // Membership is edited from the group form; keep it unchanged here.
+        group: this.student?.group,
       );
       final cubit = context.read<StudentsAndGroupsCubit>();
       await cubit.createOrUpdateStudent(student);

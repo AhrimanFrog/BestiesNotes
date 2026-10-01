@@ -23,6 +23,9 @@ class Group extends Teachable {
         iconPath: null,
       );
 
+  @override
+  List<Object?> get props => [...super.props, students];
+
   Group copyWith({
     int? id,
     String? name,

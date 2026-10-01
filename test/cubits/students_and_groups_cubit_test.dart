@@ -50,43 +50,22 @@ void main() {
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchStudents appends to existing students',
+    'fetchStudents replaces existing students instead of appending',
     build: () => StudentsAndGroupsCubit(provider),
     seed: () => StudentsAndGroupsState(students: [makeStudent(id: 1, name: 'Alice')]),
     setUp: () {
       when(
         () => provider.getStudents(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => [makeStudent(id: 2, name: 'Bob')]);
+      ).thenAnswer((_) async => [
+        makeStudent(id: 1, name: 'Alice'),
+        makeStudent(id: 2, name: 'Bob'),
+      ]);
     },
-    act: (c) => c.fetchStudents(),
-    expect: () => [
-      anything,
-      isA<StudentsAndGroupsState>().having((s) => s.students.length, 'students.length', 2),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchStudents sets noMoreStudents when provider returns empty list',
-    build: () => StudentsAndGroupsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.getStudents(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => []);
+    act: (c) async {
+      await c.fetchStudents();
+      await c.fetchStudents();
     },
-    act: (c) => c.fetchStudents(),
-    expect: () => [
-      anything,
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.noMoreStudents, 'noMoreStudents', true),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchStudents does nothing when noMoreStudents is true',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => const StudentsAndGroupsState(noMoreStudents: true),
-    act: (c) => c.fetchStudents(),
-    expect: () => [],
+    verify: (c) => expect(c.state.students.map((s) => s.id), [1, 2]),
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
@@ -126,27 +105,16 @@ void main() {
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchGroups sets noMoreGroups when provider returns empty list',
+    'fetchGroups replaces existing groups instead of appending',
     build: () => StudentsAndGroupsCubit(provider),
+    seed: () => StudentsAndGroupsState(groups: [makeGroup(id: 1)]),
     setUp: () {
       when(
         () => provider.getGroups(offset: any(named: 'offset'), limit: any(named: 'limit')),
-      ).thenAnswer((_) async => []);
+      ).thenAnswer((_) async => [makeGroup(id: 1)]);
     },
     act: (c) => c.fetchGroups(),
-    expect: () => [
-      anything,
-      isA<StudentsAndGroupsState>()
-          .having((s) => s.noMoreGroups, 'noMoreGroups', true),
-    ],
-  );
-
-  blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(
-    'fetchGroups does nothing when noMoreGroups is true',
-    build: () => StudentsAndGroupsCubit(provider),
-    seed: () => const StudentsAndGroupsState(noMoreGroups: true),
-    act: (c) => c.fetchGroups(),
-    expect: () => [],
+    verify: (c) => expect(c.state.groups.length, 1),
   );
 
   blocTest<StudentsAndGroupsCubit, StudentsAndGroupsState>(

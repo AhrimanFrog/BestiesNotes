@@ -2,9 +2,11 @@ import 'student.dart';
 
 class Debtor {
   final Student debtor;
-  final int unpaidLessons;
+  final List<DateTime> unpaidLessonDates;
 
-  double get amountOwed => debtor.pricing.calculateOwed(unpaidLessons);
+  int get unpaidLessons => unpaidLessonDates.length;
 
-  const Debtor({required this.debtor, required this.unpaidLessons});
+  double get amountOwed => debtor.pricing.calculateOwed(unpaidLessonDates);
+
+  const Debtor({required this.debtor, required this.unpaidLessonDates});
 }

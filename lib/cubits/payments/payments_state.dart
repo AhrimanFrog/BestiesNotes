@@ -19,7 +19,9 @@ class PaymentsState extends Equatable implements CubitState {
     this.error,
   });
 
-  double get amountOwed => student.pricing.calculateOwed(unpaidLessons.length);
+  double get amountOwed => student.pricing.calculateOwed(
+    unpaidLessons.map((l) => l.start),
+  );
 
   PaymentsState copyWith({
     Student? student,

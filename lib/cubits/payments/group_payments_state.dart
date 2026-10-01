@@ -19,7 +19,9 @@ class GroupPaymentsState extends Equatable implements CubitState {
     this.error,
   });
 
-  double get amountOwed => group.pricing.calculateOwed(unpaidLessons.length);
+  double get amountOwed => group.pricing.calculateOwed(
+    unpaidLessons.map((l) => l.start),
+  );
 
   GroupPaymentsState copyWith({
     Group? group,

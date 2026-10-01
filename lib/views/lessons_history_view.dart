@@ -9,6 +9,7 @@ class LessonsHistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Lesson history')),
       body: BlocBuilder<LessonsCubit, LessonsState>(
         builder: (_, state) => LessonsListSection(state: state),
       ),

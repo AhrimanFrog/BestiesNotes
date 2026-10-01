@@ -55,8 +55,8 @@ class _LessonFormState extends State<LessonForm> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
@@ -174,6 +174,7 @@ class _LessonFormState extends State<LessonForm> {
         start: startDateTime,
         duration: Duration(minutes: int.parse(_durationController.text)),
         note: _noteController.text.trim(),
+        isCancelled: this.lesson?.isCancelled ?? false,
       );
 
       final cubit = context.read<LessonsCubit>();

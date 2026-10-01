@@ -18,14 +18,12 @@ class LessonsState extends Equatable implements CubitState {
   }) : dateFrom = dateFrom ?? defaultDateFrom(),
        dateTo = dateTo ?? defaultDateTo();
 
-  static DateTime defaultDateFrom() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
-  }
+  /// Start of the current week. Monday until week start becomes a setting.
+  static DateTime defaultDateFrom() =>
+      DateTime.now().startOfWeek(DateTime.monday);
 
-  static DateTime defaultDateTo() {
-    return defaultDateFrom().add(const Duration(days: 7));
-  }
+  /// Exclusive end of the current week.
+  static DateTime defaultDateTo() => defaultDateFrom().addDays(7);
 
   @override
   List<Object?> get props => [lessons, dateFrom, dateTo, isLoading, error];

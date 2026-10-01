@@ -3,8 +3,6 @@ part of 'students_and_groups_cubit.dart';
 class StudentsAndGroupsState extends Equatable implements CubitState {
   final List<Student> students;
   final List<Group> groups;
-  final bool noMoreStudents;
-  final bool noMoreGroups;
   final Set<Student> groupMembers;
   final String searchQuery;
   final int? filterGroupId;
@@ -17,8 +15,6 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   const StudentsAndGroupsState({
     this.students = const [],
     this.groups = const [],
-    this.noMoreStudents = false,
-    this.noMoreGroups = false,
     this.groupMembers = const {},
     this.searchQuery = '',
     this.filterGroupId,
@@ -59,8 +55,6 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   StudentsAndGroupsState copyWith({
     List<Student>? students,
     List<Group>? groups,
-    bool? noMoreStudents,
-    bool? noMoreGroups,
     Set<Student>? groupMembers,
     String? searchQuery,
     int? Function()? filterGroupId,
@@ -71,8 +65,6 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
     return StudentsAndGroupsState(
       students: students ?? this.students,
       groups: groups ?? this.groups,
-      noMoreStudents: noMoreStudents ?? this.noMoreStudents,
-      noMoreGroups: noMoreGroups ?? this.noMoreGroups,
       searchQuery: searchQuery ?? this.searchQuery,
       groupMembers: groupMembers ?? this.groupMembers,
       filterGroupId: filterGroupId != null
@@ -88,8 +80,6 @@ class StudentsAndGroupsState extends Equatable implements CubitState {
   List<Object?> get props => [
     students,
     groups,
-    noMoreStudents,
-    noMoreGroups,
     groupMembers,
     searchQuery,
     filterGroupId,
