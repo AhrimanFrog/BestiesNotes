@@ -21,7 +21,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonSave => 'Зберегти';
 
   @override
-  String get commonDiscard => 'Відкинути';
+  String get commonDiscard => 'Скинути';
 
   @override
   String get commonEdit => 'Редагувати';
@@ -47,7 +47,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonSearch => 'Пошук';
 
   @override
-  String get commonTryAgain => 'Спробувати ще';
+  String get commonTryAgain => 'Спробувати знову';
 
   @override
   String get commonNoMatches => 'Нічого не знайдено';
@@ -62,7 +62,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonNotesOptional => 'Нотатки (необов’язково)';
 
   @override
-  String get commonTapToSelect => 'Торкніться, щоб вибрати';
+  String get commonTapToSelect => 'Натисніть, щоб вибрати';
 
   @override
   String get commonSeeAll => 'Усі';
@@ -489,7 +489,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get groupNew => 'Нова група';
 
   @override
-  String get groupEdit => 'Редагування групи';
+  String get groupEdit => 'Редагувати групу';
 
   @override
   String get groupCreate => 'Створити групу';
@@ -558,4 +558,147 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get photoRemove => 'Видалити фото';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учня',
+      many: '$count учнів',
+      few: '$count учні',
+      one: '$count учень',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsTitle => 'Налаштування';
+
+  @override
+  String get settingsProfile => 'Профіль';
+
+  @override
+  String get settingsTeacherName => 'Ваше ім’я';
+
+  @override
+  String get settingsTeacherContact => 'Ваш контакт';
+
+  @override
+  String get settingsNotSet => 'Не вказано';
+
+  @override
+  String get settingsLessons => 'Уроки';
+
+  @override
+  String get settingsDefaultLength => 'Тривалість уроку за замовчуванням';
+
+  @override
+  String get settingsWeekStart => 'Початок тижня';
+
+  @override
+  String get settingsMonday => 'Понеділок';
+
+  @override
+  String get settingsSunday => 'Неділя';
+
+  @override
+  String get settingsColorLessons => 'Колір уроків';
+
+  @override
+  String get settingsColorByStatus => 'За статусом';
+
+  @override
+  String get settingsColorByStudent => 'За учнем чи групою';
+
+  @override
+  String get settingsRegional => 'Мова й валюта';
+
+  @override
+  String get settingsLanguage => 'Мова';
+
+  @override
+  String get settingsLanguageSystem => 'Як у системі';
+
+  @override
+  String get settingsCurrency => 'Валюта';
+
+  @override
+  String get settingsCurrencyNone => 'Без символу';
+
+  @override
+  String get settingsData => 'Дані';
+
+  @override
+  String get settingsExport => 'Експортувати резервну копію';
+
+  @override
+  String get settingsExportHint => 'Збережіть або надішліть копію всіх даних';
+
+  @override
+  String get settingsImport => 'Відновити з резервної копії';
+
+  @override
+  String get settingsImportHint => 'Замінює всі дані в застосунку';
+
+  @override
+  String get settingsClear => 'Видалити всі дані';
+
+  @override
+  String get settingsClearHint => 'Учні, групи й уроки';
+
+  @override
+  String get settingsAbout => 'Про застосунок';
+
+  @override
+  String get settingsLicenses => 'Ліцензії';
+
+  @override
+  String settingsVersion(String version) {
+    return 'Версія $version';
+  }
+
+  @override
+  String get backupShareSubject => 'Резервна копія Besties Notes';
+
+  @override
+  String get backupFailed => 'Не вдалося створити резервну копію';
+
+  @override
+  String get restoreConfirmTitle => 'Відновити цю копію?';
+
+  @override
+  String restoreConfirmMessage(String students, String lessons) {
+    return 'У ній $students і $lessons. Усі поточні дані в застосунку буде замінено.';
+  }
+
+  @override
+  String get restoreAction => 'Відновити';
+
+  @override
+  String get restoreNotABackup =>
+      'Цей файл не є резервною копією Besties Notes.';
+
+  @override
+  String get restoreTooNew =>
+      'Цю копію створено новішою версією застосунку. Спершу оновіть застосунок.';
+
+  @override
+  String get restoreFailed => 'Не вдалося відновити копію';
+
+  @override
+  String get clearConfirmTitle => 'Видалити всіх учнів, групи й уроки?';
+
+  @override
+  String get clearConfirmMessage =>
+      'Налаштування залишаться. Можливо, спершу варто експортувати копію.';
+
+  @override
+  String get clearSecondTitle => 'Цю дію не можна скасувати';
+
+  @override
+  String get clearSecondMessage => 'Уся історія уроків і оплат буде втрачена.';
+
+  @override
+  String get clearAction => 'Видалити все';
 }

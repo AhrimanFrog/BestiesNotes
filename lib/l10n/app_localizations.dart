@@ -1051,6 +1051,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove photo'**
   String get photoRemove;
+
+  /// No description provided for @studentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String studentCount(int count);
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get settingsProfile;
+
+  /// No description provided for @settingsTeacherName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get settingsTeacherName;
+
+  /// No description provided for @settingsTeacherContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Your contact'**
+  String get settingsTeacherContact;
+
+  /// No description provided for @settingsNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get settingsNotSet;
+
+  /// No description provided for @settingsLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get settingsLessons;
+
+  /// No description provided for @settingsDefaultLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Default lesson length'**
+  String get settingsDefaultLength;
+
+  /// No description provided for @settingsWeekStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Week starts on'**
+  String get settingsWeekStart;
+
+  /// No description provided for @settingsMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get settingsMonday;
+
+  /// No description provided for @settingsSunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get settingsSunday;
+
+  /// No description provided for @settingsColorLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Color lessons by'**
+  String get settingsColorLessons;
+
+  /// No description provided for @settingsColorByStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get settingsColorByStatus;
+
+  /// No description provided for @settingsColorByStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student or group'**
+  String get settingsColorByStudent;
+
+  /// No description provided for @settingsRegional.
+  ///
+  /// In en, this message translates to:
+  /// **'Language & currency'**
+  String get settingsRegional;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsLanguageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get settingsLanguageSystem;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// No description provided for @settingsCurrencyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No symbol'**
+  String get settingsCurrencyNone;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup'**
+  String get settingsExport;
+
+  /// No description provided for @settingsExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save or send a copy of all your data'**
+  String get settingsExportHint;
+
+  /// No description provided for @settingsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup'**
+  String get settingsImport;
+
+  /// No description provided for @settingsImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces everything in the app'**
+  String get settingsImportHint;
+
+  /// No description provided for @settingsClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all data'**
+  String get settingsClear;
+
+  /// No description provided for @settingsClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Students, groups and lessons'**
+  String get settingsClearHint;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settingsVersion(String version);
+
+  /// No description provided for @backupShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Besties Notes backup'**
+  String get backupShareSubject;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the backup'**
+  String get backupFailed;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this backup?'**
+  String get restoreConfirmTitle;
+
+  /// students and lessons are already-pluralized counts (studentCount, lessonCount).
+  ///
+  /// In en, this message translates to:
+  /// **'It contains {students} and {lessons}. Everything currently in the app will be replaced.'**
+  String restoreConfirmMessage(String students, String lessons);
+
+  /// No description provided for @restoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreAction;
+
+  /// No description provided for @restoreNotABackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This file isn\'t a Besties Notes backup.'**
+  String get restoreNotABackup;
+
+  /// No description provided for @restoreTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer version of the app. Update the app first.'**
+  String get restoreTooNew;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not restore the backup'**
+  String get restoreFailed;
+
+  /// No description provided for @clearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all students, groups and lessons?'**
+  String get clearConfirmTitle;
+
+  /// No description provided for @clearConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings are kept. Consider exporting a backup first.'**
+  String get clearConfirmMessage;
+
+  /// No description provided for @clearSecondTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone'**
+  String get clearSecondTitle;
+
+  /// No description provided for @clearSecondMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All lesson history and payment records will be lost.'**
+  String get clearSecondMessage;
+
+  /// No description provided for @clearAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get clearAction;
 }
 
 class _AppLocalizationsDelegate

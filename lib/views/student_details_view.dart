@@ -1,7 +1,7 @@
 import 'package:besties_notes/cubits/student_details/student_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/money_ui_ext.dart';
 import 'package:besties_notes/extensions/rate_ui_ext.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
@@ -160,7 +160,7 @@ class _Overview extends StatelessWidget {
                   label: owed > 0
                       ? l10n.studentOwesFor(unpaid)
                       : l10n.commonNothingOwed,
-                  value: owed > 0 ? formatAmount(owed) : '—',
+                  value: owed > 0 ? context.money(owed) : '—',
                 ),
                 StatRow(
                   icon: Icons.calendar_month_outlined,
@@ -239,7 +239,10 @@ class _ProfileCard extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     StatusBadge(
-                      label: student.pricing.label(context.l10n),
+                      label: student.pricing.label(
+                        context.l10n,
+                        currency: context.currency,
+                      ),
                       tone: StatusTone.accent,
                     ),
                     if (group != null)

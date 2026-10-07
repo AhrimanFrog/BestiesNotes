@@ -242,5 +242,63 @@
   "photoChange": "Change photo",
   "photoFromGallery": "Choose from gallery",
   "photoTake": "Take a photo",
-  "photoRemove": "Remove photo"
+  "photoRemove": "Remove photo",
+
+  "studentCount": "{count, plural, =1{1 student} other{{count} students}}",
+  "@studentCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "settingsTitle": "Settings",
+  "settingsProfile": "Profile",
+  "settingsTeacherName": "Your name",
+  "settingsTeacherContact": "Your contact",
+  "settingsNotSet": "Not set",
+  "settingsLessons": "Lessons",
+  "settingsDefaultLength": "Default lesson length",
+  "settingsWeekStart": "Week starts on",
+  "settingsMonday": "Monday",
+  "settingsSunday": "Sunday",
+  "settingsColorLessons": "Color lessons by",
+  "settingsColorByStatus": "Status",
+  "settingsColorByStudent": "Student or group",
+  "settingsRegional": "Language & currency",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "System default",
+  "settingsCurrency": "Currency",
+  "settingsCurrencyNone": "No symbol",
+  "settingsData": "Data",
+  "settingsExport": "Export backup",
+  "settingsExportHint": "Save or send a copy of all your data",
+  "settingsImport": "Restore from backup",
+  "settingsImportHint": "Replaces everything in the app",
+  "settingsClear": "Clear all data",
+  "settingsClearHint": "Students, groups and lessons",
+  "settingsAbout": "About",
+  "settingsLicenses": "Licenses",
+  "settingsVersion": "Version {version}",
+  "@settingsVersion": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+
+  "backupShareSubject": "Besties Notes backup",
+  "backupFailed": "Could not create the backup",
+  "restoreConfirmTitle": "Restore this backup?",
+  "restoreConfirmMessage": "It contains {students} and {lessons}. Everything currently in the app will be replaced.",
+  "@restoreConfirmMessage": {
+    "description": "students and lessons are already-pluralized counts (studentCount, lessonCount).",
+    "placeholders": {
+      "students": { "type": "String" },
+      "lessons": { "type": "String" }
+    }
+  },
+  "restoreAction": "Restore",
+  "restoreNotABackup": "This file isn't a Besties Notes backup.",
+  "restoreTooNew": "This backup is from a newer version of the app. Update the app first.",
+  "restoreFailed": "Could not restore the backup",
+  "clearConfirmTitle": "Delete all students, groups and lessons?",
+  "clearConfirmMessage": "Settings are kept. Consider exporting a backup first.",
+  "clearSecondTitle": "This can't be undone",
+  "clearSecondMessage": "All lesson history and payment records will be lost.",
+  "clearAction": "Delete everything"
 }

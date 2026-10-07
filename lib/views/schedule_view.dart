@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
+import 'package:besties_notes/cubits/settings/settings_cubit.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
@@ -6,6 +7,10 @@ import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+/// Settings › "Color lessons by". Rebuilds the calendar when it changes.
+bool _colorBySubject(BuildContext context) =>
+    context.select((SettingsCubit c) => c.state.colorBySubject);
 
 class SchedulePage extends StatelessWidget {
   const SchedulePage({super.key});
@@ -75,7 +80,8 @@ class SchedulePage extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.padded,
                 ),
               ),
-              const SizedBox(width: AppSpacing.lg),
+              const SettingsButton(),
+              const SizedBox(width: AppSpacing.xs),
             ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(50),
@@ -162,6 +168,7 @@ class _WeekView extends StatelessWidget {
             date: day,
             lessons: state.lessonsOn(day),
             featuredLessonId: featuredId,
+            colorBySubject: _colorBySubject(context),
             onLessonTap: (lesson) => SchedulePage._open(context, lesson),
             onAdd: () => SchedulePage._create(context, day),
           ),
@@ -200,6 +207,7 @@ class _MonthView extends StatelessWidget {
           date: selected,
           lessons: lessons,
           featuredLessonId: state.featuredLesson?.id,
+          colorBySubject: _colorBySubject(context),
           onLessonTap: (lesson) => SchedulePage._open(context, lesson),
           onAdd: () => SchedulePage._create(context, selected),
         ),

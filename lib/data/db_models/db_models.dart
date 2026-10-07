@@ -39,6 +39,16 @@ class DbLessons extends Table {
   IntColumn get updatedAt => integer()();
 }
 
+/// App preferences as key/value pairs. Kept in the database (rather than
+/// platform preferences) so backups carry them.
+class DbSettings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {key};
+}
+
 class DbLessonParticipants extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get lessonId =>

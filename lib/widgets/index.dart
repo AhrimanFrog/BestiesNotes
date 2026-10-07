@@ -3,6 +3,7 @@ export 'avatar/initials_circle.dart';
 export 'avatar/user_avatar.dart';
 
 export 'buttons/save_bar.dart';
+export 'buttons/settings_button.dart';
 export 'buttons/submit_button.dart';
 
 export 'calendar/month_grid.dart';

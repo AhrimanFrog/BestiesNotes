@@ -1,0 +1,13 @@
+Besties Notes
+Copyright 2025-2026 AhrimanFrog
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product bundles the following fonts, each licensed under the SIL Open
+Font License, Version 1.1 (license texts in assets/fonts/):
+
+  - Yeseva One — Copyright 2012 The Yeseva One Project Authors
+  - Nunito — Copyright 2014 The Nunito Project Authors
+
+Third-party Dart and Flutter packages are listed with their licenses on the
+app's "Licenses" screen and in pubspec.lock.

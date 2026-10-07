@@ -59,6 +59,10 @@ class _StudentsPageState extends State<StudentsPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.studentsTitle),
+        actions: const [
+          SettingsButton(),
+          SizedBox(width: AppSpacing.xs),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: [

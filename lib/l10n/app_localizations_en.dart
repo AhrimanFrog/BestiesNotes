@@ -548,4 +548,145 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoRemove => 'Remove photo';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsProfile => 'Profile';
+
+  @override
+  String get settingsTeacherName => 'Your name';
+
+  @override
+  String get settingsTeacherContact => 'Your contact';
+
+  @override
+  String get settingsNotSet => 'Not set';
+
+  @override
+  String get settingsLessons => 'Lessons';
+
+  @override
+  String get settingsDefaultLength => 'Default lesson length';
+
+  @override
+  String get settingsWeekStart => 'Week starts on';
+
+  @override
+  String get settingsMonday => 'Monday';
+
+  @override
+  String get settingsSunday => 'Sunday';
+
+  @override
+  String get settingsColorLessons => 'Color lessons by';
+
+  @override
+  String get settingsColorByStatus => 'Status';
+
+  @override
+  String get settingsColorByStudent => 'Student or group';
+
+  @override
+  String get settingsRegional => 'Language & currency';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageSystem => 'System default';
+
+  @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsCurrencyNone => 'No symbol';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExport => 'Export backup';
+
+  @override
+  String get settingsExportHint => 'Save or send a copy of all your data';
+
+  @override
+  String get settingsImport => 'Restore from backup';
+
+  @override
+  String get settingsImportHint => 'Replaces everything in the app';
+
+  @override
+  String get settingsClear => 'Clear all data';
+
+  @override
+  String get settingsClearHint => 'Students, groups and lessons';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String get settingsLicenses => 'Licenses';
+
+  @override
+  String settingsVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get backupShareSubject => 'Besties Notes backup';
+
+  @override
+  String get backupFailed => 'Could not create the backup';
+
+  @override
+  String get restoreConfirmTitle => 'Restore this backup?';
+
+  @override
+  String restoreConfirmMessage(String students, String lessons) {
+    return 'It contains $students and $lessons. Everything currently in the app will be replaced.';
+  }
+
+  @override
+  String get restoreAction => 'Restore';
+
+  @override
+  String get restoreNotABackup => 'This file isn\'t a Besties Notes backup.';
+
+  @override
+  String get restoreTooNew =>
+      'This backup is from a newer version of the app. Update the app first.';
+
+  @override
+  String get restoreFailed => 'Could not restore the backup';
+
+  @override
+  String get clearConfirmTitle => 'Delete all students, groups and lessons?';
+
+  @override
+  String get clearConfirmMessage =>
+      'Settings are kept. Consider exporting a backup first.';
+
+  @override
+  String get clearSecondTitle => 'This can\'t be undone';
+
+  @override
+  String get clearSecondMessage =>
+      'All lesson history and payment records will be lost.';
+
+  @override
+  String get clearAction => 'Delete everything';
 }

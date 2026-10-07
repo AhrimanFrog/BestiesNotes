@@ -1,7 +1,7 @@
 import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
-import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/money_ui_ext.dart';
 import 'package:besties_notes/extensions/rate_ui_ext.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
@@ -162,7 +162,10 @@ class _Overview extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     StatusBadge(
-                      label: group.pricing.label(l10n),
+                      label: group.pricing.label(
+                        l10n,
+                        currency: context.currency,
+                      ),
                       tone: StatusTone.accent,
                     ),
                   ],
@@ -183,7 +186,7 @@ class _Overview extends StatelessWidget {
               label: owed > 0
                   ? l10n.groupOwedFor(unpaid)
                   : l10n.commonNothingOwed,
-              value: owed > 0 ? formatAmount(owed) : '—',
+              value: owed > 0 ? context.money(owed) : '—',
             ),
           ),
         ),

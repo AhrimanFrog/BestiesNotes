@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/index.dart';
+import 'package:besties_notes/data/app_settings.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
@@ -7,6 +8,7 @@ import 'package:besties_notes/views/lesson_detail_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
 import 'package:besties_notes/views/payments_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
+import 'package:besties_notes/views/settings_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
 import 'package:besties_notes/views/students_view.dart';
 import 'package:besties_notes/widgets/navigation/main_bottom_bar.dart';
@@ -39,6 +41,8 @@ extension AppNavigation on BuildContext {
   Future<void> createGroup() => push('/group/new');
   Future<void> openGroupPayments(int id) => push('/group/$id/payments');
   Future<void> openGroupHistory(int id) => push('/group/$id/history');
+
+  Future<void> openSettings() => push('/settings');
 }
 
 int _id(GoRouterState state) => int.parse(state.pathParameters['id']!);
@@ -54,6 +58,10 @@ final router = GoRouter(
         create: (_) => LessonInfoCubit(context.read<DataProvider>())
           ..startNew(
             date: DateTime.tryParse(state.uri.queryParameters['date'] ?? ''),
+            durationMinutes: context
+                .read<SettingsCubit>()
+                .state
+                .defaultLessonMinutes,
           ),
         child: const LessonDetailView(),
       ),
@@ -153,6 +161,11 @@ final router = GoRouter(
       ],
     ),
 
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsView(),
+    ),
+
     // ── Tabs ─────────────────────────────────────────────────────────────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
@@ -163,9 +176,18 @@ final router = GoRouter(
             GoRoute(
               path: '/schedule',
               builder: (context, state) => BlocProvider(
-                create: (_) =>
-                    LessonsCubit(context.read<DataProvider>())..fetchLessons(),
-                child: const SchedulePage(),
+                create: (_) => LessonsCubit(
+                  context.read<DataProvider>(),
+                  weekStart: context.read<SettingsCubit>().state.weekStart,
+                )..fetchLessons(),
+                // A changed week start re-lays out the open calendar.
+                child: BlocListener<SettingsCubit, AppSettings>(
+                  listenWhen: (a, b) => a.weekStart != b.weekStart,
+                  listener: (context, settings) => context
+                      .read<LessonsCubit>()
+                      .setWeekStart(settings.weekStart),
+                  child: const SchedulePage(),
+                ),
               ),
             ),
           ],

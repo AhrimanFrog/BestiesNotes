@@ -1,4 +1,4 @@
-import 'package:besties_notes/data/money.dart';
+import 'package:besties_notes/extensions/money_ui_ext.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/teachable.dart';
 import 'package:besties_notes/extensions/rate_ui_ext.dart';
@@ -64,13 +64,16 @@ class ParticipantCard extends StatelessWidget {
           ),
           if (owed > 0)
             StatusBadge(
-              label: context.l10n.owesAmount(formatAmount(owed)),
+              label: context.l10n.owesAmount(context.money(owed)),
               tone: StatusTone.warning,
               icon: Icons.payments_outlined,
             )
           else
             StatusBadge(
-              label: participant.pricing.label(context.l10n),
+              label: participant.pricing.label(
+                context.l10n,
+                currency: context.currency,
+              ),
               tone: StatusTone.accent,
             ),
         ],
