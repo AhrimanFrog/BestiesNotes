@@ -3,10 +3,10 @@ import 'package:besties_notes/data/app_settings.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
-import 'package:besties_notes/views/group_payments_view.dart';
 import 'package:besties_notes/views/lesson_detail_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
 import 'package:besties_notes/views/payments_view.dart';
+import 'package:besties_notes/views/reports_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
 import 'package:besties_notes/views/settings_view.dart';
 import 'package:besties_notes/views/student_details_view.dart';
@@ -111,8 +111,9 @@ final router = GoRouter(
             create: (_) => PaymentsCubit(
               context.read<PaymentProvider>(),
               context.read<DataProvider>(),
-            ),
-            child: PaymentsView(studentId: _id(state)),
+              studentId: _id(state),
+            )..load(),
+            child: const PaymentsView(),
           ),
         ),
       ],
@@ -151,11 +152,12 @@ final router = GoRouter(
         GoRoute(
           path: 'payments',
           builder: (context, state) => BlocProvider(
-            create: (_) => GroupPaymentsCubit(
+            create: (_) => PaymentsCubit(
               context.read<PaymentProvider>(),
               context.read<DataProvider>(),
-            ),
-            child: GroupPaymentsView(groupId: _id(state)),
+              groupId: _id(state),
+            )..load(),
+            child: const PaymentsView(),
           ),
         ),
       ],
@@ -197,6 +199,18 @@ final router = GoRouter(
             GoRoute(
               path: '/scholars',
               builder: (context, state) => const StudentsPage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/reports',
+              builder: (context, state) => BlocProvider(
+                create: (_) =>
+                    ReportsCubit(context.read<PaymentProvider>())..load(),
+                child: const ReportsPage(),
+              ),
             ),
           ],
         ),

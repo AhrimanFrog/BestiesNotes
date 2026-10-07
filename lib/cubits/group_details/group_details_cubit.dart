@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/data/earnings.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
@@ -18,11 +19,12 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
   Future<void> load(int groupId) async {
     emit(state.copyWith(isLoading: true));
     try {
-      final (group, lessons, members, unpaid) = await (
+      final (group, lessons, members, unpaid, owed) = await (
         _provider.getGroup(groupId),
         _provider.getLessonsForGroup(groupId),
         _provider.getGroupMembers(groupId),
         _payments.getUnpaidLessonsForGroup(groupId),
+        _payments.getParticipations(groupId: groupId, unpaidOnly: true),
       ).wait;
 
       emit(
@@ -30,6 +32,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
           group: group.copyWith(students: members.toSet()),
           lessons: lessons,
           unpaidLessons: unpaid,
+          amountOwed: Earnings.summarize(owed).unpaid,
           isLoading: false,
         ),
       );

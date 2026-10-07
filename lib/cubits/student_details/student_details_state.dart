@@ -8,6 +8,9 @@ class StudentDetailsState extends Equatable implements CubitState {
   final int paidThisMonth;
   final int totalThisMonth;
 
+  /// Unpaid charges across all time, individual and group lessons alike.
+  final double amountOwed;
+
   /// The edit in progress; null in view mode.
   final StudentDraft? draft;
   final StudentDraft? initialDraft;
@@ -25,6 +28,7 @@ class StudentDetailsState extends Equatable implements CubitState {
     this.unpaidLessons = const [],
     this.paidThisMonth = 0,
     this.totalThisMonth = 0,
+    this.amountOwed = 0,
     this.draft,
     this.initialDraft,
     this.isLoading = false,
@@ -37,9 +41,6 @@ class StudentDetailsState extends Equatable implements CubitState {
   bool get isNew => isEditing && student == null;
   bool get isDirty => isEditing && draft != initialDraft;
 
-  double get amountOwed =>
-      student?.pricing.calculateOwed(unpaidLessons.map((l) => l.start)) ?? 0;
-
   @override
   bool get isEmpty => student == null && draft == null;
 
@@ -50,6 +51,7 @@ class StudentDetailsState extends Equatable implements CubitState {
     unpaidLessons,
     paidThisMonth,
     totalThisMonth,
+    amountOwed,
     draft,
     initialDraft,
     isLoading,
@@ -64,6 +66,7 @@ class StudentDetailsState extends Equatable implements CubitState {
     List<Lesson>? unpaidLessons,
     int? paidThisMonth,
     int? totalThisMonth,
+    double? amountOwed,
     StudentDraft? Function()? draft,
     StudentDraft? Function()? initialDraft,
     bool? isLoading,
@@ -77,6 +80,7 @@ class StudentDetailsState extends Equatable implements CubitState {
       unpaidLessons: unpaidLessons ?? this.unpaidLessons,
       paidThisMonth: paidThisMonth ?? this.paidThisMonth,
       totalThisMonth: totalThisMonth ?? this.totalThisMonth,
+      amountOwed: amountOwed ?? this.amountOwed,
       draft: draft != null ? draft() : this.draft,
       initialDraft: initialDraft != null ? initialDraft() : this.initialDraft,
       isLoading: isLoading ?? this.isLoading,

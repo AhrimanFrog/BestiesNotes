@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:besties_notes/data/common.dart';
+import 'package:besties_notes/data/earnings.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/db_group_ext.dart';
 import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
@@ -30,7 +31,7 @@ class DbClient extends _$DbClient
   /// under the same version number, so they are wiped on upgrade. Every change
   /// since has a real step (`dart run drift_dev make-migrations`).
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -48,6 +49,22 @@ class DbClient extends _$DbClient
         to: to,
         steps: migrationSteps(
           from6To7: (m, schema) => m.createTable(schema.dbSettings),
+          from7To8: (m, schema) async {
+            final participants = schema.dbLessonParticipants;
+            await m.addColumn(participants, participants.payRate);
+            await m.addColumn(participants, participants.period);
+            // Price existing lessons at today's rates: the group's for group
+            // members, the student's own otherwise.
+            for (final column in ['pay_rate', 'period']) {
+              await customStatement('''
+                UPDATE db_lesson_participants SET $column = COALESCE(
+                  (SELECT g.$column FROM db_groups g
+                    WHERE g.id = db_lesson_participants.group_id),
+                  (SELECT s.$column FROM db_students s
+                    WHERE s.id = db_lesson_participants.student_id))
+              ''');
+            }
+          },
         ),
       );
     },
@@ -237,11 +254,14 @@ class DbClient extends _$DbClient
                 studentId: key,
                 isPaid: false,
                 attended: false,
-                groupId: Value(value),
+                groupId: Value(value.groupId),
+                payRate: Value(value.payRate),
+                period: Value(value.period),
               ),
           ],
-          // Keep existing statuses, but refresh how the student was assigned
-          // (individually vs. through a group).
+          // Keep existing statuses and price, but refresh how the student was
+          // assigned (individually vs. through a group). An upcoming lesson
+          // is re-priced below.
           onConflict:
               DoUpdate<
                 $DbLessonParticipantsTable,
@@ -263,6 +283,8 @@ class DbClient extends _$DbClient
                 p.lessonId.equals(lessonId) & p.studentId.isNotIn(desired.keys),
           ))
           .go();
+
+      await _repriceUpcoming((p) => p.lessonId.equals(lessonId));
     });
   }
 
@@ -346,15 +368,24 @@ class DbClient extends _$DbClient
       createdAt: now,
       updatedAt: now,
     );
-    return into(dbStudents).insert(
-      companion,
-      onConflict: DoUpdate(
-        (_) => companion.copyWith(
-          createdAt: const Value.absent(),
-          updatedAt: Value(now),
+    return transaction(() async {
+      // An upsert that updates doesn't set the last insert rowid reliably.
+      final insertedId = await into(dbStudents).insert(
+        companion,
+        onConflict: DoUpdate(
+          (_) => companion.copyWith(
+            createdAt: const Value.absent(),
+            updatedAt: Value(now),
+          ),
         ),
-      ),
-    );
+      );
+      final id = student.id ?? insertedId;
+      // A new rate applies to individual lessons still to come.
+      await _repriceUpcoming(
+        (p) => p.studentId.equals(id) & p.groupId.isNull(),
+      );
+      return id;
+    });
   }
 
   @override
@@ -391,15 +422,21 @@ class DbClient extends _$DbClient
       createdAt: now,
       updatedAt: now,
     );
-    return into(dbGroups).insert(
-      companion,
-      onConflict: DoUpdate(
-        (_) => companion.copyWith(
-          createdAt: const Value.absent(),
-          updatedAt: Value(now),
+    return transaction(() async {
+      final insertedId = await into(dbGroups).insert(
+        companion,
+        onConflict: DoUpdate(
+          (_) => companion.copyWith(
+            createdAt: const Value.absent(),
+            updatedAt: Value(now),
+          ),
         ),
-      ),
-    );
+      );
+      final id = group.id ?? insertedId;
+      // A new rate applies to the group's lessons still to come.
+      await _repriceUpcoming((p) => p.groupId.equals(id));
+      return id;
+    });
   }
 
   @override
@@ -531,32 +568,68 @@ class DbClient extends _$DbClient
   }
 
   @override
-  Future<List<Debtor>> getDebtors() async {
-    final query = select(dbLessonParticipants).join([
-      innerJoin(
-        dbStudents,
-        dbStudents.id.equalsExp(dbLessonParticipants.studentId),
-      ),
-      innerJoin(
-        dbLessons,
-        dbLessons.id.equalsExp(dbLessonParticipants.lessonId),
-      ),
-    ])..where(dbLessonParticipants.isPaid.equals(false) & _isBillable());
+  Future<List<Participation>> getParticipations({
+    DateTime? from,
+    DateTime? to,
+    int? studentId,
+    int? groupId,
+    bool unpaidOnly = false,
+  }) async {
+    final p = dbLessonParticipants;
+    final query =
+        select(p).join([
+            innerJoin(dbLessons, dbLessons.id.equalsExp(p.lessonId)),
+            innerJoin(dbStudents, dbStudents.id.equalsExp(p.studentId)),
+          ])
+          ..where(_isBillable())
+          ..orderBy([OrderingTerm.asc(dbLessons.start)]);
+    if (from != null) query.where(dbLessons.start.isBiggerOrEqualValue(from));
+    if (to != null) query.where(dbLessons.start.isSmallerThanValue(to));
+    if (studentId != null) query.where(p.studentId.equals(studentId));
+    if (groupId != null) query.where(p.groupId.equals(groupId));
+    if (unpaidOnly) query.where(p.isPaid.equals(false));
 
-    final Map<int, Student> studs = {};
-    final Map<int, List<DateTime>> unpaidDates = {};
-
+    final students = <int, Student>{};
+    final result = <Participation>[];
     for (final row in await query.get()) {
-      final stud = row.readTable(dbStudents);
-      studs.putIfAbsent(stud.id, () => stud.toDomain());
-      unpaidDates
-          .putIfAbsent(stud.id, () => [])
-          .add(row.readTable(dbLessons).start);
+      final participant = row.readTable(p);
+      final lesson = row.readTable(dbLessons);
+      result.add(
+        Participation(
+          lessonId: participant.lessonId,
+          lessonName: lesson.topic,
+          start: lesson.start,
+          student: students.putIfAbsent(
+            participant.studentId,
+            () => row.readTable(dbStudents).toDomain(),
+          ),
+          groupId: participant.groupId,
+          rate: Rate(rate: participant.payRate, period: participant.period),
+          isPaid: participant.isPaid,
+        ),
+      );
     }
+    return result;
+  }
 
-    return unpaidDates.entries
-        .map((e) => Debtor(debtor: studs[e.key]!, unpaidLessonDates: e.value))
-        .toList();
+  @override
+  Future<List<Debtor>> getDebtors() async {
+    // Unpaid participations are enough: a monthly charge is owed as soon as
+    // one of its lessons is unpaid.
+    final unpaid = await getParticipations(unpaidOnly: true);
+    final byStudent = <int, List<Participation>>{};
+    for (final p in unpaid) {
+      byStudent.putIfAbsent(p.student.id!, () => []).add(p);
+    }
+    final debtors = [
+      for (final ps in byStudent.values)
+        Debtor(
+          debtor: ps.first.student,
+          unpaidLessons: ps.length,
+          amountOwed: Earnings.summarize(ps).unpaid,
+        ),
+    ]..sort((a, b) => b.amountOwed.compareTo(a.amountOwed));
+    return debtors;
   }
 
   // ---------------------------------------------------------------------------
@@ -652,28 +725,87 @@ class DbClient extends _$DbClient
     return lessonDetails.values.map((d) => d.toDomain()).toList();
   }
 
-  Future<Map<int, int?>> _resolveParticipants(List<Teachable> subjects) async {
-    final Map<int, int?> desiredStudents = {};
-    for (final s in subjects.whereType<Student>()) {
-      if (s.id != null) desiredStudents[s.id!] = null;
+  /// Who takes part when [subjects] are booked, by student id: the group
+  /// they come through (if any) and the rate they're billed — the group's
+  /// rate for group members, their own otherwise. Rates are read from the
+  /// database, not from the passed-in objects, which may be stale.
+  Future<Map<int, ({int? groupId, double payRate, RatePeriod period})>>
+  _resolveParticipants(List<Teachable> subjects) async {
+    final studentIds = {
+      for (final s in subjects.whereType<Student>())
+        if (s.id != null) s.id!,
+    };
+    final groupIds = {
+      for (final g in subjects.whereType<Group>())
+        if (g.id != null) g.id!,
+    };
+
+    final result = <int, ({int? groupId, double payRate, RatePeriod period})>{};
+    if (studentIds.isNotEmpty) {
+      final students = await (select(
+        dbStudents,
+      )..where((s) => s.id.isIn(studentIds))).get();
+      for (final s in students) {
+        result[s.id] = (groupId: null, payRate: s.payRate, period: s.period);
+      }
     }
-
-    final groupIds = subjects
-        .whereType<Group>()
-        .where((g) => g.id != null)
-        .map((g) => g.id!)
-        .toSet();
-
-    if (groupIds.isEmpty) return desiredStudents;
-
-    final members = await (select(
-      dbStudents,
-    )..where((s) => s.groupId.isIn(groupIds))).get();
-    for (final member in members) {
-      desiredStudents[member.id] = member.groupId;
+    if (groupIds.isNotEmpty) {
+      final members =
+          await (select(
+            dbStudents,
+          )..where((s) => s.groupId.isIn(groupIds))).join([
+            innerJoin(dbGroups, dbGroups.id.equalsExp(dbStudents.groupId)),
+          ]).get();
+      for (final row in members) {
+        final group = row.readTable(dbGroups);
+        result[row.readTable(dbStudents).id] = (
+          groupId: group.id,
+          payRate: group.payRate,
+          period: group.period,
+        );
+      }
     }
+    return result;
+  }
 
-    return desiredStudents;
+  /// Re-prices participations in lessons that haven't started yet from the
+  /// current student and group rates. Started lessons keep their price.
+  Future<void> _repriceUpcoming(
+    Expression<bool> Function($DbLessonParticipantsTable p) filter,
+  ) async {
+    final upcoming = selectOnly(dbLessons)
+      ..addColumns([dbLessons.id])
+      ..where(dbLessons.start.isBiggerThanValue(DateTime.now()));
+    final rows =
+        await (select(
+          dbLessonParticipants,
+        )..where((p) => filter(p) & p.lessonId.isInQuery(upcoming))).join([
+          innerJoin(
+            dbStudents,
+            dbStudents.id.equalsExp(dbLessonParticipants.studentId),
+          ),
+          leftOuterJoin(
+            dbGroups,
+            dbGroups.id.equalsExp(dbLessonParticipants.groupId),
+          ),
+        ]).get();
+    if (rows.isEmpty) return;
+
+    await batch((b) {
+      for (final row in rows) {
+        final participant = row.readTable(dbLessonParticipants);
+        final student = row.readTable(dbStudents);
+        final group = row.readTableOrNull(dbGroups);
+        b.update(
+          dbLessonParticipants,
+          DbLessonParticipantsCompanion(
+            payRate: Value(group?.payRate ?? student.payRate),
+            period: Value(group?.period ?? student.period),
+          ),
+          where: (p) => p.id.equals(participant.id),
+        );
+      }
+    });
   }
 
   Future<void> _updateStatuses(

@@ -536,13 +536,95 @@ class AppLocalizationsUk extends AppLocalizations {
   String get groupPayments => 'Оплати групи';
 
   @override
-  String get paymentsUnpaidLessons => 'Неоплачені уроки';
-
-  @override
-  String get paymentsAmountOwed => 'Сума боргу';
-
-  @override
   String get paymentsAllPaidUp => 'Усе оплачено';
+
+  @override
+  String get paymentsOwedInTotal => 'Загальний борг';
+
+  @override
+  String get paymentsNoLessons => 'За цей період уроків немає';
+
+  @override
+  String get paymentsMarkPaid => 'Позначити оплаченим';
+
+  @override
+  String get paymentsMarkUnpaid => 'Позначити неоплаченим';
+
+  @override
+  String get paymentsMonthlyRate => 'Помісячна оплата';
+
+  @override
+  String get navReports => 'Звіти';
+
+  @override
+  String get reportsTitle => 'Звіти';
+
+  @override
+  String get rangeThisMonth => 'Цей місяць';
+
+  @override
+  String get rangeLastMonth => 'Минулий місяць';
+
+  @override
+  String get rangeThisYear => 'Цей рік';
+
+  @override
+  String get rangeAllTime => 'Увесь час';
+
+  @override
+  String get rangeCustom => 'Свій період';
+
+  @override
+  String get earningsEarned => 'Зароблено';
+
+  @override
+  String get earningsPaid => 'Оплачено';
+
+  @override
+  String get earningsUnpaid => 'Не оплачено';
+
+  @override
+  String earningsUnpaidAmount(String amount) {
+    return '$amount не оплачено';
+  }
+
+  @override
+  String reportsWeekOf(String date) {
+    return 'Тиждень від $date';
+  }
+
+  @override
+  String get reportsChartHint => 'Торкніться стовпчика, щоб побачити суми';
+
+  @override
+  String get reportsNothingYet => 'За цей період уроків немає';
+
+  @override
+  String get reportsNothingYetMessage =>
+      'Заробіток з\'явиться тут, щойно уроки відбудуться.';
+
+  @override
+  String get reportsOwedToYou => 'Вам винні';
+
+  @override
+  String get reportsByStudent => 'За учнями';
+
+  @override
+  String get reportsHowCounted =>
+      'Враховано уроки, які вже почалися й не були скасовані, незалежно від того, чи прийшов учень. Помісячна оплата враховується раз за кожен місяць з уроками.';
+
+  @override
+  String unpaidLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count неоплаченого уроку',
+      many: '$count неоплачених уроків',
+      few: '$count неоплачені уроки',
+      one: '$count неоплачений урок',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get photoAdd => 'Додати фото';

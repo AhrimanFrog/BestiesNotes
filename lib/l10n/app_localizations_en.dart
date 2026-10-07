@@ -526,13 +526,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPayments => 'Group payments';
 
   @override
-  String get paymentsUnpaidLessons => 'Unpaid lessons';
-
-  @override
-  String get paymentsAmountOwed => 'Amount owed';
-
-  @override
   String get paymentsAllPaidUp => 'All paid up';
+
+  @override
+  String get paymentsOwedInTotal => 'Owed in total';
+
+  @override
+  String get paymentsNoLessons => 'No lessons in this period';
+
+  @override
+  String get paymentsMarkPaid => 'Mark paid';
+
+  @override
+  String get paymentsMarkUnpaid => 'Mark unpaid';
+
+  @override
+  String get paymentsMonthlyRate => 'Monthly rate';
+
+  @override
+  String get navReports => 'Reports';
+
+  @override
+  String get reportsTitle => 'Reports';
+
+  @override
+  String get rangeThisMonth => 'This month';
+
+  @override
+  String get rangeLastMonth => 'Last month';
+
+  @override
+  String get rangeThisYear => 'This year';
+
+  @override
+  String get rangeAllTime => 'All time';
+
+  @override
+  String get rangeCustom => 'Custom';
+
+  @override
+  String get earningsEarned => 'Earned';
+
+  @override
+  String get earningsPaid => 'Paid';
+
+  @override
+  String get earningsUnpaid => 'Unpaid';
+
+  @override
+  String earningsUnpaidAmount(String amount) {
+    return '$amount unpaid';
+  }
+
+  @override
+  String reportsWeekOf(String date) {
+    return 'Week of $date';
+  }
+
+  @override
+  String get reportsChartHint => 'Tap a bar for its totals';
+
+  @override
+  String get reportsNothingYet => 'No lessons in this period';
+
+  @override
+  String get reportsNothingYetMessage =>
+      'Earnings appear here once lessons have taken place.';
+
+  @override
+  String get reportsOwedToYou => 'Owed to you';
+
+  @override
+  String get reportsByStudent => 'By student';
+
+  @override
+  String get reportsHowCounted =>
+      'Counts lessons that have started and weren\'t cancelled, whether or not the student came. A monthly rate counts once for each month with lessons.';
+
+  @override
+  String unpaidLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unpaid lessons',
+      one: '1 unpaid lesson',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get photoAdd => 'Add photo';

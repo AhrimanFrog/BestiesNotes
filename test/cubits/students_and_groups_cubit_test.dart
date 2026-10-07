@@ -88,12 +88,7 @@ void main() {
       final alice = makeStudent(id: 1);
       stubStudents([alice, makeStudent(id: 2, name: 'Bob')]);
       when(() => payments.getDebtors()).thenAnswer(
-        (_) async => [
-          Debtor(
-            debtor: alice,
-            unpaidLessonDates: [DateTime(2025, 1, 1), DateTime(2025, 1, 8)],
-          ),
-        ],
+        (_) async => [Debtor(debtor: alice, unpaidLessons: 2, amountOwed: 20)],
       );
     },
     act: (c) => c.fetchStudents(),

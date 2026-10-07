@@ -53,6 +53,23 @@ void main() {
         studentId: any(named: 'studentId'),
       ),
     ).thenAnswer((_) async => (paidLessons: 2, totalLessons: 3));
+    when(
+      () => payments.getParticipations(
+        studentId: any(named: 'studentId'),
+        unpaidOnly: any(named: 'unpaidOnly'),
+      ),
+    ).thenAnswer(
+      (_) async => [
+        for (final lesson in unpaid)
+          Participation(
+            lessonId: lesson.id!,
+            start: lesson.start,
+            student: student,
+            rate: _rate,
+            isPaid: false,
+          ),
+      ],
+    );
   }
 
   group('load', () {

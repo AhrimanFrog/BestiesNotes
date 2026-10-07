@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/data/earnings.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
@@ -19,7 +20,7 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
     emit(state.copyWith(isLoading: true));
     final now = DateTime.now();
     try {
-      final (student, lessons, unpaid, month) = await (
+      final (student, lessons, unpaid, month, owed) = await (
         _provider.getStudent(studentId),
         _provider.getLessonsForStudent(studentId),
         _payments.getUnpaidLessonsForStudent(studentId),
@@ -28,6 +29,7 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
           from: DateTime(now.year, now.month),
           to: now,
         ),
+        _payments.getParticipations(studentId: studentId, unpaidOnly: true),
       ).wait;
       emit(
         state.copyWith(
@@ -36,6 +38,7 @@ class StudentDetailsCubit extends Cubit<StudentDetailsState> {
           unpaidLessons: unpaid,
           paidThisMonth: month.paidLessons,
           totalThisMonth: month.totalLessons,
+          amountOwed: Earnings.summarize(owed).unpaid,
           isLoading: false,
         ),
       );

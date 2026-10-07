@@ -1004,23 +1004,155 @@ abstract class AppLocalizations {
   /// **'Group payments'**
   String get groupPayments;
 
-  /// No description provided for @paymentsUnpaidLessons.
-  ///
-  /// In en, this message translates to:
-  /// **'Unpaid lessons'**
-  String get paymentsUnpaidLessons;
-
-  /// No description provided for @paymentsAmountOwed.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount owed'**
-  String get paymentsAmountOwed;
-
   /// No description provided for @paymentsAllPaidUp.
   ///
   /// In en, this message translates to:
   /// **'All paid up'**
   String get paymentsAllPaidUp;
+
+  /// No description provided for @paymentsOwedInTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed in total'**
+  String get paymentsOwedInTotal;
+
+  /// No description provided for @paymentsNoLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons in this period'**
+  String get paymentsNoLessons;
+
+  /// No description provided for @paymentsMarkPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark paid'**
+  String get paymentsMarkPaid;
+
+  /// No description provided for @paymentsMarkUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark unpaid'**
+  String get paymentsMarkUnpaid;
+
+  /// No description provided for @paymentsMonthlyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly rate'**
+  String get paymentsMonthlyRate;
+
+  /// No description provided for @navReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get navReports;
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTitle;
+
+  /// No description provided for @rangeThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get rangeThisMonth;
+
+  /// No description provided for @rangeLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get rangeLastMonth;
+
+  /// No description provided for @rangeThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get rangeThisYear;
+
+  /// No description provided for @rangeAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get rangeAllTime;
+
+  /// No description provided for @rangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get rangeCustom;
+
+  /// No description provided for @earningsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get earningsEarned;
+
+  /// No description provided for @earningsPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get earningsPaid;
+
+  /// No description provided for @earningsUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get earningsUnpaid;
+
+  /// No description provided for @earningsUnpaidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} unpaid'**
+  String earningsUnpaidAmount(String amount);
+
+  /// No description provided for @reportsWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {date}'**
+  String reportsWeekOf(String date);
+
+  /// No description provided for @reportsChartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar for its totals'**
+  String get reportsChartHint;
+
+  /// No description provided for @reportsNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons in this period'**
+  String get reportsNothingYet;
+
+  /// No description provided for @reportsNothingYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings appear here once lessons have taken place.'**
+  String get reportsNothingYetMessage;
+
+  /// No description provided for @reportsOwedToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to you'**
+  String get reportsOwedToYou;
+
+  /// No description provided for @reportsByStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'By student'**
+  String get reportsByStudent;
+
+  /// No description provided for @reportsHowCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts lessons that have started and weren\'t cancelled, whether or not the student came. A monthly rate counts once for each month with lessons.'**
+  String get reportsHowCounted;
+
+  /// No description provided for @unpaidLessonCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unpaid lesson} other{{count} unpaid lessons}}'**
+  String unpaidLessonCount(int count);
 
   /// No description provided for @photoAdd.
   ///

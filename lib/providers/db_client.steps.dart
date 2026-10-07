@@ -401,8 +401,157 @@ i1.GeneratedColumn<String> _column_23(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
+
+final class Schema8 extends i0.VersionedSchema {
+  Schema8({required super.database}) : super(version: 8);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    dbLessons,
+    dbGroups,
+    dbStudents,
+    dbLessonParticipants,
+    dbSettings,
+  ];
+  late final Shape0 dbLessons = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'db_lessons',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 dbGroups = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'db_groups',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_6,
+        _column_7,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 dbStudents = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'db_students',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_8,
+        _column_13,
+        _column_14,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_15,
+        _column_16,
+        _column_6,
+        _column_7,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 dbLessonParticipants = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'db_lesson_participants',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(lesson_id, student_id)'],
+      columns: [
+        _column_0,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_21,
+        _column_16,
+        _column_24,
+        _column_25,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 dbSettings = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'db_settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_22, _column_23],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape5 extends i0.VersionedTable {
+  Shape5({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get lessonId =>
+      columnsByName['lesson_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get studentId =>
+      columnsByName['student_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get isPaid =>
+      columnsByName['is_paid']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get attended =>
+      columnsByName['attended']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get homeworkDone =>
+      columnsByName['homework_done']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get groupId =>
+      columnsByName['group_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<double> get payRate =>
+      columnsByName['pay_rate']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<String> get period =>
+      columnsByName['period']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<double> _column_24(String aliasedName) =>
+    i1.GeneratedColumn<double>(
+      'pay_rate',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.double,
+      $customConstraints: 'NOT NULL DEFAULT 0.0',
+      defaultValue: const i1.CustomExpression('0.0'),
+    );
+i1.GeneratedColumn<String> _column_25(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'period',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL DEFAULT \'perLesson\'',
+      defaultValue: const i1.CustomExpression('\'perLesson\''),
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
+  required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -411,6 +560,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from6To7(migrator, schema);
         return 7;
+      case 7:
+        final schema = Schema8(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from7To8(migrator, schema);
+        return 8;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -419,6 +573,7 @@ i0.MigrationStepWithVersion migrationSteps({
 
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
+  required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from6To7: from6To7),
+  step: migrationSteps(from6To7: from6To7, from7To8: from7To8),
 );

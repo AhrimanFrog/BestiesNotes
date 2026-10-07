@@ -8,29 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
 void main() {
-  group('Rate.calculateOwed', () {
-    final dates = [
-      DateTime(2025, 1, 5),
-      DateTime(2025, 1, 20),
-      DateTime(2025, 2, 3),
-    ];
-
-    test('per-lesson rate charges every lesson', () {
-      const rate = Rate(rate: 10, period: RatePeriod.perLesson);
-      expect(rate.calculateOwed(dates), 30);
-    });
-
-    test('monthly rate charges once per month with unpaid lessons', () {
-      const rate = Rate(rate: 100, period: RatePeriod.monthly);
-      expect(rate.calculateOwed(dates), 200);
-    });
-
-    test('nothing unpaid means nothing owed', () {
-      const rate = Rate(rate: 100, period: RatePeriod.monthly);
-      expect(rate.calculateOwed(const []), 0);
-    });
-  });
-
   test('tryParseAmount accepts comma decimals', () {
     expect(Rate.tryParseAmount('12,5'), 12.5);
     expect(Rate.tryParseAmount(' 7.25 '), 7.25);

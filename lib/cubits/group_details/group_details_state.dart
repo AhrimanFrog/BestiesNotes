@@ -7,6 +7,9 @@ class GroupDetailsState extends Equatable implements CubitState {
   final List<Lesson> lessons;
   final List<Lesson> unpaidLessons;
 
+  /// What the members owe for the group's lessons, across all time.
+  final double amountOwed;
+
   /// The edit in progress; null in view mode.
   final GroupDraft? draft;
   final GroupDraft? initialDraft;
@@ -22,6 +25,7 @@ class GroupDetailsState extends Equatable implements CubitState {
     this.group,
     this.lessons = const [],
     this.unpaidLessons = const [],
+    this.amountOwed = 0,
     this.draft,
     this.initialDraft,
     this.isLoading = false,
@@ -34,9 +38,6 @@ class GroupDetailsState extends Equatable implements CubitState {
   bool get isNew => isEditing && group == null;
   bool get isDirty => isEditing && draft != initialDraft;
 
-  double get amountOwed =>
-      group?.pricing.calculateOwed(unpaidLessons.map((l) => l.start)) ?? 0;
-
   @override
   bool get isEmpty => group == null && draft == null;
 
@@ -45,6 +46,7 @@ class GroupDetailsState extends Equatable implements CubitState {
     group,
     lessons,
     unpaidLessons,
+    amountOwed,
     draft,
     initialDraft,
     isLoading,
@@ -57,6 +59,7 @@ class GroupDetailsState extends Equatable implements CubitState {
     Group? group,
     List<Lesson>? lessons,
     List<Lesson>? unpaidLessons,
+    double? amountOwed,
     GroupDraft? Function()? draft,
     GroupDraft? Function()? initialDraft,
     bool? isLoading,
@@ -68,6 +71,7 @@ class GroupDetailsState extends Equatable implements CubitState {
       group: group ?? this.group,
       lessons: lessons ?? this.lessons,
       unpaidLessons: unpaidLessons ?? this.unpaidLessons,
+      amountOwed: amountOwed ?? this.amountOwed,
       draft: draft != null ? draft() : this.draft,
       initialDraft: initialDraft != null ? initialDraft() : this.initialDraft,
       isLoading: isLoading ?? this.isLoading,

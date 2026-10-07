@@ -234,9 +234,41 @@
   "groupNameHint": "E.g. Saturday conversation",
   "groupPayments": "Group payments",
 
-  "paymentsUnpaidLessons": "Unpaid lessons",
-  "paymentsAmountOwed": "Amount owed",
   "paymentsAllPaidUp": "All paid up",
+  "paymentsOwedInTotal": "Owed in total",
+  "paymentsNoLessons": "No lessons in this period",
+  "paymentsMarkPaid": "Mark paid",
+  "paymentsMarkUnpaid": "Mark unpaid",
+  "paymentsMonthlyRate": "Monthly rate",
+
+  "navReports": "Reports",
+  "reportsTitle": "Reports",
+  "rangeThisMonth": "This month",
+  "rangeLastMonth": "Last month",
+  "rangeThisYear": "This year",
+  "rangeAllTime": "All time",
+  "rangeCustom": "Custom",
+  "earningsEarned": "Earned",
+  "earningsPaid": "Paid",
+  "earningsUnpaid": "Unpaid",
+  "earningsUnpaidAmount": "{amount} unpaid",
+  "@earningsUnpaidAmount": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "reportsWeekOf": "Week of {date}",
+  "@reportsWeekOf": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "reportsChartHint": "Tap a bar for its totals",
+  "reportsNothingYet": "No lessons in this period",
+  "reportsNothingYetMessage": "Earnings appear here once lessons have taken place.",
+  "reportsOwedToYou": "Owed to you",
+  "reportsByStudent": "By student",
+  "reportsHowCounted": "Counts lessons that have started and weren't cancelled, whether or not the student came. A monthly rate counts once for each month with lessons.",
+  "unpaidLessonCount": "{count, plural, =1{1 unpaid lesson} other{{count} unpaid lessons}}",
+  "@unpaidLessonCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "photoAdd": "Add photo",
   "photoChange": "Change photo",
