@@ -16,8 +16,6 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import 'db_client.steps.dart';
-
 part 'db_client.g.dart';
 
 @DriftDatabase(
@@ -27,51 +25,8 @@ class DbClient extends _$DbClient
     implements DataProvider, PaymentProvider, SettingsProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
-  /// v6 is the first tracked baseline: older dev builds had diverging schemas
-  /// under the same version number, so they are wiped on upgrade. Every change
-  /// since has a real step (`dart run drift_dev make-migrations`).
   @override
-  int get schemaVersion => 8;
-
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
-    onUpgrade: (m, from, to) async {
-      if (from < 6) {
-        for (final table in allTables.toList().reversed) {
-          await m.deleteTable(table.actualTableName);
-        }
-        await m.createAll();
-        return;
-      }
-      await m.runMigrationSteps(
-        from: from,
-        to: to,
-        steps: migrationSteps(
-          from6To7: (m, schema) => m.createTable(schema.dbSettings),
-          from7To8: (m, schema) async {
-            final participants = schema.dbLessonParticipants;
-            await m.addColumn(participants, participants.payRate);
-            await m.addColumn(participants, participants.period);
-            // Price existing lessons at today's rates: the group's for group
-            // members, the student's own otherwise.
-            for (final column in ['pay_rate', 'period']) {
-              await customStatement('''
-                UPDATE db_lesson_participants SET $column = COALESCE(
-                  (SELECT g.$column FROM db_groups g
-                    WHERE g.id = db_lesson_participants.group_id),
-                  (SELECT s.$column FROM db_students s
-                    WHERE s.id = db_lesson_participants.student_id))
-              ''');
-            }
-          },
-        ),
-      );
-    },
-    // SQLite ships with foreign keys off; without this the cascade and
-    // set-null rules in db_models.dart never run.
-    beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
-  );
+  int get schemaVersion => 1;
 
   /// Where the app's database lives on the device.
   static Future<File> databaseFile() async {
