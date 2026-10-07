@@ -36,7 +36,7 @@ class PaymentsCubit extends Cubit<PaymentsState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }

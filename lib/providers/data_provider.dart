@@ -19,11 +19,11 @@ abstract class DataProvider {
 
   Future<Student> getStudent(int studentId);
 
-  Future<List<Student>> getStudents({int offset = 0, int limit = 100});
+  Future<List<Student>> getStudents({int offset = 0, int? limit});
 
   Future<Group> getGroup(int groupId);
 
-  Future<List<Group>> getGroups({int offset = 0, int limit = 100});
+  Future<List<Group>> getGroups({int offset = 0, int? limit});
 
   Future<List<Lesson>> getLessonsForGroup(
     int groupId, {
@@ -42,6 +42,16 @@ abstract class DataProvider {
   Future<void> syncLessonMembership(int lessonId, List<Teachable> subjects);
 
   Future<void> updateCancellation(int lessonId, bool isCancelled);
+
+  Future<void> deleteLesson(int lessonId);
+
+  /// Sets the given statuses for every participant of the lesson.
+  Future<void> updateAllParticipantStatuses(
+    int lessonId, {
+    bool? attended,
+    bool? isPaid,
+    bool? homeworkDone,
+  });
 
   Future<void> updateParticipantStatus(
     int lessonId,

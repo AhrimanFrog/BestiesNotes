@@ -23,6 +23,12 @@ class Group extends Teachable {
         iconPath: null,
       );
 
+  @override
+  int? get colorSeed => id == null ? null : id! + 3;
+
+  @override
+  List<Object?> get props => [...super.props, students];
+
   Group copyWith({
     int? id,
     String? name,

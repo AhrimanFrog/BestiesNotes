@@ -1,0 +1,246 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Besties Notes",
+
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonSave": "Save",
+  "commonDiscard": "Discard",
+  "commonEdit": "Edit",
+  "commonClose": "Close",
+  "commonMore": "More",
+  "commonBack": "Back",
+  "commonDone": "Done",
+  "commonDoneCount": "Done ({count})",
+  "@commonDoneCount": {
+    "description": "Confirm button of a picker, with the number of selected items.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "commonSearch": "Search",
+  "commonTryAgain": "Try again",
+  "commonNoMatches": "No matches",
+  "commonToday": "Today",
+  "commonNotes": "Notes",
+  "commonNotesOptional": "Notes (optional)",
+  "commonTapToSelect": "Tap to select",
+  "commonSeeAll": "See all",
+  "commonPayments": "Payments",
+  "commonBalance": "Balance",
+  "commonThisMonth": "This month",
+  "commonNoLessons": "No lessons",
+  "commonNothingOwed": "Nothing owed",
+  "commonMembers": "Members",
+  "commonGroup": "Group",
+  "commonStudents": "Students",
+  "commonGroups": "Groups",
+
+  "deleteNameTitle": "Delete {name}?",
+  "@deleteNameTitle": {
+    "description": "Confirmation dialog title for deleting a student or group.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "navSchedule": "Schedule",
+  "navStudents": "Students",
+
+  "stateErrorTitle": "Something went wrong",
+  "stateEmptyTitle": "Nothing here yet",
+  "stateNotFoundTitle": "Not found",
+  "fieldRequired": "Field cannot be empty",
+  "noStudentsAddFirst": "No students yet. Add some first.",
+
+  "unsavedTitle": "Unsaved changes",
+  "unsavedMessage": "Save them before leaving?",
+  "unsavedSave": "Save changes",
+  "unsavedKeepEditing": "Keep editing",
+
+  "lessonStatusScheduled": "Scheduled",
+  "lessonStatusInProgress": "In progress",
+  "lessonStatusCompleted": "Completed",
+  "lessonStatusCancelled": "Cancelled",
+  "lessonUpNext": "Up next",
+  "lessonNoOneAssigned": "No one assigned",
+  "lessonAudienceMore": "{name} +{count}",
+  "@lessonAudienceMore": {
+    "description": "Who a lesson is for: the first student or group, then how many more.",
+    "placeholders": {
+      "name": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "lessonPresentCount": "{present}/{total} present",
+  "@lessonPresentCount": {
+    "placeholders": {
+      "present": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "lessonUnpaidCount": "{count} unpaid",
+  "@lessonUnpaidCount": {
+    "description": "Badge: how many participants of a lesson haven't paid.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "lessonCount": "{count, plural, =0{no lessons} =1{1 lesson} other{{count} lessons}}",
+  "@lessonCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scheduleTitle": "Schedule",
+  "scheduleWeek": "Week",
+  "scheduleMonth": "Month",
+  "schedulePreviousWeek": "Previous week",
+  "scheduleNextWeek": "Next week",
+  "schedulePreviousMonth": "Previous month",
+  "scheduleNextMonth": "Next month",
+  "scheduleGoToDate": "Go to date",
+  "scheduleNewLesson": "Lesson",
+  "@scheduleNewLesson": {
+    "description": "Label of the schedule's floating \"+ Lesson\" button."
+  },
+  "scheduleFreeWeekTitle": "A free week",
+  "scheduleFreeWeekMessage": "Tap + next to a day to plan a lesson.",
+  "scheduleNothingPlanned": "Nothing planned for this day.",
+  "scheduleAddLessonOn": "Add lesson on {date}",
+  "@scheduleAddLessonOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "lessonNew": "New lesson",
+  "lessonEdit": "Edit lesson",
+  "lessonCreate": "Create lesson",
+  "lessonNotFound": "This lesson may have been deleted.",
+  "lessonCancel": "Cancel lesson",
+  "lessonRestore": "Restore lesson",
+  "lessonDelete": "Delete lesson",
+  "lessonCancelConfirmTitle": "Cancel this lesson?",
+  "lessonCancelConfirmMessage": "It stays in the schedule, marked as cancelled.",
+  "lessonCancelKeep": "Keep it",
+  "lessonDeleteConfirmTitle": "Delete this lesson?",
+  "lessonDeleteConfirmMessage": "Attendance and payment records for it are deleted too.",
+  "lessonPickSomeone": "Pick at least one student or group",
+  "lessonSaveFailed": "Could not save the lesson",
+  "lessonParticipants": "Participants",
+  "lessonParticipantsSummary": "{present}/{total} present · {paid}/{total} paid",
+  "@lessonParticipantsSummary": {
+    "placeholders": {
+      "present": { "type": "int" },
+      "paid": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "lessonAllPresent": "All present",
+  "lessonAllPaid": "All paid",
+  "lessonRestoreToTrack": "Restore the lesson to track attendance and payments.",
+  "lessonAddParticipantsHint": "Edit the lesson to add students or groups.",
+  "lessonNoNotes": "No notes yet.",
+  "lessonStatusPresent": "Present",
+  "lessonStatusPaid": "Paid",
+  "lessonStatusHomework": "Homework done",
+  "lessonWhoIsComing": "Who is coming?",
+  "lessonTopic": "Topic",
+  "lessonTopicHint": "E.g. Present Simple",
+  "lessonSubjects": "Students & groups",
+  "lessonDate": "Date",
+  "lessonTime": "Time",
+  "lessonDuration": "Duration (minutes)",
+  "lessonDurationError": "Enter the length in minutes",
+  "lessonHistory": "Lesson history",
+  "recentLessons": "Recent lessons",
+  "noLessonsYet": "No lessons yet",
+
+  "studentsTitle": "Students",
+  "studentsSearch": "Search students",
+  "groupsSearch": "Search groups",
+  "clearSearch": "Clear search",
+  "fabStudent": "Student",
+  "fabGroup": "Group",
+  "filterAll": "All",
+  "noMatchesMessage": "Try a different name or filter.",
+  "clearFilters": "Clear filters",
+  "noGroupsTitle": "No groups yet",
+  "noGroupsMessage": "Groups let you schedule several students at once.",
+  "noGroupsAction": "Create a group",
+  "noStudentsTitle": "No students yet",
+  "noStudentsMessage": "Add the people you teach to start planning lessons.",
+  "noStudentsAction": "Add a student",
+  "memberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@memberCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "owesAmount": "Owes {amount}",
+  "@owesAmount": {
+    "description": "Badge on a student card. amount is already formatted.",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "studentNew": "New student",
+  "studentEdit": "Edit student",
+  "studentCreate": "Create student",
+  "studentNotFound": "This student may have been deleted.",
+  "studentDelete": "Delete student",
+  "studentDeleteMessage": "Their lesson history and payments will be removed too.",
+  "studentSaveFailed": "Could not save the student",
+  "studentOwesFor": "{count, plural, =1{Owes for 1 lesson} other{Owes for {count} lessons}}",
+  "@studentOwesFor": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "paidOfTotal": "{paid}/{total} paid",
+  "@paidOfTotal": {
+    "placeholders": {
+      "paid": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "studentName": "Name",
+  "studentNameHint": "E.g. Anna Kovalenko",
+  "studentContact": "Contact (optional)",
+  "studentContactHint": "Phone number or messenger handle",
+  "studentNoGroup": "No group",
+
+  "rate": "Rate",
+  "rateRequired": "Please enter a rate",
+  "rateInvalid": "Please enter a valid rate",
+  "ratePeriod": "Period",
+  "ratePeriodPerLesson": "Per lesson",
+  "ratePeriodMonthly": "Monthly",
+  "ratePerLesson": "{amount} / lesson",
+  "@ratePerLesson": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "ratePerMonth": "{amount} / month",
+  "@ratePerMonth": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "groupNew": "New group",
+  "groupEdit": "Edit group",
+  "groupCreate": "Create group",
+  "groupNotFound": "This group may have been deleted.",
+  "groupDelete": "Delete group",
+  "groupDeleteMessage": "Members stay; they just leave the group.",
+  "groupSaveFailed": "Could not save the group",
+  "groupNeedsMember": "Add at least one member",
+  "groupOwedFor": "{count, plural, =1{Owed for 1 lesson} other{Owed for {count} lessons}}",
+  "@groupOwedFor": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "groupNoMembersYet": "No members yet",
+  "groupName": "Group name",
+  "groupNameHint": "E.g. Saturday conversation",
+  "groupPayments": "Group payments",
+
+  "paymentsUnpaidLessons": "Unpaid lessons",
+  "paymentsAmountOwed": "Amount owed",
+  "paymentsAllPaidUp": "All paid up",
+
+  "photoAdd": "Add photo",
+  "photoChange": "Change photo",
+  "photoFromGallery": "Choose from gallery",
+  "photoTake": "Take a photo",
+  "photoRemove": "Remove photo"
+}

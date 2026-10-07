@@ -1,46 +1,75 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/l10n/l10n.dart';
+import 'package:besties_notes/theme/app_theme.dart';
+import 'package:besties_notes/widgets/layout/empty_state.dart';
 import 'package:flutter/material.dart';
 
+/// Shows [child] with loading / error / empty states layered on top,
+/// based on a [CubitState].
 class StateTransitionWidget extends StatelessWidget {
   final CubitState state;
   final Widget child;
   final bool? isEmpty;
+
+  /// Shown when the state is empty. Defaults to a generic [EmptyState].
+  final Widget? empty;
+
+  /// Offered on the error state when set.
+  final VoidCallback? onRetry;
+
+  /// Dims the content with a spinner while loading. Turn off for screens
+  /// that reload often and quickly (calendar paging) to avoid flicker.
+  final bool loadingOverlay;
 
   const StateTransitionWidget({
     super.key,
     required this.state,
     required this.child,
     this.isEmpty,
+    this.empty,
+    this.onRetry,
+    this.loadingOverlay = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final emptyExp = isEmpty ?? state.isEmpty;
+    final showEmpty =
+        (isEmpty ?? state.isEmpty) && !state.isLoading && state.error == null;
+
     return Stack(
       children: [
         child,
-        if (state.isLoading)
-          const Positioned.fill(
+        if (state.isLoading && loadingOverlay)
+          Positioned.fill(
             child: ColoredBox(
-              color: Colors.black12,
-              child: Center(child: CircularProgressIndicator()),
+              color: context.tokens.bg.withValues(alpha: 0.6),
+              child: const Center(child: CircularProgressIndicator()),
             ),
           ),
         if (state.error != null)
           Positioned.fill(
             child: ColoredBox(
-              color: Colors.black12,
-              child: Center(child: Text(state.error!)),
-            ),
-          ),
-        if (emptyExp && !state.isLoading && state.error == null)
-          Positioned.fill(
-            child: Center(
-              child: Text(
-                'No entries yet',
-                style: Theme.of(context).textTheme.bodySmall,
+              color: context.tokens.bg,
+              child: EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: context.l10n.stateErrorTitle,
+                message: state.error,
+                actionLabel: onRetry != null
+                    ? context.l10n.commonTryAgain
+                    : null,
+                onAction: onRetry,
               ),
             ),
+          ),
+        if (showEmpty)
+          Positioned.fill(
+            child:
+                empty ??
+                EmptyState(
+                  icon: Icons.inbox_outlined,
+                  title: context.l10n.stateEmptyTitle,
+                  compact: true,
+                ),
           ),
       ],
     );

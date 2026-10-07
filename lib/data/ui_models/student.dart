@@ -37,6 +37,10 @@ class Student extends Teachable {
     );
   }
 
+  // Only the group id: comparing the whole group would pull its member set in.
+  @override
+  List<Object?> get props => [...super.props, group?.id, contact, note];
+
   const Student.demo()
     : group = null,
       contact = "Loading...",

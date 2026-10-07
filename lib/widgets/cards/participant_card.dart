@@ -1,68 +1,78 @@
+import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/student.dart';
 import 'package:besties_notes/data/ui_models/teachable.dart';
+import 'package:besties_notes/extensions/rate_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
+import 'package:besties_notes/theme/app_theme.dart';
+import 'package:besties_notes/widgets/avatar/user_avatar.dart';
+import 'package:besties_notes/widgets/cards/app_card.dart';
+import 'package:besties_notes/widgets/texts/status_badge.dart';
 import 'package:flutter/material.dart';
-import 'package:besties_notes/common/app_colors.dart';
-import 'package:besties_notes/widgets/index.dart';
 
+/// A student or group in the grid: avatar, name, a detail line and either
+/// what they owe or their rate.
 class ParticipantCard extends StatelessWidget {
   final Teachable participant;
   final VoidCallback? onTap;
-  final VoidCallback? onDelete;
+
+  /// Overrides the default detail line (group name / contact).
+  final String? subtitle;
+
+  /// Shown instead of the rate when above zero.
+  final double owed;
 
   const ParticipantCard({
     super.key,
     required this.participant,
     this.onTap,
-    this.onDelete,
+    this.subtitle,
+    this.owed = 0,
   });
 
-  String get additionalInfo => (participant is Student)
-      ? (participant as Student).group?.name ?? (participant as Student).contact
-      : 'Group';
+  String get _subtitle =>
+      subtitle ??
+      switch (participant) {
+        Student(:final group?) => group.name,
+        Student(:final contact) => contact,
+        _ => '',
+      };
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppCard(
       onTap: onTap,
-      child: Stack(
-        fit: .expand,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: AppSpacing.xs,
         children: [
-          CardContainer(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 6,
-              children: [
-                // Avatar Section
-                UserAvatar(teachable: participant),
-
-                // Name Section
-                Text(
-                  participant.name,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                Text(
-                  additionalInfo,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-                // Action / Status Pill
-                StatusBadge(
-                  label: participant.pricing.toString(),
-                  accentColor: AppColors.accentPink,
-                ),
-              ],
+          UserAvatar(teachable: participant),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            participant.name,
+            textAlign: TextAlign.center,
+            style: context.textTheme.titleMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            _subtitle,
+            textAlign: TextAlign.center,
+            style: context.textTheme.labelMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (owed > 0)
+            StatusBadge(
+              label: context.l10n.owesAmount(formatAmount(owed)),
+              tone: StatusTone.warning,
+              icon: Icons.payments_outlined,
+            )
+          else
+            StatusBadge(
+              label: participant.pricing.label(context.l10n),
+              tone: StatusTone.accent,
             ),
-          ),
-          Positioned(
-            top: 4,
-            right: 4,
-            child: DeleteItemIcon(onDelete: onDelete),
-          ),
         ],
       ),
     );

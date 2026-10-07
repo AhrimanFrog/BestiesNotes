@@ -26,6 +26,8 @@ class Lesson extends Equatable {
 
   bool get isCompleted => DateTime.now().isAfter(end);
 
+  bool get isCancellable => !(isCancelled || isCompleted);
+
   DateTime get end => start.add(duration);
 
   List<Teachable> get subjects {
@@ -60,6 +62,7 @@ class Lesson extends Equatable {
     id,
     name,
     participants,
+    start,
     duration,
     note,
     isCancelled,

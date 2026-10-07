@@ -513,4 +513,210 @@ void main() {
       expect(stats.paidLessons, 0);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // Migrations
+  // ---------------------------------------------------------------------------
+
+  test('a pre-v6 database is wiped and recreated', () async {
+    await db.close();
+    // An old dev build: v5 with the since-removed `status` column.
+    db = DbClient(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute(
+            'CREATE TABLE db_lessons (id INTEGER PRIMARY KEY, '
+            'status TEXT NOT NULL)',
+          );
+          raw.execute("INSERT INTO db_lessons VALUES (1, 'scheduled')");
+          raw.userVersion = 5;
+        },
+      ),
+    );
+
+    expect(await db.getLessonsForRange(DateTime(2000), DateTime(2100)), isEmpty);
+    final id = await db.createOrUpdateLesson(makeLesson());
+    expect((await db.getLesson(id)).name, 'Math');
+  });
+
+  // ---------------------------------------------------------------------------
+  // Regressions
+  // ---------------------------------------------------------------------------
+
+  group('regressions', () {
+    test('student avatar path is persisted', () async {
+      final id = await db.createOrUpdateStudent(
+        Student(
+          name: 'Alice',
+          contact: '',
+          pricing: const Rate(rate: 10, period: RatePeriod.perLesson),
+          iconPath: '/avatars/a.png',
+        ),
+      );
+      expect((await db.getStudent(id)).iconPath, '/avatars/a.png');
+    });
+
+    test('group avatar path is persisted and update keeps createdAt', () async {
+      final id = await db.createOrUpdateGroup(
+        const Group(
+          name: 'G',
+          pricing: Rate(rate: 10, period: RatePeriod.monthly),
+          iconPath: '/avatars/g.png',
+        ),
+      );
+      final createdAt = (await db.select(db.dbGroups).getSingle()).createdAt;
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await db.createOrUpdateGroup(makeGroup(id: id, name: 'Renamed'));
+
+      final row = await db.select(db.dbGroups).getSingle();
+      expect(row.createdAt, createdAt);
+      expect(row.name, 'Renamed');
+      expect((await db.getGroup(id)).iconPath, isNull);
+    });
+
+    test('updating a student keeps their group', () async {
+      final groupId = await db.createOrUpdateGroup(makeGroup());
+      final id = await db.createOrUpdateStudent(makeStudent());
+      await db.syncGroupMemberships(groupId, [id]);
+      final student = await db.getStudent(id);
+
+      await db.createOrUpdateStudent(student.copyWith(name: 'Alice B'));
+      expect((await db.getStudent(id)).group?.id, groupId);
+    });
+
+    test('lessons for a student keep the other participants', () async {
+      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      await db.syncLessonMembership(lessonId, [
+        makeStudent(id: a),
+        makeStudent(id: b),
+      ]);
+
+      final lessons = await db.getLessonsForStudent(a);
+      expect(lessons.single.participants.length, 2);
+    });
+
+    test('limit counts lessons, not participant rows', () async {
+      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+      final groupId = await db.createOrUpdateGroup(makeGroup());
+      await db.syncGroupMemberships(groupId, [a, b]);
+      for (var day = 1; day <= 3; day++) {
+        final id = await db.createOrUpdateLesson(
+          makeLesson(start: DateTime(2025, 1, day)),
+        );
+        await db.syncLessonMembership(id, [makeGroup(id: groupId)]);
+      }
+
+      final lessons = await db.getLessonsForGroup(groupId, limit: 2);
+      expect(lessons.map((l) => l.start.day), [3, 2]);
+    });
+
+    test('getLessonsForRange excludes the end boundary', () async {
+      await db.createOrUpdateLesson(makeLesson(start: DateTime(2025, 1, 6)));
+      await db.createOrUpdateLesson(makeLesson(start: DateTime(2025, 1, 13)));
+
+      final week = await db.getLessonsForRange(
+        DateTime(2025, 1, 6),
+        DateTime(2025, 1, 13),
+      );
+      expect(week.map((l) => l.start.day), [6]);
+    });
+
+    test('unpaid lessons and debtors skip cancelled and future lessons',
+        () async {
+      final id = await db.createOrUpdateStudent(makeStudent());
+      final student = makeStudent(id: id);
+      final past = await db.createOrUpdateLesson(
+        makeLesson(start: DateTime(2025, 1, 5)),
+      );
+      final cancelled = await db.createOrUpdateLesson(
+        makeLesson(start: DateTime(2025, 1, 6), isCancelled: true),
+      );
+      final future = await db.createOrUpdateLesson(
+        makeLesson(start: DateTime.now().add(const Duration(days: 3))),
+      );
+      for (final l in [past, cancelled, future]) {
+        await db.syncLessonMembership(l, [student]);
+      }
+
+      final unpaid = await db.getUnpaidLessonsForStudent(id);
+      expect(unpaid.map((l) => l.id), [past]);
+
+      final debtors = await db.getDebtors();
+      expect(debtors.single.unpaidLessons, 1);
+    });
+
+    test('deleting a student cascades to their lesson participations',
+        () async {
+      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      await db.syncLessonMembership(lessonId, [
+        makeStudent(id: a),
+        makeStudent(id: b),
+      ]);
+
+      await db.deleteStudent(a);
+      final lesson = await db.getLesson(lessonId);
+      expect(lesson.participants.map((p) => p.student.id), [b]);
+    });
+
+    test('deleteLesson removes the lesson and its participants', () async {
+      final id = await db.createOrUpdateStudent(makeStudent());
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      await db.syncLessonMembership(lessonId, [makeStudent(id: id)]);
+
+      await db.deleteLesson(lessonId);
+      expect(() => db.getLesson(lessonId), throwsStateError);
+      expect(await db.select(db.dbLessonParticipants).get(), isEmpty);
+    });
+
+    test('updateAllParticipantStatuses touches only that lesson', () async {
+      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+      final l1 = await db.createOrUpdateLesson(makeLesson());
+      final l2 = await db.createOrUpdateLesson(makeLesson());
+      for (final l in [l1, l2]) {
+        await db.syncLessonMembership(l, [
+          makeStudent(id: a),
+          makeStudent(id: b),
+        ]);
+      }
+
+      await db.updateAllParticipantStatuses(l1, isPaid: true);
+
+      final first = await db.getLesson(l1);
+      final second = await db.getLesson(l2);
+      expect(first.participants.every((p) => p.isPaid), isTrue);
+      expect(first.participants.every((p) => !p.attended), isTrue);
+      expect(second.participants.every((p) => !p.isPaid), isTrue);
+    });
+
+    test('deleting a group detaches its members', () async {
+      final groupId = await db.createOrUpdateGroup(makeGroup());
+      final id = await db.createOrUpdateStudent(makeStudent());
+      await db.syncGroupMemberships(groupId, [id]);
+
+      await db.deleteGroup(groupId);
+      expect((await db.getStudent(id)).group, isNull);
+    });
+
+    test('re-syncing through a group updates groupId but keeps statuses',
+        () async {
+      final groupId = await db.createOrUpdateGroup(makeGroup());
+      final id = await db.createOrUpdateStudent(makeStudent());
+      await db.syncGroupMemberships(groupId, [id]);
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+
+      await db.syncLessonMembership(lessonId, [makeStudent(id: id)]);
+      await db.updateParticipantStatus(lessonId, id, attended: true);
+      await db.syncLessonMembership(lessonId, [makeGroup(id: groupId)]);
+
+      final p = (await db.getLesson(lessonId)).participants.single;
+      expect(p.group?.id, groupId);
+      expect(p.attended, isTrue);
+    });
+  });
 }

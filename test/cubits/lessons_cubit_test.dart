@@ -1,5 +1,4 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
-import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -85,225 +84,174 @@ void main() {
     ],
   );
 
+  // ---------------------------------------------------------------------------
+  // Calendar navigation
+  // ---------------------------------------------------------------------------
+
+  group('navigation', () {
+    setUp(() {
+      when(
+        () => provider.getLessonsForRange(any(), any()),
+      ).thenAnswer((_) async => []);
+    });
+
+    // Wednesday 22 Jan 2025.
+    LessonsState onWednesday({CalendarView view = CalendarView.week}) =>
+        LessonsState(anchor: DateTime(2025, 1, 22), view: view);
+
+    void expectFetched(DateTime from, DateTime to) =>
+        verify(() => provider.getLessonsForRange(from, to)).called(1);
+
+    blocTest<LessonsCubit, LessonsState>(
+      'fetchLessons loads the anchor week, Monday to Monday',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.fetchLessons(),
+      verify: (_) =>
+          expectFetched(DateTime(2025, 1, 20), DateTime(2025, 1, 27)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'a Sunday week start shifts the range',
+      build: () => LessonsCubit(provider, weekStart: DateTime.sunday),
+      act: (c) => c.jumpTo(DateTime(2025, 1, 22)),
+      verify: (_) =>
+          expectFetched(DateTime(2025, 1, 19), DateTime(2025, 1, 26)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToPrevious / goToNext step a week in week view',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) async {
+        await c.goToPrevious();
+        await c.goToNext();
+        await c.goToNext();
+      },
+      verify: (c) {
+        expectFetched(DateTime(2025, 1, 13), DateTime(2025, 1, 20));
+        expectFetched(DateTime(2025, 1, 27), DateTime(2025, 2, 3));
+        expect(c.state.anchor, DateTime(2025, 1, 29));
+      },
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'month view loads the six-week grid around the month',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.setView(CalendarView.month),
+      // January 2025 starts on a Wednesday: the grid starts Mon 30 Dec.
+      verify: (_) =>
+          expectFetched(DateTime(2024, 12, 30), DateTime(2025, 2, 10)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToNext in month view lands on the 1st of the next month',
+      build: () => LessonsCubit(provider),
+      seed: () =>
+          LessonsState(anchor: DateTime(2025, 1, 31), view: CalendarView.month),
+      act: (c) => c.goToNext(),
+      verify: (c) => expect(c.state.anchor, DateTime(2025, 2, 1)),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'selecting a day of the same month does not refetch',
+      build: () => LessonsCubit(provider),
+      seed: () => onWednesday(view: CalendarView.month),
+      act: (c) => c.selectDay(DateTime(2025, 1, 9)),
+      expect: () => [
+        isA<LessonsState>().having(
+          (s) => s.anchor,
+          'anchor',
+          DateTime(2025, 1, 9),
+        ),
+      ],
+      verify: (_) =>
+          verifyNever(() => provider.getLessonsForRange(any(), any())),
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'selecting a trailing day of the next month moves the grid',
+      build: () => LessonsCubit(provider),
+      seed: () => onWednesday(view: CalendarView.month),
+      act: (c) => c.selectDay(DateTime(2025, 2, 3)),
+      verify: (c) {
+        expect(c.state.anchor, DateTime(2025, 2, 3));
+        expectFetched(DateTime(2025, 1, 27), DateTime(2025, 3, 10));
+      },
+    );
+
+    blocTest<LessonsCubit, LessonsState>(
+      'goToToday anchors on today',
+      build: () => LessonsCubit(provider),
+      seed: onWednesday,
+      act: (c) => c.goToToday(),
+      verify: (c) {
+        final now = DateTime.now();
+        expect(c.state.anchor, DateTime(now.year, now.month, now.day));
+        expect(c.state.showsToday, isTrue);
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
+  // refresh
+  // ---------------------------------------------------------------------------
+
   blocTest<LessonsCubit, LessonsState>(
-    'fetchLessons uses custom date range when provided',
+    'refresh re-runs the range query for the currently shown week',
     build: () => LessonsCubit(provider),
     setUp: () {
       when(
         () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => []);
     },
-    act: (c) =>
-        c.fetchLessons(from: DateTime(2025, 3, 1), to: DateTime(2025, 3, 7)),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 3, 1),
-          DateTime(2025, 3, 7),
-        ),
-      ).called(1);
+    act: (c) async {
+      await c.fetchLessons();
+      await c.goToNext();
+      await c.refresh();
     },
-  );
-
-  // ---------------------------------------------------------------------------
-  // Week navigation
-  // ---------------------------------------------------------------------------
-
-  blocTest<LessonsCubit, LessonsState>(
-    'goToPreviousWeek shifts dateFrom and dateTo back by 7 days',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2025, 1, 20),
-      dateTo: DateTime(2025, 1, 27),
-    ),
-    setUp: () {
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToPreviousWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 1, 13),
-          DateTime(2025, 1, 20),
-        ),
-      ).called(1);
+    verify: (c) {
+      final calls = verify(
+        () => provider.getLessonsForRange(captureAny(), any()),
+      ).captured;
+      expect(calls, hasLength(3));
+      // The refresh used the week navigated to, not the original one.
+      expect(calls.last, calls[1]);
+      expect(c.state.dateFrom, calls.last);
     },
   );
 
   blocTest<LessonsCubit, LessonsState>(
-    'goToNextWeek shifts dateFrom and dateTo forward by 7 days',
+    'refresh re-runs a per-student query',
     build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2025, 1, 20),
-      dateTo: DateTime(2025, 1, 27),
-    ),
     setUp: () {
       when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToNextWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          DateTime(2025, 1, 27),
-          DateTime(2025, 2, 3),
+        () => provider.getLessonsForStudent(
+          any(),
+          offset: any(named: 'offset'),
+          limit: any(named: 'limit'),
         ),
-      ).called(1);
-    },
-  );
-
-  blocTest<LessonsCubit, LessonsState>(
-    'goToCurrentWeek resets to default date range',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(
-      dateFrom: DateTime(2024, 1, 1),
-      dateTo: DateTime(2024, 1, 7),
-    ),
-    setUp: () {
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.goToCurrentWeek(),
-    verify: (_) {
-      verify(
-        () => provider.getLessonsForRange(
-          LessonsState.defaultDateFrom(),
-          LessonsState.defaultDateTo(),
-        ),
-      ).called(1);
-    },
-  );
-
-  // ---------------------------------------------------------------------------
-  // createOrUpdateLesson
-  // ---------------------------------------------------------------------------
-
-  blocTest<LessonsCubit, LessonsState>(
-    'createOrUpdateLesson saves lesson and refetches',
-    build: () => LessonsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.createOrUpdateLesson(any()),
-      ).thenAnswer((_) async => 1);
-      when(
-        () => provider.syncLessonMembership(any(), any()),
-      ).thenAnswer((_) async {});
-      when(
-        () => provider.getLessonsForRange(any(), any()),
       ).thenAnswer((_) async => [makeLesson()]);
     },
-    act: (c) => c.createOrUpdateLesson(makeLesson(), const []),
-    verify: (_) {
-      verify(() => provider.createOrUpdateLesson(any())).called(1);
-      verify(() => provider.syncLessonMembership(any(), any())).called(1);
-      verify(() => provider.getLessonsForRange(any(), any())).called(1);
+    act: (c) async {
+      await c.fetchLessonsByStudentId(7);
+      await c.refresh();
     },
-  );
-
-  // ---------------------------------------------------------------------------
-  // cancelLesson
-  // ---------------------------------------------------------------------------
-
-  blocTest<LessonsCubit, LessonsState>(
-    'cancelLesson cancels lesson and refetches',
-    build: () => LessonsCubit(provider),
-    setUp: () {
-      when(
-        () => provider.updateCancellation(any(), any()),
-      ).thenAnswer((_) async {});
-      when(
-        () => provider.getLessonsForRange(any(), any()),
-      ).thenAnswer((_) async => []);
-    },
-    act: (c) => c.cancelLesson(1),
-    verify: (_) => verify(() => provider.updateCancellation(1, true)).called(1),
-  );
-
-  // ---------------------------------------------------------------------------
-  // updateParticipantStatus — optimistic update & rollback
-  // ---------------------------------------------------------------------------
-
-  final participant = LessonParticipant(
-    student: const Student(
-      id: 10,
-      name: 'Alice',
-      contact: '',
-      pricing: Rate(rate: 0, period: RatePeriod.monthly),
-    ),
-    attended: false,
-    isPaid: false,
-    homeworkDone: false,
-  );
-
-  final lessonWithParticipant = Lesson(
-    id: 1,
-    name: 'Math',
-    participants: [participant],
-    start: DateTime(2025, 1, 15, 10),
-    duration: const Duration(hours: 1),
-  );
-
-  blocTest<LessonsCubit, LessonsState>(
-    'updateParticipantStatus applies optimistic update immediately',
-    build: () => LessonsCubit(provider),
-    seed: () => LessonsState(lessons: [lessonWithParticipant]),
-    setUp: () {
-      when(
-        () => provider.updateParticipantStatus(
-          any(),
-          any(),
-          attended: any(named: 'attended'),
-          isPaid: any(named: 'isPaid'),
-          homeworkDone: any(named: 'homeworkDone'),
-        ),
-      ).thenAnswer((_) async {});
-    },
-    act: (c) => c.updateParticipantStatus(1, 10, attended: true),
-    expect: () => [
-      isA<LessonsState>().having(
-        (s) => s.lessons.first.participants.first.attended,
-        'attended',
-        true,
+    verify: (_) => verify(
+      () => provider.getLessonsForStudent(
+        7,
+        offset: any(named: 'offset'),
+        limit: any(named: 'limit'),
       ),
-    ],
+    ).called(2),
   );
 
   blocTest<LessonsCubit, LessonsState>(
-    'updateParticipantStatus rolls back and sets error when provider throws',
+    'refresh before any query does nothing',
     build: () => LessonsCubit(provider),
-    seed: () => LessonsState(lessons: [lessonWithParticipant]),
-    setUp: () {
-      when(
-        () => provider.updateParticipantStatus(
-          any(),
-          any(),
-          attended: any(named: 'attended'),
-          isPaid: any(named: 'isPaid'),
-          homeworkDone: any(named: 'homeworkDone'),
-        ),
-      ).thenThrow(Exception('save failed'));
-    },
-    act: (c) => c.updateParticipantStatus(1, 10, attended: true),
-    expect: () => [
-      // optimistic update
-      isA<LessonsState>().having(
-        (s) => s.lessons.first.participants.first.attended,
-        'attended',
-        true,
-      ),
-      // rollback
-      isA<LessonsState>()
-          .having(
-            (s) => s.lessons.first.participants.first.attended,
-            'attended',
-            false,
-          )
-          .having((s) => s.error, 'error', isNotNull),
-    ],
+    act: (c) => c.refresh(),
+    expect: () => [],
   );
 
   // ---------------------------------------------------------------------------

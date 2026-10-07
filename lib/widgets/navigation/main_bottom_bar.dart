@@ -1,4 +1,4 @@
-import 'package:besties_notes/common/app_colors.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart' show StatefulNavigationShell;
 
@@ -11,18 +11,24 @@ class MainBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.accentPink,
-        unselectedItemColor: AppColors.accentGrey,
-        currentIndex: navigationShell.currentIndex,
-        onTap: (index) => navigationShell.goBranch(index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'Schedule',
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        // Re-tapping the active tab returns to its root.
+        onDestinationSelected: (index) => navigationShell.goBranch(
+          index,
+          initialLocation: index == navigationShell.currentIndex,
+        ),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.calendar_month_outlined),
+            selectedIcon: const Icon(Icons.calendar_month_rounded),
+            label: context.l10n.navSchedule,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Scholars'),
+          NavigationDestination(
+            icon: const Icon(Icons.school_outlined),
+            selectedIcon: const Icon(Icons.school_rounded),
+            label: context.l10n.navStudents,
+          ),
         ],
       ),
     );

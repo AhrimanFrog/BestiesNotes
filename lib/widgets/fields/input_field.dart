@@ -1,7 +1,8 @@
-import 'package:besties_notes/widgets/helpers.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// A text field styled by the app's `InputDecorationTheme`.
 class InputField extends StatelessWidget {
   final TextEditingController _controller;
   final String label;
@@ -11,6 +12,7 @@ class InputField extends StatelessWidget {
   final TextInputType? textInputType;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? formatters;
+  final ValueChanged<String>? onChanged;
 
   const InputField(
     this._controller, {
@@ -22,22 +24,31 @@ class InputField extends StatelessWidget {
     this.textInputType,
     this.formatters,
     this.validator,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: _controller,
-      decoration: inputBorders(label, hint, icon),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: icon,
+        alignLabelWithHint: (maxLines ?? 1) > 1,
+      ),
       keyboardType: textInputType,
       maxLines: maxLines ?? 1,
-      validator: validator ?? validateNotEmpty,
+      validator:
+          validator ??
+          (value) => (value == null || value.trim().isEmpty)
+              ? context.l10n.fieldRequired
+              : null,
       inputFormatters: formatters,
+      onChanged: onChanged,
+      textCapitalization: textInputType == null
+          ? TextCapitalization.sentences
+          : TextCapitalization.none,
     );
-  }
-
-  String? validateNotEmpty(String? value) {
-    final notValid = value == null || value.trim().isEmpty;
-    return notValid ? 'Field cannot be empty' : null;
   }
 }

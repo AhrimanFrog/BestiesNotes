@@ -1,29 +1,33 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/providers/index.dart';
+import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'students_and_groups_state.dart';
 
+/// The app-wide list of students and groups (plus what each student owes),
+/// with search and filtering. Read-only: detail screens make the changes and
+/// the list refreshes afterwards.
 class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
   final DataProvider _provider;
+  final PaymentProvider _payments;
 
-  StudentsAndGroupsCubit(this._provider) : super(StudentsAndGroupsState());
+  StudentsAndGroupsCubit(this._provider, this._payments)
+    : super(const StudentsAndGroupsState());
 
-  Future<void> fetchStudents({int offset = 0, int limit = 100}) async {
-    if (state.noMoreStudents) return;
+  /// Loads every student. A tutor has a few dozen at most, so no paging.
+  Future<void> fetchStudents() async {
     emit(state.copyWith(isLoading: true));
     try {
-      final students = await _provider.getStudents(
-        offset: offset,
-        limit: limit,
-      );
-      if (students.isEmpty) {
-        return emit(state.copyWith(noMoreStudents: true, isLoading: false));
-      }
+      final (students, debtors) = await (
+        _provider.getStudents(),
+        _payments.getDebtors(),
+      ).wait;
       emit(
         state.copyWith(
-          students: [...state.students, ...students],
+          students: students,
+          owed: {for (final d in debtors) d.debtor.id!: d.amountOwed},
           isLoading: false,
         ),
       );
@@ -32,103 +36,30 @@ class StudentsAndGroupsCubit extends Cubit<StudentsAndGroupsState> {
     }
   }
 
-  Future<void> fetchGroups({int offset = 0, limit = 100}) async {
-    if (state.noMoreGroups) return;
+  Future<void> fetchGroups() async {
     emit(state.copyWith(isLoading: true));
     try {
-      final groups = await _provider.getGroups(offset: offset, limit: limit);
-      if (groups.isEmpty) {
-        return emit(state.copyWith(noMoreGroups: true, isLoading: false));
-      }
+      final groups = await _provider.getGroups();
+      final filter = state.filterGroupId;
       emit(
-        state.copyWith(groups: [...state.groups, ...groups], isLoading: false),
+        state.copyWith(
+          groups: groups,
+          // Drop a filter whose group no longer exists.
+          filterGroupId: filter != null && groups.every((g) => g.id != filter)
+              ? () => null
+              : null,
+          isLoading: false,
+        ),
       );
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
-  Future<void> createOrUpdateStudent(Student student) async {
-    final id = await _provider.createOrUpdateStudent(student);
-    final studentWithId = student.copyWith(id: id);
-
-    final isNew = student.id == null;
-    final updatedStudents = isNew
-        ? [...state.students, studentWithId]
-        : state.students
-              .map((s) => s.id == student.id ? studentWithId : s)
-              .toList();
-
-    emit(
-      state.copyWith(
-        students: updatedStudents,
-        noMoreStudents: isNew ? false : null,
-      ),
-    );
-  }
-
-  Future<void> deleteStudent(int studentId) async {
-    await _provider.deleteStudent(studentId);
-    final updatedStudents = state.students.where((s) => s.id != studentId);
-    emit(state.copyWith(students: updatedStudents.toList()));
-  }
-
-  Future<void> createOrUpdateGroup(Group group) async {
-    final id = await _provider.createOrUpdateGroup(group);
-    final newMemberIds = group.students
-        .where((s) => s.id != null)
-        .map((s) => s.id!);
-    await _provider.syncGroupMemberships(id, newMemberIds);
-
-    final isNew = group.id == null;
-    final groupWithId = group.copyWith(id: id);
-
-    // Reflect new memberships on the student objects already in state so that
-    // group-based filtering works immediately without a refetch.
-    final updatedStudents = state.students.map((s) {
-      if (newMemberIds.contains(s.id)) {
-        return s.copyWith(group: () => groupWithId);
-      } else if (s.group?.id == id) {
-        return s.copyWith(group: () => null);
-      }
-      return s;
-    }).toList();
-
-    final updatedGroups = isNew
-        ? [...state.groups, groupWithId]
-        : state.groups.map((g) => g.id == group.id ? groupWithId : g).toList();
-
-    emit(
-      state.copyWith(
-        groups: updatedGroups,
-        students: updatedStudents,
-        noMoreGroups: isNew ? false : null,
-      ),
-    );
-  }
-
-  Future<void> deleteGroup(int groupId) async {
-    await _provider.deleteGroup(groupId);
-    final updatedGroups = state.groups.where((g) => g.id != groupId).toList();
-
-    // Clear the group reference from students that belonged to the deleted group.
-    final updatedStudents = state.students
-        .map((s) => s.group?.id == groupId ? s.copyWith(group: () => null) : s)
-        .toList();
-
-    emit(
-      state.copyWith(
-        groups: updatedGroups,
-        students: updatedStudents,
-        // If the deleted group was the active filter, reset it so students appear.
-        filterGroupId: state.filterGroupId == groupId ? () => null : null,
-      ),
-    );
-  }
-
-  Future<void> fetchGroupMembers(int groupId) async {
-    final groupMembers = (await _provider.getGroupMembers(groupId)).toSet();
-    emit(state.copyWith(groupMembers: groupMembers));
+  /// Reloads both lists, e.g. after a student or group was edited.
+  Future<void> refresh() async {
+    await fetchGroups();
+    await fetchStudents();
   }
 
   void setSearchQuery(String query) {

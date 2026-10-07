@@ -1,23 +1,27 @@
-import 'package:besties_notes/common/app_colors.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
-import 'package:flutter/material.dart';
+import 'package:besties_notes/l10n/l10n.dart';
+import 'package:besties_notes/theme/app_tokens.dart';
 
 extension LessonUIExt on Lesson {
-  Color get accentColor {
-    if (isCancelled) return AppColors.accentGrey;
-    if (isCompleted) return AppColors.accentGreen;
-    return isNow ? AppColors.accentPink : AppColors.pastelBlue;
+  StatusTone get statusTone {
+    if (isCancelled) return StatusTone.cancelled;
+    if (isCompleted) return StatusTone.done;
+    return isNow ? StatusTone.now : StatusTone.scheduled;
   }
 
-  Color get mainColor {
-    if (isCancelled) return AppColors.softGrey;
-    if (isCompleted) return AppColors.softGreen;
-    return isNow ? AppColors.softWarmPink : AppColors.softPastelBlue;
+  String statusLabel(AppLocalizations l10n) {
+    if (isCancelled) return l10n.lessonStatusCancelled;
+    if (isCompleted) return l10n.lessonStatusCompleted;
+    return isNow ? l10n.lessonStatusInProgress : l10n.lessonStatusScheduled;
   }
 
-  String get uiLabel {
-    if (isCancelled) return 'Cancelled';
-    if (isCompleted) return 'Completed';
-    return isNow ? 'In Progress' : 'Scheduled';
+  /// "Anna", "Anna +2" — counts students and groups, not group members.
+  String audienceLabel(AppLocalizations l10n) {
+    final subjects = this.subjects;
+    if (subjects.isEmpty) return l10n.lessonNoOneAssigned;
+    final rest = subjects.length - 1;
+    return rest > 0
+        ? l10n.lessonAudienceMore(subjects.first.name, rest)
+        : subjects.first.name;
   }
 }

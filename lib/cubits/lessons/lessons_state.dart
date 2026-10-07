@@ -2,8 +2,14 @@ part of 'lessons_cubit.dart';
 
 class LessonsState extends Equatable implements CubitState {
   final List<Lesson> lessons;
-  final DateTime dateFrom;
-  final DateTime dateTo;
+  final CalendarView view;
+
+  /// The day the calendar is centred on; the selected day in month view.
+  final DateTime anchor;
+
+  /// [DateTime.monday]..[DateTime.sunday].
+  final int weekStart;
+
   @override
   final bool isLoading;
   @override
@@ -11,49 +17,90 @@ class LessonsState extends Equatable implements CubitState {
 
   LessonsState({
     this.lessons = const [],
-    DateTime? dateFrom,
-    DateTime? dateTo,
+    this.view = CalendarView.week,
+    DateTime? anchor,
+    this.weekStart = DateTime.monday,
     this.isLoading = false,
     this.error,
-  }) : dateFrom = dateFrom ?? defaultDateFrom(),
-       dateTo = dateTo ?? defaultDateTo();
+  }) : anchor = (anchor ?? DateTime.now()).dateOnly;
 
-  static DateTime defaultDateFrom() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
+  ({DateTime from, DateTime to}) get _range =>
+      CalendarPeriod.range(view, anchor, weekStart);
+
+  /// Where a new lesson goes by default: the selected day in month view,
+  /// otherwise today when visible, else the first day shown.
+  DateTime get defaultNewLessonDay {
+    if (view == CalendarView.month) return anchor;
+    return showsToday ? DateTime.now().dateOnly : dateFrom;
   }
 
-  static DateTime defaultDateTo() {
-    return defaultDateFrom().add(const Duration(days: 7));
+  /// First day shown (inclusive).
+  DateTime get dateFrom => _range.from;
+
+  /// Day after the last one shown (exclusive).
+  DateTime get dateTo => _range.to;
+
+  List<DateTime> get days => [
+    for (var d = dateFrom; d.isBefore(dateTo); d = d.addDays(1)) d,
+  ];
+
+  bool get showsToday {
+    final today = DateTime.now().dateOnly;
+    // In month view only the days of the anchor's own month count.
+    if (view == CalendarView.month) {
+      return today.year == anchor.year && today.month == anchor.month;
+    }
+    return !today.isBefore(dateFrom) && today.isBefore(dateTo);
+  }
+
+  String get periodLabel => CalendarPeriod.label(view, anchor, weekStart);
+
+  List<Lesson> lessonsOn(DateTime day) =>
+      lessons.where((l) => l.start.isSameDay(day)).toList();
+
+  /// The lesson happening now, or the next one to start, if it's in view.
+  Lesson? get featuredLesson {
+    final now = DateTime.now();
+    for (final lesson in lessons) {
+      if (!lesson.isCancelled && lesson.end.isAfter(now)) return lesson;
+    }
+    return null;
   }
 
   @override
-  List<Object?> get props => [lessons, dateFrom, dateTo, isLoading, error];
+  List<Object?> get props => [
+    lessons,
+    view,
+    anchor,
+    weekStart,
+    isLoading,
+    error,
+  ];
 
   @override
   bool get isEmpty => lessons.isEmpty;
 
   Map<DateTime, List<Lesson>> getLessonsByDate() {
-    Map<DateTime, List<Lesson>> lessonsMap = {};
+    final Map<DateTime, List<Lesson>> lessonsMap = {};
     for (final lesson in lessons) {
-      final start = lesson.start;
-      final lessonDay = DateTime(start.year, start.month, start.day);
-      lessonsMap.putIfAbsent(lessonDay, () => []).add(lesson);
+      lessonsMap.putIfAbsent(lesson.start.dateOnly, () => []).add(lesson);
     }
     return lessonsMap;
   }
 
   LessonsState copyWith({
     List<Lesson>? lessons,
-    DateTime? dateFrom,
-    DateTime? dateTo,
+    CalendarView? view,
+    DateTime? anchor,
+    int? weekStart,
     bool? isLoading,
     String? error,
   }) {
     return LessonsState(
       lessons: lessons ?? this.lessons,
-      dateFrom: dateFrom ?? this.dateFrom,
-      dateTo: dateTo ?? this.dateTo,
+      view: view ?? this.view,
+      anchor: anchor ?? this.anchor,
+      weekStart: weekStart ?? this.weekStart,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );

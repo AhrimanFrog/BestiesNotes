@@ -1,23 +1,34 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/data/calendar_period.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/providers/index.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+export 'package:besties_notes/data/calendar_period.dart' show CalendarView;
+
 part 'lessons_state.dart';
 
+/// Lessons for the schedule (a week or month around an anchor day), or for
+/// one student's / group's history.
 class LessonsCubit extends Cubit<LessonsState> {
   final DataProvider _provider;
 
-  LessonsCubit(this._provider) : super(LessonsState());
+  LessonsCubit(this._provider, {int weekStart = DateTime.monday})
+    : super(LessonsState(weekStart: weekStart));
 
-  Future<void> fetchLessons({DateTime? from, DateTime? to}) async {
-    final dateFrom = from ?? state.dateFrom;
-    final dateTo = to ?? state.dateTo;
-    await _fetchLessons(
-      () async => await _provider.getLessonsForRange(dateFrom, dateTo),
-      dateFrom: from,
-      dateTo: to,
-    );
+  /// Re-runs the last query, e.g. after a lesson was edited elsewhere.
+  Future<void> Function()? _lastQuery;
+
+  Future<void> refresh() => _lastQuery?.call() ?? Future.value();
+
+  /// Loads the lessons of the period currently in view.
+  Future<void> fetchLessons() async {
+    // Reads the range from state, so a refresh follows navigation.
+    _lastQuery = fetchLessons;
+    final (from, to) = (state.dateFrom, state.dateTo);
+    await _fetchLessons(() => _provider.getLessonsForRange(from, to));
   }
 
   Future<void> fetchLessonsByStudentId(
@@ -25,8 +36,10 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
+    _lastQuery = () =>
+        fetchLessonsByStudentId(studID, offset: offset, limit: limit);
     await _fetchLessons(
-      () async =>
+      () =>
           _provider.getLessonsForStudent(studID, offset: offset, limit: limit),
     );
   }
@@ -36,96 +49,52 @@ class LessonsCubit extends Cubit<LessonsState> {
     int offset = 0,
     int limit = 100,
   }) async {
-    _fetchLessons(
-      () async =>
-          _provider.getLessonsForGroup(groupId, offset: offset, limit: limit),
+    _lastQuery = () =>
+        fetchLessonsByGroupId(groupId, offset: offset, limit: limit);
+    await _fetchLessons(
+      () => _provider.getLessonsForGroup(groupId, offset: offset, limit: limit),
     );
   }
 
-  Future<void> _fetchLessons(
-    Future<List<Lesson>> Function() fetch, {
-    DateTime? dateFrom,
-    DateTime? dateTo,
-  }) async {
+  Future<void> _fetchLessons(Future<List<Lesson>> Function() fetch) async {
     emit(state.copyWith(isLoading: true));
     try {
-      emit(
-        state.copyWith(
-          lessons: await fetch(),
-          dateFrom: dateFrom,
-          dateTo: dateTo,
-          isLoading: false,
-        ),
-      );
+      emit(state.copyWith(lessons: await fetch(), isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
-  Future<void> goToPreviousWeek() => fetchLessons(
-    from: state.dateFrom.subtract(const Duration(days: 7)),
-    to: state.dateTo.subtract(const Duration(days: 7)),
-  );
+  // ---------------------------------------------------------------------------
+  // Calendar navigation
+  // ---------------------------------------------------------------------------
 
-  Future<void> goToNextWeek() => fetchLessons(
-    from: state.dateFrom.add(const Duration(days: 7)),
-    to: state.dateTo.add(const Duration(days: 7)),
-  );
-
-  Future<void> goToCurrentWeek() => fetchLessons(
-    from: LessonsState.defaultDateFrom(),
-    to: LessonsState.defaultDateTo(),
-  );
-
-  Future<void> createOrUpdateLesson(
-    Lesson lesson,
-    List<Teachable> subjects,
-  ) async {
-    final lessonId = await _provider.createOrUpdateLesson(lesson);
-    await _provider.syncLessonMembership(lessonId, subjects);
-    await fetchLessons();
+  Future<void> setView(CalendarView view) {
+    if (view == state.view) return Future.value();
+    emit(state.copyWith(view: view));
+    return fetchLessons();
   }
 
-  Future<void> cancelLesson(int lessonId) async {
-    await _provider.updateCancellation(lessonId, true);
-    await fetchLessons();
+  Future<void> goToPrevious() =>
+      jumpTo(CalendarPeriod.shift(state.view, state.anchor, -1));
+
+  Future<void> goToNext() =>
+      jumpTo(CalendarPeriod.shift(state.view, state.anchor, 1));
+
+  Future<void> goToToday() => jumpTo(DateTime.now());
+
+  Future<void> jumpTo(DateTime day) {
+    emit(state.copyWith(anchor: day.dateOnly));
+    return fetchLessons();
   }
 
-  Future<void> updateParticipantStatus(
-    int lessonId,
-    int studentId, {
-    bool? attended,
-    bool? isPaid,
-    bool? homeworkDone,
-  }) async {
-    final previousLessons = state.lessons;
-
-    // Optimistic update so the dot responds instantly
-    final updatedLessons = state.lessons.map((lesson) {
-      if (lesson.id != lessonId) return lesson;
-      final updatedParticipants = lesson.participants.map((p) {
-        return (p.student.id != studentId)
-            ? p
-            : p.copyWith(
-                attended: attended,
-                isPaid: isPaid,
-                homeworkDone: homeworkDone,
-              );
-      }).toList();
-      return lesson.copyWith(participants: updatedParticipants);
-    }).toList();
-    emit(state.copyWith(lessons: updatedLessons));
-
-    try {
-      await _provider.updateParticipantStatus(
-        lessonId,
-        studentId,
-        attended: attended,
-        isPaid: isPaid,
-        homeworkDone: homeworkDone,
-      );
-    } catch (e) {
-      emit(state.copyWith(lessons: previousLessons, error:  e.toString()));
-    }
+  /// Selects a day in month view. A day from a neighbouring month (the grid's
+  /// leading/trailing days) moves the grid to that month.
+  Future<void> selectDay(DateTime day) {
+    final sameMonth =
+        day.year == state.anchor.year && day.month == state.anchor.month;
+    if (state.view == CalendarView.month && !sameMonth) return jumpTo(day);
+    emit(state.copyWith(anchor: day.dateOnly));
+    return Future.value();
   }
 }
