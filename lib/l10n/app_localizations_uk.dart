@@ -21,7 +21,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonSave => 'Зберегти';
 
   @override
-  String get commonDiscard => 'Відкинути';
+  String get commonDiscard => 'Скинути';
 
   @override
   String get commonEdit => 'Редагувати';
@@ -47,7 +47,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonSearch => 'Пошук';
 
   @override
-  String get commonTryAgain => 'Спробувати ще';
+  String get commonTryAgain => 'Спробувати знову';
 
   @override
   String get commonNoMatches => 'Нічого не знайдено';
@@ -62,7 +62,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonNotesOptional => 'Нотатки (необов’язково)';
 
   @override
-  String get commonTapToSelect => 'Торкніться, щоб вибрати';
+  String get commonTapToSelect => 'Натисніть, щоб вибрати';
 
   @override
   String get commonSeeAll => 'Усі';
@@ -489,7 +489,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get groupNew => 'Нова група';
 
   @override
-  String get groupEdit => 'Редагування групи';
+  String get groupEdit => 'Редагувати групу';
 
   @override
   String get groupCreate => 'Створити групу';
