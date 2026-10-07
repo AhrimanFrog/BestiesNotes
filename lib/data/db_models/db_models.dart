@@ -62,6 +62,13 @@ class DbLessonParticipants extends Table {
       .references(DbGroups, #id, onDelete: KeyAction.setNull)
       .nullable()();
 
+  /// The price of this lesson for this student: the group's rate when they
+  /// came with a group, their own otherwise. Copied when the lesson starts
+  /// being billed, so later rate changes don't re-price history.
+  RealColumn get payRate => real().withDefault(const Constant(0))();
+  TextColumn get period =>
+      textEnum<RatePeriod>().withDefault(Constant(RatePeriod.perLesson.name))();
+
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
     {lessonId, studentId},

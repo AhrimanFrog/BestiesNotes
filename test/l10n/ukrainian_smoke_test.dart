@@ -67,6 +67,17 @@ void main() {
       await db.syncLessonMembership(lessonId, [
         const Group(id: 1, name: '', pricing: rate),
       ]);
+      // A lesson that has surely happened, for the reports.
+      final pastId = await db.createOrUpdateLesson(
+        Lesson(
+          name: 'Розмовна практика',
+          start: now.subtract(const Duration(days: 2)),
+          duration: const Duration(minutes: 60),
+        ),
+      );
+      await db.syncLessonMembership(pastId, [
+        const Group(id: 1, name: '', pricing: rate),
+      ]);
     });
 
     await tester.pumpWidget(BestiesApp(db: db));
@@ -88,6 +99,27 @@ void main() {
       router.push(path);
       await settle(tester);
       await tester.tap(find.text('Редагувати'));
+      await settle(tester);
+      router.pop();
+      await settle(tester);
+    }
+
+    // Reports, and payment histories with a part-paid group lesson.
+    await tester.runAsync(
+      () => db.updateParticipantStatus(lessonId, 1, isPaid: true),
+    );
+    await tester.tap(find.byIcon(Icons.insights_outlined));
+    await settle(tester);
+    await tester.ensureVisible(find.text('Увесь час'));
+    await tester.tap(find.text('Увесь час'));
+    await settle(tester);
+    expect(find.text('Зароблено'), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+    await settle(tester);
+    for (final path in ['/student/1/payments', '/group/1/payments']) {
+      router.push(path);
+      await settle(tester);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
       await settle(tester);
       router.pop();
       await settle(tester);

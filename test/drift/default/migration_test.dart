@@ -6,7 +6,6 @@ import 'package:besties_notes/providers/db_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'generated/schema.dart';
 
-import 'generated/schema_v6.dart' as v6;
 import 'generated/schema_v7.dart' as v7;
 
 void main() {
@@ -36,63 +35,82 @@ void main() {
     }
   });
 
-  // The following template shows how to write tests ensuring your migrations
-  // preserve existing data.
-  // Testing this can be useful for migrations that change existing columns
-  // (e.g. by alterating their type or constraints). Migrations that only add
-  // tables or columns typically don't need these advanced tests. For more
-  // information, see https://drift.simonbinder.eu/migrations/tests/#verifying-data-integrity
-  // TODO: This generated template shows how these tests could be written. Adopt
-  // it to your own needs when testing migrations with data integrity.
-  test('migration from v6 to v7 does not corrupt data', () async {
-    // Add data to insert into the old database, and the expected rows after the
-    // migration.
-    // TODO: Fill these lists
-    final oldDbLessonsData = <v6.DbLessonsData>[];
-    final expectedNewDbLessonsData = <v7.DbLessonsData>[];
+  test(
+    'v7 → v8 prices existing lessons at the rates they were billed',
+    () async {
+      final schema = await verifier.schemaAt(7);
+      final old = v7.DatabaseAtV7(schema.newConnection());
+      await old.batch((b) {
+        b.insert(
+          old.dbGroups,
+          v7.DbGroupsCompanion.insert(
+            id: const Value(1),
+            name: 'Club',
+            payRate: 7,
+            period: 'perLesson',
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+        b.insert(
+          old.dbStudents,
+          v7.DbStudentsCompanion.insert(
+            id: const Value(1),
+            name: 'Anna',
+            contact: '',
+            payRate: 100,
+            period: 'monthly',
+            notes: '',
+            groupId: const Value(1),
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+        for (final id in [1, 2]) {
+          b.insert(
+            old.dbLessons,
+            v7.DbLessonsCompanion.insert(
+              id: Value(id),
+              topic: 'Talk',
+              start: 1735725600 + id * 86400,
+              durationInMinutes: 60,
+              isCancelled: 0,
+              createdAt: 0,
+              updatedAt: 0,
+            ),
+          );
+        }
+        // Lesson 1 alone, lesson 2 with the group.
+        b.insert(
+          old.dbLessonParticipants,
+          v7.DbLessonParticipantsCompanion.insert(
+            lessonId: 1,
+            studentId: 1,
+            isPaid: 0,
+            attended: 1,
+          ),
+        );
+        b.insert(
+          old.dbLessonParticipants,
+          v7.DbLessonParticipantsCompanion.insert(
+            lessonId: 2,
+            studentId: 1,
+            isPaid: 1,
+            attended: 1,
+            groupId: const Value(1),
+          ),
+        );
+      });
+      await old.close();
 
-    final oldDbGroupsData = <v6.DbGroupsData>[];
-    final expectedNewDbGroupsData = <v7.DbGroupsData>[];
-
-    final oldDbStudentsData = <v6.DbStudentsData>[];
-    final expectedNewDbStudentsData = <v7.DbStudentsData>[];
-
-    final oldDbLessonParticipantsData = <v6.DbLessonParticipantsData>[];
-    final expectedNewDbLessonParticipantsData = <v7.DbLessonParticipantsData>[];
-
-    await verifier.testWithDataIntegrity(
-      oldVersion: 6,
-      newVersion: 7,
-      createOld: v6.DatabaseAtV6.new,
-      createNew: v7.DatabaseAtV7.new,
-      openTestedDatabase: DbClient.new,
-      createItems: (batch, oldDb) {
-        batch.insertAll(oldDb.dbLessons, oldDbLessonsData);
-        batch.insertAll(oldDb.dbGroups, oldDbGroupsData);
-        batch.insertAll(oldDb.dbStudents, oldDbStudentsData);
-        batch.insertAll(
-          oldDb.dbLessonParticipants,
-          oldDbLessonParticipantsData,
-        );
-      },
-      validateItems: (newDb) async {
-        expect(
-          expectedNewDbLessonsData,
-          await newDb.select(newDb.dbLessons).get(),
-        );
-        expect(
-          expectedNewDbGroupsData,
-          await newDb.select(newDb.dbGroups).get(),
-        );
-        expect(
-          expectedNewDbStudentsData,
-          await newDb.select(newDb.dbStudents).get(),
-        );
-        expect(
-          expectedNewDbLessonParticipantsData,
-          await newDb.select(newDb.dbLessonParticipants).get(),
-        );
-      },
-    );
-  });
+      final db = DbClient(schema.newConnection());
+      await verifier.migrateAndValidate(db, 8);
+      final rows = {
+        for (final p in await db.select(db.dbLessonParticipants).get())
+          p.lessonId: (p.payRate, p.period.name, p.isPaid),
+      };
+      expect(rows, {1: (100.0, 'monthly', false), 2: (7.0, 'perLesson', true)});
+      await db.close();
+    },
+  );
 }

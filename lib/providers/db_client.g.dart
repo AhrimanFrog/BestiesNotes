@@ -1779,6 +1779,28 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
       'REFERENCES db_groups (id) ON DELETE SET NULL',
     ),
   );
+  static const VerificationMeta _payRateMeta = const VerificationMeta(
+    'payRate',
+  );
+  @override
+  late final GeneratedColumn<double> payRate = GeneratedColumn<double>(
+    'pay_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RatePeriod, String> period =
+      GeneratedColumn<String>(
+        'period',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(RatePeriod.perLesson.name),
+      ).withConverter<RatePeriod>($DbLessonParticipantsTable.$converterperiod);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1788,6 +1810,8 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
     attended,
     homeworkDone,
     groupId,
+    payRate,
+    period,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1851,6 +1875,12 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
         groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     }
+    if (data.containsKey('pay_rate')) {
+      context.handle(
+        _payRateMeta,
+        payRate.isAcceptableOrUnknown(data['pay_rate']!, _payRateMeta),
+      );
+    }
     return context;
   }
 
@@ -1892,6 +1922,16 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
         DriftSqlType.int,
         data['${effectivePrefix}group_id'],
       ),
+      payRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pay_rate'],
+      )!,
+      period: $DbLessonParticipantsTable.$converterperiod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}period'],
+        )!,
+      ),
     );
   }
 
@@ -1899,6 +1939,9 @@ class $DbLessonParticipantsTable extends DbLessonParticipants
   $DbLessonParticipantsTable createAlias(String alias) {
     return $DbLessonParticipantsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<RatePeriod, String, String> $converterperiod =
+      const EnumNameConverter<RatePeriod>(RatePeriod.values);
 }
 
 class DbLessonParticipant extends DataClass
@@ -1910,6 +1953,12 @@ class DbLessonParticipant extends DataClass
   final bool attended;
   final bool homeworkDone;
   final int? groupId;
+
+  /// The price of this lesson for this student: the group's rate when they
+  /// came with a group, their own otherwise. Copied when the lesson starts
+  /// being billed, so later rate changes don't re-price history.
+  final double payRate;
+  final RatePeriod period;
   const DbLessonParticipant({
     required this.id,
     required this.lessonId,
@@ -1918,6 +1967,8 @@ class DbLessonParticipant extends DataClass
     required this.attended,
     required this.homeworkDone,
     this.groupId,
+    required this.payRate,
+    required this.period,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1930,6 +1981,12 @@ class DbLessonParticipant extends DataClass
     map['homework_done'] = Variable<bool>(homeworkDone);
     if (!nullToAbsent || groupId != null) {
       map['group_id'] = Variable<int>(groupId);
+    }
+    map['pay_rate'] = Variable<double>(payRate);
+    {
+      map['period'] = Variable<String>(
+        $DbLessonParticipantsTable.$converterperiod.toSql(period),
+      );
     }
     return map;
   }
@@ -1945,6 +2002,8 @@ class DbLessonParticipant extends DataClass
       groupId: groupId == null && nullToAbsent
           ? const Value.absent()
           : Value(groupId),
+      payRate: Value(payRate),
+      period: Value(period),
     );
   }
 
@@ -1961,6 +2020,10 @@ class DbLessonParticipant extends DataClass
       attended: serializer.fromJson<bool>(json['attended']),
       homeworkDone: serializer.fromJson<bool>(json['homeworkDone']),
       groupId: serializer.fromJson<int?>(json['groupId']),
+      payRate: serializer.fromJson<double>(json['payRate']),
+      period: $DbLessonParticipantsTable.$converterperiod.fromJson(
+        serializer.fromJson<String>(json['period']),
+      ),
     );
   }
   @override
@@ -1974,6 +2037,10 @@ class DbLessonParticipant extends DataClass
       'attended': serializer.toJson<bool>(attended),
       'homeworkDone': serializer.toJson<bool>(homeworkDone),
       'groupId': serializer.toJson<int?>(groupId),
+      'payRate': serializer.toJson<double>(payRate),
+      'period': serializer.toJson<String>(
+        $DbLessonParticipantsTable.$converterperiod.toJson(period),
+      ),
     };
   }
 
@@ -1985,6 +2052,8 @@ class DbLessonParticipant extends DataClass
     bool? attended,
     bool? homeworkDone,
     Value<int?> groupId = const Value.absent(),
+    double? payRate,
+    RatePeriod? period,
   }) => DbLessonParticipant(
     id: id ?? this.id,
     lessonId: lessonId ?? this.lessonId,
@@ -1993,6 +2062,8 @@ class DbLessonParticipant extends DataClass
     attended: attended ?? this.attended,
     homeworkDone: homeworkDone ?? this.homeworkDone,
     groupId: groupId.present ? groupId.value : this.groupId,
+    payRate: payRate ?? this.payRate,
+    period: period ?? this.period,
   );
   DbLessonParticipant copyWithCompanion(DbLessonParticipantsCompanion data) {
     return DbLessonParticipant(
@@ -2005,6 +2076,8 @@ class DbLessonParticipant extends DataClass
           ? data.homeworkDone.value
           : this.homeworkDone,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      payRate: data.payRate.present ? data.payRate.value : this.payRate,
+      period: data.period.present ? data.period.value : this.period,
     );
   }
 
@@ -2017,7 +2090,9 @@ class DbLessonParticipant extends DataClass
           ..write('isPaid: $isPaid, ')
           ..write('attended: $attended, ')
           ..write('homeworkDone: $homeworkDone, ')
-          ..write('groupId: $groupId')
+          ..write('groupId: $groupId, ')
+          ..write('payRate: $payRate, ')
+          ..write('period: $period')
           ..write(')'))
         .toString();
   }
@@ -2031,6 +2106,8 @@ class DbLessonParticipant extends DataClass
     attended,
     homeworkDone,
     groupId,
+    payRate,
+    period,
   );
   @override
   bool operator ==(Object other) =>
@@ -2042,7 +2119,9 @@ class DbLessonParticipant extends DataClass
           other.isPaid == this.isPaid &&
           other.attended == this.attended &&
           other.homeworkDone == this.homeworkDone &&
-          other.groupId == this.groupId);
+          other.groupId == this.groupId &&
+          other.payRate == this.payRate &&
+          other.period == this.period);
 }
 
 class DbLessonParticipantsCompanion
@@ -2054,6 +2133,8 @@ class DbLessonParticipantsCompanion
   final Value<bool> attended;
   final Value<bool> homeworkDone;
   final Value<int?> groupId;
+  final Value<double> payRate;
+  final Value<RatePeriod> period;
   const DbLessonParticipantsCompanion({
     this.id = const Value.absent(),
     this.lessonId = const Value.absent(),
@@ -2062,6 +2143,8 @@ class DbLessonParticipantsCompanion
     this.attended = const Value.absent(),
     this.homeworkDone = const Value.absent(),
     this.groupId = const Value.absent(),
+    this.payRate = const Value.absent(),
+    this.period = const Value.absent(),
   });
   DbLessonParticipantsCompanion.insert({
     this.id = const Value.absent(),
@@ -2071,6 +2154,8 @@ class DbLessonParticipantsCompanion
     required bool attended,
     this.homeworkDone = const Value.absent(),
     this.groupId = const Value.absent(),
+    this.payRate = const Value.absent(),
+    this.period = const Value.absent(),
   }) : lessonId = Value(lessonId),
        studentId = Value(studentId),
        isPaid = Value(isPaid),
@@ -2083,6 +2168,8 @@ class DbLessonParticipantsCompanion
     Expression<bool>? attended,
     Expression<bool>? homeworkDone,
     Expression<int>? groupId,
+    Expression<double>? payRate,
+    Expression<String>? period,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2092,6 +2179,8 @@ class DbLessonParticipantsCompanion
       if (attended != null) 'attended': attended,
       if (homeworkDone != null) 'homework_done': homeworkDone,
       if (groupId != null) 'group_id': groupId,
+      if (payRate != null) 'pay_rate': payRate,
+      if (period != null) 'period': period,
     });
   }
 
@@ -2103,6 +2192,8 @@ class DbLessonParticipantsCompanion
     Value<bool>? attended,
     Value<bool>? homeworkDone,
     Value<int?>? groupId,
+    Value<double>? payRate,
+    Value<RatePeriod>? period,
   }) {
     return DbLessonParticipantsCompanion(
       id: id ?? this.id,
@@ -2112,6 +2203,8 @@ class DbLessonParticipantsCompanion
       attended: attended ?? this.attended,
       homeworkDone: homeworkDone ?? this.homeworkDone,
       groupId: groupId ?? this.groupId,
+      payRate: payRate ?? this.payRate,
+      period: period ?? this.period,
     );
   }
 
@@ -2139,6 +2232,14 @@ class DbLessonParticipantsCompanion
     if (groupId.present) {
       map['group_id'] = Variable<int>(groupId.value);
     }
+    if (payRate.present) {
+      map['pay_rate'] = Variable<double>(payRate.value);
+    }
+    if (period.present) {
+      map['period'] = Variable<String>(
+        $DbLessonParticipantsTable.$converterperiod.toSql(period.value),
+      );
+    }
     return map;
   }
 
@@ -2151,7 +2252,9 @@ class DbLessonParticipantsCompanion
           ..write('isPaid: $isPaid, ')
           ..write('attended: $attended, ')
           ..write('homeworkDone: $homeworkDone, ')
-          ..write('groupId: $groupId')
+          ..write('groupId: $groupId, ')
+          ..write('payRate: $payRate, ')
+          ..write('period: $period')
           ..write(')'))
         .toString();
   }
@@ -3789,6 +3892,8 @@ typedef $$DbLessonParticipantsTableCreateCompanionBuilder =
       required bool attended,
       Value<bool> homeworkDone,
       Value<int?> groupId,
+      Value<double> payRate,
+      Value<RatePeriod> period,
     });
 typedef $$DbLessonParticipantsTableUpdateCompanionBuilder =
     DbLessonParticipantsCompanion Function({
@@ -3799,6 +3904,8 @@ typedef $$DbLessonParticipantsTableUpdateCompanionBuilder =
       Value<bool> attended,
       Value<bool> homeworkDone,
       Value<int?> groupId,
+      Value<double> payRate,
+      Value<RatePeriod> period,
     });
 
 final class $$DbLessonParticipantsTableReferences
@@ -3895,6 +4002,17 @@ class $$DbLessonParticipantsTableFilterComposer
     column: $table.homeworkDone,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<RatePeriod, RatePeriod, String> get period =>
+      $composableBuilder(
+        column: $table.period,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   $$DbLessonsTableFilterComposer get lessonId {
     final $$DbLessonsTableFilterComposer composer = $composerBuilder(
@@ -3995,6 +4113,16 @@ class $$DbLessonParticipantsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get payRate => $composableBuilder(
+    column: $table.payRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$DbLessonsTableOrderingComposer get lessonId {
     final $$DbLessonsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4087,6 +4215,12 @@ class $$DbLessonParticipantsTableAnnotationComposer
     column: $table.homeworkDone,
     builder: (column) => column,
   );
+
+  GeneratedColumn<double> get payRate =>
+      $composableBuilder(column: $table.payRate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<RatePeriod, String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
 
   $$DbLessonsTableAnnotationComposer get lessonId {
     final $$DbLessonsTableAnnotationComposer composer = $composerBuilder(
@@ -4201,6 +4335,8 @@ class $$DbLessonParticipantsTableTableManager
                 Value<bool> attended = const Value.absent(),
                 Value<bool> homeworkDone = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
+                Value<double> payRate = const Value.absent(),
+                Value<RatePeriod> period = const Value.absent(),
               }) => DbLessonParticipantsCompanion(
                 id: id,
                 lessonId: lessonId,
@@ -4209,6 +4345,8 @@ class $$DbLessonParticipantsTableTableManager
                 attended: attended,
                 homeworkDone: homeworkDone,
                 groupId: groupId,
+                payRate: payRate,
+                period: period,
               ),
           createCompanionCallback:
               ({
@@ -4219,6 +4357,8 @@ class $$DbLessonParticipantsTableTableManager
                 required bool attended,
                 Value<bool> homeworkDone = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
+                Value<double> payRate = const Value.absent(),
+                Value<RatePeriod> period = const Value.absent(),
               }) => DbLessonParticipantsCompanion.insert(
                 id: id,
                 lessonId: lessonId,
@@ -4227,6 +4367,8 @@ class $$DbLessonParticipantsTableTableManager
                 attended: attended,
                 homeworkDone: homeworkDone,
                 groupId: groupId,
+                payRate: payRate,
+                period: period,
               ),
           withReferenceMapper: (p0) => p0
               .map(

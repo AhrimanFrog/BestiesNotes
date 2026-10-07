@@ -1,12 +1,19 @@
+import 'package:equatable/equatable.dart';
+
 import 'student.dart';
 
-class Debtor {
+/// A student with unpaid charges, across all time.
+class Debtor extends Equatable {
   final Student debtor;
-  final List<DateTime> unpaidLessonDates;
+  final int unpaidLessons;
+  final double amountOwed;
 
-  int get unpaidLessons => unpaidLessonDates.length;
+  const Debtor({
+    required this.debtor,
+    required this.unpaidLessons,
+    required this.amountOwed,
+  });
 
-  double get amountOwed => debtor.pricing.calculateOwed(unpaidLessonDates);
-
-  const Debtor({required this.debtor, required this.unpaidLessonDates});
+  @override
+  List<Object?> get props => [debtor, unpaidLessons, amountOwed];
 }

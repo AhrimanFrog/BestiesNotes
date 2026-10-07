@@ -44,11 +44,31 @@ void main() {
     when(
       () => provider.getGroupMembers(any()),
     ).thenAnswer((_) async => members);
-    when(() => payments.getUnpaidLessonsForGroup(any())).thenAnswer(
+    final dates = [
+      DateTime(2025, 1, 6),
+      DateTime(2025, 1, 13),
+      DateTime(2025, 2, 3),
+    ];
+    when(
+      () => payments.getUnpaidLessonsForGroup(any()),
+    ).thenAnswer((_) async => [for (final d in dates) makeLesson(d)]);
+    when(
+      () => payments.getParticipations(
+        groupId: any(named: 'groupId'),
+        unpaidOnly: any(named: 'unpaidOnly'),
+      ),
+    ).thenAnswer(
       (_) async => [
-        makeLesson(DateTime(2025, 1, 6)),
-        makeLesson(DateTime(2025, 1, 13)),
-        makeLesson(DateTime(2025, 2, 3)),
+        for (final member in members)
+          for (final (i, d) in dates.indexed)
+            Participation(
+              lessonId: i + 1,
+              start: d,
+              student: member,
+              groupId: club.id,
+              rate: _rate,
+              isPaid: false,
+            ),
       ],
     );
   }
@@ -62,8 +82,8 @@ void main() {
     expect: () => [
       isA<GroupDetailsState>()
           .having((s) => s.group?.students.length, 'members', 2)
-          // Monthly rate: January and February are owed.
-          .having((s) => s.amountOwed, 'amountOwed', 200)
+          // Monthly group rate, per member: January and February, twice.
+          .having((s) => s.amountOwed, 'amountOwed', 400)
           .having((s) => s.isLoading, 'isLoading', false),
     ],
   );

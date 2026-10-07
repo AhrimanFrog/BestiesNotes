@@ -19,5 +19,17 @@ abstract class PaymentProvider {
 
   Future<List<Lesson>> getUnpaidLessonsForGroup(int groupId);
 
+  /// Billable participations (lesson started, not cancelled) with lessons
+  /// starting in `[from, to)`, oldest first. Narrowed to one student, or to
+  /// the members billed through one group, when given.
+  Future<List<Participation>> getParticipations({
+    DateTime? from,
+    DateTime? to,
+    int? studentId,
+    int? groupId,
+    bool unpaidOnly = false,
+  });
+
+  /// Students with unpaid charges, most owed first.
   Future<List<Debtor>> getDebtors();
 }

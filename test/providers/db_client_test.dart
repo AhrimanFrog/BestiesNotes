@@ -534,7 +534,10 @@ void main() {
       ),
     );
 
-    expect(await db.getLessonsForRange(DateTime(2000), DateTime(2100)), isEmpty);
+    expect(
+      await db.getLessonsForRange(DateTime(2000), DateTime(2100)),
+      isEmpty,
+    );
     final id = await db.createOrUpdateLesson(makeLesson());
     expect((await db.getLesson(id)).name, 'Math');
   });
@@ -624,44 +627,48 @@ void main() {
       expect(week.map((l) => l.start.day), [6]);
     });
 
-    test('unpaid lessons and debtors skip cancelled and future lessons',
-        () async {
-      final id = await db.createOrUpdateStudent(makeStudent());
-      final student = makeStudent(id: id);
-      final past = await db.createOrUpdateLesson(
-        makeLesson(start: DateTime(2025, 1, 5)),
-      );
-      final cancelled = await db.createOrUpdateLesson(
-        makeLesson(start: DateTime(2025, 1, 6), isCancelled: true),
-      );
-      final future = await db.createOrUpdateLesson(
-        makeLesson(start: DateTime.now().add(const Duration(days: 3))),
-      );
-      for (final l in [past, cancelled, future]) {
-        await db.syncLessonMembership(l, [student]);
-      }
+    test(
+      'unpaid lessons and debtors skip cancelled and future lessons',
+      () async {
+        final id = await db.createOrUpdateStudent(makeStudent());
+        final student = makeStudent(id: id);
+        final past = await db.createOrUpdateLesson(
+          makeLesson(start: DateTime(2025, 1, 5)),
+        );
+        final cancelled = await db.createOrUpdateLesson(
+          makeLesson(start: DateTime(2025, 1, 6), isCancelled: true),
+        );
+        final future = await db.createOrUpdateLesson(
+          makeLesson(start: DateTime.now().add(const Duration(days: 3))),
+        );
+        for (final l in [past, cancelled, future]) {
+          await db.syncLessonMembership(l, [student]);
+        }
 
-      final unpaid = await db.getUnpaidLessonsForStudent(id);
-      expect(unpaid.map((l) => l.id), [past]);
+        final unpaid = await db.getUnpaidLessonsForStudent(id);
+        expect(unpaid.map((l) => l.id), [past]);
 
-      final debtors = await db.getDebtors();
-      expect(debtors.single.unpaidLessons, 1);
-    });
+        final debtors = await db.getDebtors();
+        expect(debtors.single.unpaidLessons, 1);
+      },
+    );
 
-    test('deleting a student cascades to their lesson participations',
-        () async {
-      final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
-      final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
-      final lessonId = await db.createOrUpdateLesson(makeLesson());
-      await db.syncLessonMembership(lessonId, [
-        makeStudent(id: a),
-        makeStudent(id: b),
-      ]);
+    test(
+      'deleting a student cascades to their lesson participations',
+      () async {
+        final a = await db.createOrUpdateStudent(makeStudent(name: 'A'));
+        final b = await db.createOrUpdateStudent(makeStudent(name: 'B'));
+        final lessonId = await db.createOrUpdateLesson(makeLesson());
+        await db.syncLessonMembership(lessonId, [
+          makeStudent(id: a),
+          makeStudent(id: b),
+        ]);
 
-      await db.deleteStudent(a);
-      final lesson = await db.getLesson(lessonId);
-      expect(lesson.participants.map((p) => p.student.id), [b]);
-    });
+        await db.deleteStudent(a);
+        final lesson = await db.getLesson(lessonId);
+        expect(lesson.participants.map((p) => p.student.id), [b]);
+      },
+    );
 
     test('deleteLesson removes the lesson and its participants', () async {
       final id = await db.createOrUpdateStudent(makeStudent());
@@ -703,20 +710,184 @@ void main() {
       expect((await db.getStudent(id)).group, isNull);
     });
 
-    test('re-syncing through a group updates groupId but keeps statuses',
-        () async {
-      final groupId = await db.createOrUpdateGroup(makeGroup());
-      final id = await db.createOrUpdateStudent(makeStudent());
-      await db.syncGroupMemberships(groupId, [id]);
-      final lessonId = await db.createOrUpdateLesson(makeLesson());
+    test(
+      're-syncing through a group updates groupId but keeps statuses',
+      () async {
+        final groupId = await db.createOrUpdateGroup(makeGroup());
+        final id = await db.createOrUpdateStudent(makeStudent());
+        await db.syncGroupMemberships(groupId, [id]);
+        final lessonId = await db.createOrUpdateLesson(makeLesson());
 
-      await db.syncLessonMembership(lessonId, [makeStudent(id: id)]);
-      await db.updateParticipantStatus(lessonId, id, attended: true);
-      await db.syncLessonMembership(lessonId, [makeGroup(id: groupId)]);
+        await db.syncLessonMembership(lessonId, [makeStudent(id: id)]);
+        await db.updateParticipantStatus(lessonId, id, attended: true);
+        await db.syncLessonMembership(lessonId, [makeGroup(id: groupId)]);
 
-      final p = (await db.getLesson(lessonId)).participants.single;
-      expect(p.group?.id, groupId);
-      expect(p.attended, isTrue);
+        final p = (await db.getLesson(lessonId)).participants.single;
+        expect(p.group?.id, groupId);
+        expect(p.attended, isTrue);
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
+  // Earnings data
+  // ---------------------------------------------------------------------------
+
+  group('earnings data', () {
+    const own = Rate(rate: 10, period: RatePeriod.perLesson);
+    const groupRate = Rate(rate: 7, period: RatePeriod.perLesson);
+    final past = DateTime(2025, 1, 6, 10);
+    final upcoming = DateTime.now().add(const Duration(days: 3));
+
+    Future<Map<int, double>> storedRates() async => {
+      for (final p in await db.select(db.dbLessonParticipants).get())
+        p.lessonId: p.payRate,
+    };
+
+    /// A student with [own] rate in a group with [groupRate].
+    Future<({int student, int group})> seed() async {
+      final groupId = await db.createOrUpdateGroup(
+        const Group(name: 'Club', pricing: groupRate),
+      );
+      final studentId = await db.createOrUpdateStudent(
+        const Student(name: 'Anna', contact: '', pricing: own),
+      );
+      await db.syncGroupMemberships(groupId, [studentId]);
+      return (student: studentId, group: groupId);
+    }
+
+    Future<int> book(DateTime start, Teachable subject) async {
+      final id = await db.createOrUpdateLesson(makeLesson(start: start));
+      await db.syncLessonMembership(id, [subject]);
+      return id;
+    }
+
+    test(
+      'students pay their own rate alone and the group rate in it',
+      () async {
+        final ids = await seed();
+        final alone = await book(past, makeStudent(id: ids.student));
+        final together = await book(
+          past.add(const Duration(days: 1)),
+          makeGroup(id: ids.group),
+        );
+
+        final rates = {
+          for (final p in await db.getParticipations()) p.lessonId: p.rate,
+        };
+        expect(rates[alone], own);
+        expect(rates[together], groupRate);
+      },
+    );
+
+    test('a rate change re-prices upcoming lessons, not past ones', () async {
+      final ids = await seed();
+      final done = await book(past, makeStudent(id: ids.student));
+      final next = await book(upcoming, makeStudent(id: ids.student));
+      final groupNext = await book(
+        upcoming.add(const Duration(hours: 2)),
+        makeGroup(id: ids.group),
+      );
+
+      await db.createOrUpdateStudent(
+        const Student(
+          name: 'Anna',
+          contact: '',
+          pricing: Rate(rate: 12, period: RatePeriod.perLesson),
+        ).copyWith(id: ids.student),
+      );
+
+      expect(await storedRates(), {done: 10, next: 12, groupNext: 7});
+    });
+
+    test('a group rate change re-prices its upcoming lessons', () async {
+      final ids = await seed();
+      final done = await book(past, makeGroup(id: ids.group));
+      final next = await book(upcoming, makeGroup(id: ids.group));
+
+      await db.createOrUpdateGroup(
+        const Group(
+          name: 'Club',
+          pricing: Rate(rate: 9, period: RatePeriod.perLesson),
+        ).copyWith(id: ids.group),
+      );
+
+      expect(await storedRates(), {done: 7, next: 9});
+    });
+
+    test('re-saving a past lesson keeps its price', () async {
+      final ids = await seed();
+      final done = await book(past, makeStudent(id: ids.student));
+      await db.createOrUpdateStudent(
+        const Student(
+          name: 'Anna',
+          contact: '',
+          pricing: Rate(rate: 12, period: RatePeriod.perLesson),
+        ).copyWith(id: ids.student),
+      );
+
+      await db.syncLessonMembership(done, [makeStudent(id: ids.student)]);
+      expect(await storedRates(), {done: 10});
+    });
+
+    test('participations are billable, in range and filterable', () async {
+      final ids = await seed();
+      final jan = await book(past, makeStudent(id: ids.student));
+      final feb = await book(DateTime(2025, 2, 3), makeGroup(id: ids.group));
+      final cancelled = await db.createOrUpdateLesson(
+        makeLesson(start: DateTime(2025, 1, 8), isCancelled: true),
+      );
+      await db.syncLessonMembership(cancelled, [makeStudent(id: ids.student)]);
+      await book(upcoming, makeStudent(id: ids.student));
+      await db.updateParticipantStatus(jan, ids.student, isPaid: true);
+
+      Future<List<int>> lessons({
+        DateTime? from,
+        DateTime? to,
+        int? groupId,
+        bool unpaidOnly = false,
+      }) async => [
+        for (final p in await db.getParticipations(
+          from: from,
+          to: to,
+          groupId: groupId,
+          unpaidOnly: unpaidOnly,
+        ))
+          p.lessonId,
+      ];
+
+      expect(await lessons(), [jan, feb], reason: 'oldest first');
+      expect(
+        await lessons(from: DateTime(2025, 1), to: DateTime(2025, 2, 3)),
+        [jan],
+        reason: 'the end is excluded',
+      );
+      expect(await lessons(groupId: ids.group), [feb]);
+      expect(await lessons(unpaidOnly: true), [feb]);
+    });
+
+    test('debtors owe their charges, most owed first', () async {
+      final ids = await seed();
+      final ben = await db.createOrUpdateStudent(
+        const Student(
+          name: 'Ben',
+          contact: '',
+          pricing: Rate(rate: 100, period: RatePeriod.monthly),
+        ),
+      );
+      await book(past, makeStudent(id: ids.student));
+      await book(past.add(const Duration(days: 1)), makeGroup(id: ids.group));
+      for (final day in [6, 13, 20]) {
+        await book(DateTime(2025, 1, day, 15), makeStudent(id: ben));
+      }
+
+      final debtors = await db.getDebtors();
+      expect(debtors.map((d) => d.debtor.name), ['Ben', 'Anna']);
+      // One January fee for three lessons.
+      expect(debtors.first.amountOwed, 100);
+      expect(debtors.first.unpaidLessons, 3);
+      // Own rate alone plus the group's rate.
+      expect(debtors.last.amountOwed, 17);
     });
   });
 }

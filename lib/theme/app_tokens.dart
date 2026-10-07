@@ -9,10 +9,8 @@ class TonePair {
 
   const TonePair(this.fg, this.bg);
 
-  static TonePair lerp(TonePair a, TonePair b, double t) => TonePair(
-    Color.lerp(a.fg, b.fg, t)!,
-    Color.lerp(a.bg, b.bg, t)!,
-  );
+  static TonePair lerp(TonePair a, TonePair b, double t) =>
+      TonePair(Color.lerp(a.fg, b.fg, t)!, Color.lerp(a.bg, b.bg, t)!);
 }
 
 enum StatusTone { scheduled, now, done, cancelled, warning, accent, neutral }
@@ -51,6 +49,12 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   final Color danger;
 
+  /// Chart marks for paid and unpaid amounts. Checked for colour-blind
+  /// separation; [chartUnpaid] is too light for text, so charts using it
+  /// always show values in text as well.
+  final Color chartPaid;
+  final Color chartUnpaid;
+
   final Map<StatusTone, TonePair> tones;
 
   /// Distinct pastel pairs for coloring lessons by student or group.
@@ -70,6 +74,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     required this.accentSoft,
     required this.accentBright,
     required this.danger,
+    required this.chartPaid,
+    required this.chartUnpaid,
     required this.tones,
     required this.subjectPalette,
   });
@@ -88,6 +94,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     accentSoft: Color(0xFFFCE4EC),
     accentBright: Color(0xFFF291A3),
     danger: Color(0xFFB3261E),
+    chartPaid: Color(0xFF2F7A3E),
+    chartUnpaid: Color(0xFFE8A33D),
     tones: {
       StatusTone.scheduled: TonePair(Color(0xFF335E94), Color(0xFFE6EFFA)),
       StatusTone.now: TonePair(Color(0xFFB0365F), Color(0xFFFCE4EC)),
@@ -132,6 +140,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     Color? accentSoft,
     Color? accentBright,
     Color? danger,
+    Color? chartPaid,
+    Color? chartUnpaid,
     Map<StatusTone, TonePair>? tones,
     List<TonePair>? subjectPalette,
   }) {
@@ -149,6 +159,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
       accentSoft: accentSoft ?? this.accentSoft,
       accentBright: accentBright ?? this.accentBright,
       danger: danger ?? this.danger,
+      chartPaid: chartPaid ?? this.chartPaid,
+      chartUnpaid: chartUnpaid ?? this.chartUnpaid,
       tones: tones ?? this.tones,
       subjectPalette: subjectPalette ?? this.subjectPalette,
     );
@@ -172,6 +184,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
       accentSoft: c(accentSoft, other.accentSoft),
       accentBright: c(accentBright, other.accentBright),
       danger: c(danger, other.danger),
+      chartPaid: c(chartPaid, other.chartPaid),
+      chartUnpaid: c(chartUnpaid, other.chartUnpaid),
       tones: {
         for (final tone in StatusTone.values)
           tone: TonePair.lerp(tones[tone]!, other.tones[tone]!, t),
