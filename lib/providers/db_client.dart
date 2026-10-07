@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/db_group_ext.dart';
@@ -5,22 +7,30 @@ import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
+import 'package:besties_notes/providers/settings_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:besties_notes/data/db_models/db_models.dart';
 import 'package:besties_notes/data/db_models/db_lesson_details.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
+import 'db_client.steps.dart';
 
 part 'db_client.g.dart';
 
-@DriftDatabase(tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants])
-class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
+@DriftDatabase(
+  tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants, DbSettings],
+)
+class DbClient extends _$DbClient
+    implements DataProvider, PaymentProvider, SettingsProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   /// v6 is the first tracked baseline: older dev builds had diverging schemas
   /// under the same version number, so they are wiped on upgrade. Every change
-  /// from here on gets a real step (`dart run drift_dev make-migrations`).
+  /// since has a real step (`dart run drift_dev make-migrations`).
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -31,15 +41,74 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
           await m.deleteTable(table.actualTableName);
         }
         await m.createAll();
+        return;
       }
+      await m.runMigrationSteps(
+        from: from,
+        to: to,
+        steps: migrationSteps(
+          from6To7: (m, schema) => m.createTable(schema.dbSettings),
+        ),
+      );
     },
     // SQLite ships with foreign keys off; without this the cascade and
     // set-null rules in db_models.dart never run.
     beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
   );
 
+  /// Where the app's database lives on the device.
+  static Future<File> databaseFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File(p.join(dir.path, 'besties_notes_db.sqlite'));
+  }
+
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'besties_notes_db');
+    return driftDatabase(
+      name: 'besties_notes_db',
+      native: DriftNativeOptions(
+        databasePath: () async => (await databaseFile()).path,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Settings
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<Map<String, String>> loadSettings() async {
+    final rows = await select(dbSettings).get();
+    return {for (final row in rows) row.key: row.value};
+  }
+
+  @override
+  Future<void> saveSettings(Map<String, String> values) {
+    return batch((b) {
+      b.insertAllOnConflictUpdate(dbSettings, [
+        for (final MapEntry(:key, :value) in values.entries)
+          DbSettingsCompanion.insert(key: key, value: value),
+      ]);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Maintenance
+  // ---------------------------------------------------------------------------
+
+  /// Writes a compact, consistent copy of the whole database to [target].
+  Future<void> exportTo(File target) async {
+    if (target.existsSync()) target.deleteSync();
+    await customStatement('VACUUM INTO ?', [target.path]);
+  }
+
+  /// Deletes all students, groups and lessons. Settings are kept.
+  Future<void> clearAllRecords() {
+    return transaction(() async {
+      await delete(dbLessonParticipants).go();
+      await delete(dbLessons).go();
+      await delete(dbStudents).go();
+      await delete(dbGroups).go();
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -159,26 +228,33 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       }
 
       await batch((b) {
-        b.insertAll(dbLessonParticipants, [
-          for (final MapEntry(:key, :value) in desired.entries)
-            DbLessonParticipantsCompanion.insert(
-              lessonId: lessonId,
-              studentId: key,
-              isPaid: false,
-              attended: false,
-              groupId: Value(value),
-            ),
-        ],
+        b.insertAll(
+          dbLessonParticipants,
+          [
+            for (final MapEntry(:key, :value) in desired.entries)
+              DbLessonParticipantsCompanion.insert(
+                lessonId: lessonId,
+                studentId: key,
+                isPaid: false,
+                attended: false,
+                groupId: Value(value),
+              ),
+          ],
           // Keep existing statuses, but refresh how the student was assigned
           // (individually vs. through a group).
-          onConflict: DoUpdate<$DbLessonParticipantsTable, DbLessonParticipant>.withExcluded(
-            (_, excluded) =>
-                DbLessonParticipantsCompanion.custom(groupId: excluded.groupId),
-            target: [
-              dbLessonParticipants.lessonId,
-              dbLessonParticipants.studentId,
-            ],
-          ),
+          onConflict:
+              DoUpdate<
+                $DbLessonParticipantsTable,
+                DbLessonParticipant
+              >.withExcluded(
+                (_, excluded) => DbLessonParticipantsCompanion.custom(
+                  groupId: excluded.groupId,
+                ),
+                target: [
+                  dbLessonParticipants.lessonId,
+                  dbLessonParticipants.studentId,
+                ],
+              ),
         );
       });
 
@@ -461,7 +537,10 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
         dbStudents,
         dbStudents.id.equalsExp(dbLessonParticipants.studentId),
       ),
-      innerJoin(dbLessons, dbLessons.id.equalsExp(dbLessonParticipants.lessonId)),
+      innerJoin(
+        dbLessons,
+        dbLessons.id.equalsExp(dbLessonParticipants.lessonId),
+      ),
     ])..where(dbLessonParticipants.isPaid.equals(false) & _isBillable());
 
     final Map<int, Student> studs = {};
@@ -470,9 +549,9 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
     for (final row in await query.get()) {
       final stud = row.readTable(dbStudents);
       studs.putIfAbsent(stud.id, () => stud.toDomain());
-      unpaidDates.putIfAbsent(stud.id, () => []).add(
-        row.readTable(dbLessons).start,
-      );
+      unpaidDates
+          .putIfAbsent(stud.id, () => [])
+          .add(row.readTable(dbLessons).start);
     }
 
     return unpaidDates.entries
@@ -520,7 +599,9 @@ class DbClient extends _$DbClient implements DataProvider, PaymentProvider {
       ..orderBy([ordering]);
     if (limit != null) idsQuery.limit(limit, offset: offset);
 
-    final ids = [for (final row in await idsQuery.get()) row.read(dbLessons.id)!];
+    final ids = [
+      for (final row in await idsQuery.get()) row.read(dbLessons.id)!,
+    ];
     if (ids.isEmpty) return [];
 
     final query = _lessonsQuery()

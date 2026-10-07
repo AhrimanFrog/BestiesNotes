@@ -1,5 +1,5 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
-import 'package:besties_notes/data/money.dart';
+import 'package:besties_notes/extensions/money_ui_ext.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
@@ -62,7 +62,7 @@ class PaymentsOverview extends StatelessWidget {
                   icon: Icons.account_balance_wallet_outlined,
                   tone: StatusTone.done,
                   label: l10n.paymentsAmountOwed,
-                  value: amountOwed > 0 ? formatAmount(amountOwed) : '—',
+                  value: amountOwed > 0 ? context.money(amountOwed) : '—',
                 ),
                 ...extraStats,
                 const Divider(),

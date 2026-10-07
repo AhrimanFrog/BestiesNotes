@@ -93,10 +93,19 @@ void main() {
       await settle(tester);
     }
 
+    // Settings, scrolled to the bottom.
+    router.push('/settings');
+    await settle(tester);
+    expect(find.text('Налаштування'), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+    await settle(tester);
+    router.pop();
+    await settle(tester);
+
     // New lesson and its picker.
     router.push('/lesson/new');
     await settle(tester);
-    await tester.tap(find.text('Торкніться, щоб вибрати'));
+    await tester.tap(find.text('Натисніть, щоб вибрати'));
     await settle(tester);
     expect(find.text('Хто прийде?'), findsOneWidget);
 

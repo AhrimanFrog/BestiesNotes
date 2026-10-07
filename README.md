@@ -83,3 +83,13 @@ The test suite covers:
 - **Widgets** (`test/widgets/`) — pure components and cubit-connected cards/dialogs
 
 Tests run automatically on every pull request via GitHub Actions.
+
+---
+
+## License
+
+Copyright 2025–2026 AhrimanFrog. Licensed under the
+[Apache License, Version 2.0](LICENSE); see [NOTICE](NOTICE) for attributions.
+
+The bundled fonts, Yeseva One and Nunito, are licensed under the
+SIL Open Font License 1.1 (texts in [`assets/fonts/`](assets/fonts)).

@@ -24,8 +24,11 @@ class LessonInfoCubit extends Cubit<LessonInfoState> {
   }
 
   /// Opens an empty draft for a new lesson on [date].
-  void startNew({DateTime? date}) {
-    final draft = LessonDraft.blank(date: date);
+  void startNew({DateTime? date, int durationMinutes = 60}) {
+    final draft = LessonDraft.blank(
+      date: date,
+      durationMinutes: durationMinutes,
+    );
     emit(LessonInfoState(draft: draft, initialDraft: draft));
   }
 

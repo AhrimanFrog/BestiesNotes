@@ -83,6 +83,13 @@ class LessonsCubit extends Cubit<LessonsState> {
 
   Future<void> goToToday() => jumpTo(DateTime.now());
 
+  /// Applies a changed week-start setting to the calendar.
+  Future<void> setWeekStart(int weekStart) {
+    if (weekStart == state.weekStart) return Future.value();
+    emit(state.copyWith(weekStart: weekStart));
+    return fetchLessons();
+  }
+
   Future<void> jumpTo(DateTime day) {
     emit(state.copyWith(anchor: day.dateOnly));
     return fetchLessons();
