@@ -650,6 +650,7 @@ class DbClient extends _$DbClient
     int? studentId,
     int? groupId,
     bool unpaidOnly = false,
+    DateTime? asOf,
   }) async {
     final p = dbLessonParticipants;
     final query =
@@ -657,7 +658,7 @@ class DbClient extends _$DbClient
             innerJoin(dbLessons, dbLessons.id.equalsExp(p.lessonId)),
             innerJoin(dbStudents, dbStudents.id.equalsExp(p.studentId)),
           ])
-          ..where(_isBillable())
+          ..where(_isBillable(asOf: asOf))
           ..orderBy([OrderingTerm.asc(dbLessons.start)]);
     if (from != null) query.where(dbLessons.start.isBiggerOrEqualValue(from));
     if (to != null) query.where(dbLessons.start.isSmallerThanValue(to));
@@ -716,10 +717,11 @@ class DbClient extends _$DbClient
       dbLessons.start.isBiggerOrEqualValue(from) &
       dbLessons.start.isSmallerThanValue(to);
 
-  /// A lesson can be owed for once it has started and wasn't cancelled.
-  Expression<bool> _isBillable() =>
+  /// A lesson can be owed for once it has started (by [asOf], default now)
+  /// and wasn't cancelled.
+  Expression<bool> _isBillable({DateTime? asOf}) =>
       dbLessons.isCancelled.equals(false) &
-      dbLessons.start.isSmallerThanValue(DateTime.now());
+      dbLessons.start.isSmallerThanValue(asOf ?? DateTime.now());
 
   /// Loads full lessons (with *all* their participants) for which at least one
   /// participant row matches [participantFilter]. Filtering ids first keeps

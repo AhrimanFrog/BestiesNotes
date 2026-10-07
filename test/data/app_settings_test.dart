@@ -10,6 +10,8 @@ void main() {
     expect(s.weekStart, DateTime.monday);
     expect(s.currency, isNull);
     expect(s.locale, isNull, reason: 'follow the system language');
+    expect(s.lessonReminderMinutes, 15);
+    expect((s.debtDigest, s.bookingReminder), (true, true));
   });
 
   test('round-trips through the key/value map', () {
@@ -21,6 +23,9 @@ void main() {
       currency: 'UAH',
       lessonColoring: LessonColoring.subject,
       languageCode: 'uk',
+      lessonReminderMinutes: 1440,
+      debtDigest: false,
+      bookingReminder: false,
     );
     expect(AppSettings.fromMap(s.toMap()), s);
     expect(s.locale, const Locale('uk'));
@@ -43,6 +48,8 @@ void main() {
       'currency': 'XYZ',
       'lesson_coloring': 'rainbow',
       'language': 'de',
+      'lesson_reminder_minutes': '7',
+      'debt_digest': 'maybe',
     });
     expect(s, const AppSettings());
   });

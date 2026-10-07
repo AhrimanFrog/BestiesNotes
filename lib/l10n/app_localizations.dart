@@ -1142,6 +1142,114 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 unpaid lesson} other{{count} unpaid lessons}}'**
   String unpaidLessonCount(int count);
 
+  /// No description provided for @reminderLessonSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} in {minutes} min'**
+  String reminderLessonSoon(String topic, int minutes);
+
+  /// No description provided for @reminderLessonTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} tomorrow'**
+  String reminderLessonTomorrow(String topic);
+
+  /// No description provided for @reminderDebtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} unpaid'**
+  String reminderDebtTitle(String amount);
+
+  /// No description provided for @reminderBookingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student has no lessons next week} other{{count} students have no lessons next week}}'**
+  String reminderBookingTitle(int count);
+
+  /// No description provided for @reminderNamesAndMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} and {count} more'**
+  String reminderNamesAndMore(String names, int count);
+
+  /// No description provided for @reminderChannelLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson reminders'**
+  String get reminderChannelLessons;
+
+  /// No description provided for @reminderChannelSummaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summaries'**
+  String get reminderChannelSummaries;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsLessonReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson reminders'**
+  String get settingsLessonReminder;
+
+  /// No description provided for @settingsReminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsReminderOff;
+
+  /// No description provided for @settingsReminderMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before'**
+  String settingsReminderMinutes(int minutes);
+
+  /// No description provided for @settingsReminderDay.
+  ///
+  /// In en, this message translates to:
+  /// **'A day before'**
+  String get settingsReminderDay;
+
+  /// No description provided for @settingsDebtDigest.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly unpaid summary'**
+  String get settingsDebtDigest;
+
+  /// No description provided for @settingsDebtDigestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When the week starts: who still owes you'**
+  String get settingsDebtDigestHint;
+
+  /// No description provided for @settingsBookingReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Students without lessons'**
+  String get settingsBookingReminder;
+
+  /// No description provided for @settingsBookingReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before a week: regular students with nothing booked'**
+  String get settingsBookingReminderHint;
+
+  /// No description provided for @settingsNotificationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for this app'**
+  String get settingsNotificationsBlocked;
+
+  /// No description provided for @settingsNotificationsAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get settingsNotificationsAllow;
+
   /// No description provided for @navNotes.
   ///
   /// In en, this message translates to:

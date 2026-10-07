@@ -25,8 +25,18 @@ void main() {
     }
   }
 
+  /// Settings rows below the fold aren't built until scrolled to.
+  Future<void> scrollTo(WidgetTester tester, Finder finder) =>
+      tester.dragUntilVisible(
+        finder,
+        find.byType(ListView).last,
+        const Offset(0, -200),
+      );
+
   Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
+    // Scrolling takes effect on the next frame; tap where it is now.
+    await tester.pump();
     await tester.tap(finder);
     await settle(tester);
   }
@@ -88,6 +98,7 @@ void main() {
 
     // ── Currency ────────────────────────────────────────────────────────────
     await tapAndSettle(tester, find.byTooltip('Settings'));
+    await scrollTo(tester, find.text('Currency'));
     await tapAndSettle(tester, find.text('Currency'));
     await tapAndSettle(tester, find.text('UAH (₴)'));
     await tester.binding.handlePopRoute();
@@ -97,6 +108,7 @@ void main() {
 
     // ── Language ────────────────────────────────────────────────────────────
     await tapAndSettle(tester, find.byTooltip('Settings'));
+    await scrollTo(tester, find.text('Language'));
     await tapAndSettle(tester, find.text('Language'));
     await tapAndSettle(tester, find.text('Українська'));
     expect(find.text('Налаштування'), findsOneWidget, reason: 'live switch');

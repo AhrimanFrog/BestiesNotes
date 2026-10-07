@@ -268,6 +268,50 @@
     "placeholders": { "count": { "type": "int" } }
   },
 
+  "reminderLessonSoon": "{topic} in {minutes} min",
+  "@reminderLessonSoon": {
+    "placeholders": {
+      "topic": { "type": "String" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "reminderLessonTomorrow": "{topic} tomorrow",
+  "@reminderLessonTomorrow": {
+    "placeholders": { "topic": { "type": "String" } }
+  },
+  "reminderDebtTitle": "{amount} unpaid",
+  "@reminderDebtTitle": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "reminderBookingTitle": "{count, plural, =1{1 student has no lessons next week} other{{count} students have no lessons next week}}",
+  "@reminderBookingTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "reminderNamesAndMore": "{names} and {count} more",
+  "@reminderNamesAndMore": {
+    "placeholders": {
+      "names": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "reminderChannelLessons": "Lesson reminders",
+  "reminderChannelSummaries": "Weekly summaries",
+
+  "settingsNotifications": "Notifications",
+  "settingsLessonReminder": "Lesson reminders",
+  "settingsReminderOff": "Off",
+  "settingsReminderMinutes": "{minutes} min before",
+  "@settingsReminderMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "settingsReminderDay": "A day before",
+  "settingsDebtDigest": "Weekly unpaid summary",
+  "settingsDebtDigestHint": "When the week starts: who still owes you",
+  "settingsBookingReminder": "Students without lessons",
+  "settingsBookingReminderHint": "The evening before a week: regular students with nothing booked",
+  "settingsNotificationsBlocked": "Notifications are off for this app",
+  "settingsNotificationsAllow": "Allow",
+
   "navNotes": "Notes",
   "notesSearchHint": "Search notes",
   "notesFilterGeneral": "General",
