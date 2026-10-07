@@ -21,13 +21,15 @@ abstract class PaymentProvider {
 
   /// Billable participations (lesson started, not cancelled) with lessons
   /// starting in `[from, to)`, oldest first. Narrowed to one student, or to
-  /// the members billed through one group, when given.
+  /// the members billed through one group, when given. [asOf] judges
+  /// "started" at another moment than now (what will be owed by then).
   Future<List<Participation>> getParticipations({
     DateTime? from,
     DateTime? to,
     int? studentId,
     int? groupId,
     bool unpaidOnly = false,
+    DateTime? asOf,
   });
 
   /// Students with unpaid charges, most owed first.

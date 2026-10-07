@@ -7,6 +7,8 @@ import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/providers/notes_provider.dart';
+import 'package:besties_notes/providers/notification_service.dart';
+import 'package:besties_notes/providers/reminder_scheduler.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/providers/settings_provider.dart';
 import 'package:besties_notes/router.dart';
@@ -25,7 +27,13 @@ Future<void> main() async {
   final db = DbClient();
   final settings = AppSettings.fromMap(await db.loadSettings());
 
-  runApp(BestiesApp(db: db, settings: settings));
+  runApp(
+    BestiesApp(
+      db: db,
+      settings: settings,
+      notifications: LocalNotificationService(),
+    ),
+  );
 }
 
 /// App-level operations that replace the data underneath every screen.
@@ -49,12 +57,16 @@ class BestiesApp extends StatefulWidget {
   /// Opens the database at its file. Overridable for tests.
   final DbClient Function() openDatabase;
 
+  /// Reminders. Off unless given (tests have no notification plugin).
+  final NotificationService notifications;
+
   const BestiesApp({
     super.key,
     required this.db,
     this.settings = const AppSettings(),
     this.databaseFile = DbClient.databaseFile,
     this.openDatabase = DbClient.new,
+    this.notifications = const NoopNotificationService(),
   });
 
   @override
@@ -69,9 +81,41 @@ class _BestiesAppState extends State<BestiesApp> implements AppSession {
   /// Bumped to rebuild the whole tree (and every cubit) from scratch.
   int _generation = 0;
 
+  late ReminderScheduler _reminders;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _reminders = ReminderScheduler(db, widget.notifications)..start();
+    // Time passes while the app is away: lessons start, debts grow.
+    _lifecycle = AppLifecycleListener(onResume: () => _reminders.reschedule());
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    final notifications = widget.notifications;
+    await notifications.init(onOpen: _openRoute);
+    if (await notifications.launchRoute() case final route?) {
+      _openRoute(route);
+    }
+  }
+
+  /// Tab routes replace the stack; anything else opens on top.
+  void _openRoute(String route) =>
+      route.startsWith('/lesson/') ? router.push(route) : router.go(route);
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    _reminders.dispose();
+    super.dispose();
+  }
+
   @override
   Future<void> restore(File backup) async {
     final target = await widget.databaseFile();
+    await _reminders.dispose();
     await db.close();
     try {
       // Stale journal files would be replayed onto the restored data.
@@ -83,6 +127,7 @@ class _BestiesAppState extends State<BestiesApp> implements AppSession {
     } finally {
       // Reopen whatever is in place now; migrations upgrade older backups.
       db = widget.openDatabase();
+      _reminders = ReminderScheduler(db, widget.notifications)..start();
     }
     await reload();
   }
@@ -109,6 +154,9 @@ class _BestiesAppState extends State<BestiesApp> implements AppSession {
           RepositoryProvider<PaymentProvider>.value(value: db),
           RepositoryProvider<SettingsProvider>.value(value: db),
           RepositoryProvider<NotesProvider>.value(value: db),
+          RepositoryProvider<NotificationService>.value(
+            value: widget.notifications,
+          ),
         ],
         child: MultiBlocProvider(
           providers: [

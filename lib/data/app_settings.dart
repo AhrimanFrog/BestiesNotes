@@ -23,6 +23,15 @@ class AppSettings extends Equatable {
   /// "en" / "uk", or null to follow the system language.
   final String? languageCode;
 
+  /// How long before a lesson to remind; 0 turns lesson reminders off.
+  final int lessonReminderMinutes;
+
+  /// Weekly "who owes you" notification.
+  final bool debtDigest;
+
+  /// Weekly "these students have no lessons next week" notification.
+  final bool bookingReminder;
+
   const AppSettings({
     this.teacherName = '',
     this.teacherContact = '',
@@ -31,11 +40,17 @@ class AppSettings extends Equatable {
     this.currency,
     this.lessonColoring = LessonColoring.status,
     this.languageCode,
+    this.lessonReminderMinutes = 15,
+    this.debtDigest = true,
+    this.bookingReminder = true,
   });
 
   static const currencies = ['UAH', 'USD', 'EUR', 'GBP', 'PLN'];
   static const lessonLengths = [30, 45, 60, 90, 120];
   static const languages = ['en', 'uk'];
+
+  /// Off, minutes before, or a day before.
+  static const reminderOptions = [0, 15, 30, 60, 1440];
 
   Locale? get locale => languageCode == null ? null : Locale(languageCode!);
   bool get colorBySubject => lessonColoring == LessonColoring.subject;
@@ -47,6 +62,9 @@ class AppSettings extends Equatable {
   static const _currency = 'currency';
   static const _coloring = 'lesson_coloring';
   static const _language = 'language';
+  static const _reminder = 'lesson_reminder_minutes';
+  static const _debtDigest = 'debt_digest';
+  static const _bookingReminder = 'booking_reminder';
 
   factory AppSettings.fromMap(Map<String, String> map) {
     const defaults = AppSettings();
@@ -54,6 +72,12 @@ class AppSettings extends Equatable {
     final weekStart = int.tryParse(map[_weekStart] ?? '');
     final currency = map[_currency];
     final language = map[_language];
+    final reminder = int.tryParse(map[_reminder] ?? '');
+    bool flag(String key, bool fallback) => switch (map[key]) {
+      'true' => true,
+      'false' => false,
+      _ => fallback,
+    };
     return AppSettings(
       teacherName: map[_name] ?? defaults.teacherName,
       teacherContact: map[_contact] ?? defaults.teacherContact,
@@ -69,6 +93,11 @@ class AppSettings extends Equatable {
         orElse: () => defaults.lessonColoring,
       ),
       languageCode: languages.contains(language) ? language : null,
+      lessonReminderMinutes: reminderOptions.contains(reminder)
+          ? reminder!
+          : defaults.lessonReminderMinutes,
+      debtDigest: flag(_debtDigest, defaults.debtDigest),
+      bookingReminder: flag(_bookingReminder, defaults.bookingReminder),
     );
   }
 
@@ -81,6 +110,9 @@ class AppSettings extends Equatable {
     _currency: currency ?? '',
     _coloring: lessonColoring.name,
     _language: languageCode ?? '',
+    _reminder: '$lessonReminderMinutes',
+    _debtDigest: '$debtDigest',
+    _bookingReminder: '$bookingReminder',
   };
 
   /// [currency] and [languageCode] take builders so they can be cleared.
@@ -92,6 +124,9 @@ class AppSettings extends Equatable {
     String? Function()? currency,
     LessonColoring? lessonColoring,
     String? Function()? languageCode,
+    int? lessonReminderMinutes,
+    bool? debtDigest,
+    bool? bookingReminder,
   }) {
     return AppSettings(
       teacherName: teacherName ?? this.teacherName,
@@ -101,6 +136,10 @@ class AppSettings extends Equatable {
       currency: currency != null ? currency() : this.currency,
       lessonColoring: lessonColoring ?? this.lessonColoring,
       languageCode: languageCode != null ? languageCode() : this.languageCode,
+      lessonReminderMinutes:
+          lessonReminderMinutes ?? this.lessonReminderMinutes,
+      debtDigest: debtDigest ?? this.debtDigest,
+      bookingReminder: bookingReminder ?? this.bookingReminder,
     );
   }
 
@@ -113,5 +152,8 @@ class AppSettings extends Equatable {
     currency,
     lessonColoring,
     languageCode,
+    lessonReminderMinutes,
+    debtDigest,
+    bookingReminder,
   ];
 }

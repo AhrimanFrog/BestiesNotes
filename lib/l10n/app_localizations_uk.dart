@@ -621,6 +621,82 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
+  String reminderLessonSoon(String topic, int minutes) {
+    return '$topic через $minutes хв';
+  }
+
+  @override
+  String reminderLessonTomorrow(String topic) {
+    return '$topic завтра';
+  }
+
+  @override
+  String reminderDebtTitle(String amount) {
+    return 'Не оплачено: $amount';
+  }
+
+  @override
+  String reminderBookingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учня без уроків наступного тижня',
+      many: '$count учнів без уроків наступного тижня',
+      few: '$count учні без уроків наступного тижня',
+      one: '$count учень без уроків наступного тижня',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderNamesAndMore(String names, int count) {
+    return '$names та ще $count';
+  }
+
+  @override
+  String get reminderChannelLessons => 'Нагадування про уроки';
+
+  @override
+  String get reminderChannelSummaries => 'Щотижневі підсумки';
+
+  @override
+  String get settingsNotifications => 'Сповіщення';
+
+  @override
+  String get settingsLessonReminder => 'Нагадування про уроки';
+
+  @override
+  String get settingsReminderOff => 'Вимкнено';
+
+  @override
+  String settingsReminderMinutes(int minutes) {
+    return 'За $minutes хв';
+  }
+
+  @override
+  String get settingsReminderDay => 'За день';
+
+  @override
+  String get settingsDebtDigest => 'Щотижневий підсумок боргів';
+
+  @override
+  String get settingsDebtDigestHint => 'На початку тижня: хто ще не заплатив';
+
+  @override
+  String get settingsBookingReminder => 'Учні без уроків';
+
+  @override
+  String get settingsBookingReminderHint =>
+      'Напередодні тижня: постійні учні, яким нічого не заплановано';
+
+  @override
+  String get settingsNotificationsBlocked =>
+      'Сповіщення для застосунку вимкнено';
+
+  @override
+  String get settingsNotificationsAllow => 'Дозволити';
+
+  @override
   String get navNotes => 'Нотатки';
 
   @override

@@ -5,6 +5,7 @@ import 'package:besties_notes/data/app_settings.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/main.dart';
 import 'package:besties_notes/providers/backup_service.dart';
+import 'package:besties_notes/providers/notification_service.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/dialogs/choice_sheet.dart';
 import 'package:besties_notes/widgets/dialogs/text_input_dialog.dart';
@@ -146,6 +147,7 @@ class SettingsView extends StatelessWidget {
               ),
             ],
           ),
+          const _NotificationsGroup(),
           _Group(
             title: l10n.settingsRegional,
             tiles: [
@@ -385,6 +387,126 @@ class SettingsView extends StatelessWidget {
     if (code == null) return l10n.settingsCurrencyNone;
     final symbol = NumberFormat.simpleCurrency(name: code).currencySymbol;
     return '$code ($symbol)';
+  }
+}
+
+/// Reminder settings, plus a prompt when the system blocks notifications.
+class _NotificationsGroup extends StatefulWidget {
+  const _NotificationsGroup();
+
+  @override
+  State<_NotificationsGroup> createState() => _NotificationsGroupState();
+}
+
+class _NotificationsGroupState extends State<_NotificationsGroup> {
+  bool? _permitted;
+  late final AppLifecycleListener _lifecycle;
+
+  NotificationService get _service => context.read<NotificationService>();
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+    // Coming back from the system settings may have changed it.
+    _lifecycle = AppLifecycleListener(onResume: _check);
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _check() async {
+    final permitted = await _service.isPermitted();
+    if (mounted) setState(() => _permitted = permitted);
+  }
+
+  Future<void> _request() async {
+    final permitted = await _service.requestPermission();
+    if (mounted) setState(() => _permitted = permitted);
+  }
+
+  /// Applies [change]; turning something on asks for permission if needed.
+  Future<void> _update(
+    AppSettings Function(AppSettings s) change, {
+    required bool turnsOn,
+  }) async {
+    await context.read<SettingsCubit>().update(change);
+    if (turnsOn && _permitted == false) await _request();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final settings = context.watch<SettingsCubit>().state;
+    final anyOn =
+        settings.lessonReminderMinutes > 0 ||
+        settings.debtDigest ||
+        settings.bookingReminder;
+
+    String reminderLabel(int minutes) => switch (minutes) {
+      0 => l10n.settingsReminderOff,
+      Duration.minutesPerDay => l10n.settingsReminderDay,
+      _ => l10n.settingsReminderMinutes(minutes),
+    };
+
+    return _Group(
+      title: l10n.settingsNotifications,
+      tiles: [
+        if (anyOn && _permitted == false)
+          ListTile(
+            leading: Icon(
+              Icons.notifications_off_outlined,
+              color: context.tokens.tone(StatusTone.warning).fg,
+            ),
+            title: Text(l10n.settingsNotificationsBlocked),
+            trailing: TextButton(
+              onPressed: _request,
+              child: Text(l10n.settingsNotificationsAllow),
+            ),
+          ),
+        ListTile(
+          leading: const Icon(Icons.alarm_outlined),
+          title: Text(l10n.settingsLessonReminder),
+          subtitle: Text(reminderLabel(settings.lessonReminderMinutes)),
+          onTap: () async {
+            final picked = await showChoiceSheet<int>(
+              context,
+              title: l10n.settingsLessonReminder,
+              selected: settings.lessonReminderMinutes,
+              options: [
+                for (final m in AppSettings.reminderOptions)
+                  (m, reminderLabel(m)),
+              ],
+            );
+            if (picked != null) {
+              await _update(
+                (s) => s.copyWith(lessonReminderMinutes: picked.$1),
+                turnsOn: picked.$1 > 0,
+              );
+            }
+          },
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.account_balance_wallet_outlined),
+          title: Text(l10n.settingsDebtDigest),
+          subtitle: Text(l10n.settingsDebtDigestHint),
+          value: settings.debtDigest,
+          onChanged: (on) =>
+              _update((s) => s.copyWith(debtDigest: on), turnsOn: on),
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.event_busy_outlined),
+          title: Text(l10n.settingsBookingReminder),
+          subtitle: Text(l10n.settingsBookingReminderHint),
+          value: settings.bookingReminder,
+          onChanged: (on) =>
+              _update((s) => s.copyWith(bookingReminder: on), turnsOn: on),
+        ),
+      ],
+    );
   }
 }
 

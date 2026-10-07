@@ -609,6 +609,81 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String reminderLessonSoon(String topic, int minutes) {
+    return '$topic in $minutes min';
+  }
+
+  @override
+  String reminderLessonTomorrow(String topic) {
+    return '$topic tomorrow';
+  }
+
+  @override
+  String reminderDebtTitle(String amount) {
+    return '$amount unpaid';
+  }
+
+  @override
+  String reminderBookingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students have no lessons next week',
+      one: '1 student has no lessons next week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderNamesAndMore(String names, int count) {
+    return '$names and $count more';
+  }
+
+  @override
+  String get reminderChannelLessons => 'Lesson reminders';
+
+  @override
+  String get reminderChannelSummaries => 'Weekly summaries';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsLessonReminder => 'Lesson reminders';
+
+  @override
+  String get settingsReminderOff => 'Off';
+
+  @override
+  String settingsReminderMinutes(int minutes) {
+    return '$minutes min before';
+  }
+
+  @override
+  String get settingsReminderDay => 'A day before';
+
+  @override
+  String get settingsDebtDigest => 'Weekly unpaid summary';
+
+  @override
+  String get settingsDebtDigestHint =>
+      'When the week starts: who still owes you';
+
+  @override
+  String get settingsBookingReminder => 'Students without lessons';
+
+  @override
+  String get settingsBookingReminderHint =>
+      'The evening before a week: regular students with nothing booked';
+
+  @override
+  String get settingsNotificationsBlocked =>
+      'Notifications are off for this app';
+
+  @override
+  String get settingsNotificationsAllow => 'Allow';
+
+  @override
   String get navNotes => 'Notes';
 
   @override
