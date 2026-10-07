@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Date formats use intl skeletons, so order and wording follow the current
+/// locale (see `syncIntlLocale`): "Thu, Oct 1, 2026" / "чт, 1 жовт. 2026 р.".
 extension DatetimeExt on DateTime {
   /// Clock time in the device's 12/24-hour preference.
   String formatTime(BuildContext context) =>
@@ -9,11 +11,20 @@ extension DatetimeExt on DateTime {
         alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
       );
 
-  /// "Thu, 1 Oct 2026".
-  String toLongDateFormat() => DateFormat('EEE, d MMM y').format(this);
+  /// "Thu, Oct 1, 2026".
+  String toLongDateFormat() => DateFormat.yMMMEd().format(this);
 
-  /// "1 Oct 2026" — fits half-width fields.
-  String toMediumDateFormat() => DateFormat('d MMM y').format(this);
+  /// "Oct 1, 2026".
+  String toMediumDateFormat() => DateFormat.yMMMd().format(this);
+
+  /// "10/1/2026" / "01.10.2026" — fits half-width fields in any language.
+  String toShortDateFormat() => DateFormat.yMd().format(this);
+
+  /// "Oct 1".
+  String toDayMonthFormat() => DateFormat.MMMd().format(this);
+
+  /// "THU".
+  String capsWeekday() => DateFormat.E().format(this).toUpperCase();
 
   DateTime get dateOnly => DateTime(year, month, day);
 
@@ -32,16 +43,4 @@ extension DatetimeExt on DateTime {
       year == other.year && month == other.month && day == other.day;
 
   bool get isToday => isSameDay(DateTime.now());
-
-  String toDateFormat() {
-    final d = day.toString().padLeft(2, '0');
-    final m = month.toString().padLeft(2, '0');
-    return '$d.$m.$year';
-  }
-
-  /// "MON".
-  String capsWeekday() => DateFormat('EEE').format(this).toUpperCase();
-
-  /// "28 Sep".
-  String toDayMonthFormat() => DateFormat('d MMM').format(this);
 }

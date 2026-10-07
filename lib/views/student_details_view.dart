@@ -2,6 +2,8 @@ import 'package:besties_notes/cubits/student_details/student_details_cubit.dart'
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/rate_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -35,7 +37,7 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
     final saved = await _cubit.save();
     if (!mounted) return saved;
     if (!saved) {
-      showErrorSnackBar(context, 'Could not save the student');
+      showErrorSnackBar(context, context.l10n.studentSaveFailed);
       return false;
     }
     context.read<StudentsAndGroupsCubit>().refresh();
@@ -52,12 +54,14 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
   }
 
   Future<void> _confirmDelete() async {
-    final name = _cubit.state.student?.name ?? 'this student';
+    final student = _cubit.state.student;
+    if (student == null) return;
+    final l10n = context.l10n;
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Delete $name?',
-      message: 'Their lesson history and payments will be removed too.',
-      confirmLabel: 'Delete',
+      title: l10n.deleteNameTitle(student.name),
+      message: l10n.studentDeleteMessage,
+      confirmLabel: l10n.commonDelete,
       destructive: true,
     );
     if (confirmed) await _cubit.delete();
@@ -79,8 +83,14 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
       },
       builder: (context, state) {
         final student = state.student;
+        final l10n = context.l10n;
         return DetailScaffold(
-          noun: 'student',
+          texts: DetailTexts(
+            newTitle: l10n.studentNew,
+            editTitle: l10n.studentEdit,
+            createLabel: l10n.studentCreate,
+            notFound: l10n.studentNotFound,
+          ),
           isLoaded: student != null,
           loadFailed: state.error != null,
           isEditing: state.isEditing,
@@ -93,7 +103,7 @@ class _StudentDetailsViewState extends State<StudentDetailsView> {
           menuActions: [
             DetailMenuAction(
               icon: Icons.delete_outline_rounded,
-              label: 'Delete student',
+              label: l10n.studentDelete,
               destructive: true,
               onSelected: _confirmDelete,
             ),
@@ -121,6 +131,7 @@ class _Overview extends StatelessWidget {
     final id = student.id!;
     final owed = state.amountOwed;
     final unpaid = state.unpaidLessons.length;
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -136,8 +147,8 @@ class _Overview extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxl),
         Section(
-          title: 'Balance',
-          actionLabel: 'Payments',
+          title: l10n.commonBalance,
+          actionLabel: l10n.commonPayments,
           onAction: () => thenReload(context.openStudentPayments(id)),
           child: AppCard(
             child: Column(
@@ -147,17 +158,20 @@ class _Overview extends StatelessWidget {
                   icon: Icons.account_balance_wallet_outlined,
                   tone: owed > 0 ? StatusTone.warning : StatusTone.done,
                   label: owed > 0
-                      ? 'Owes for $unpaid ${unpaid == 1 ? 'lesson' : 'lessons'}'
-                      : 'Nothing owed',
+                      ? l10n.studentOwesFor(unpaid)
+                      : l10n.commonNothingOwed,
                   value: owed > 0 ? formatAmount(owed) : '—',
                 ),
                 StatRow(
                   icon: Icons.calendar_month_outlined,
                   tone: StatusTone.scheduled,
-                  label: 'This month',
+                  label: l10n.commonThisMonth,
                   value: state.totalThisMonth > 0
-                      ? '${state.paidThisMonth}/${state.totalThisMonth} paid'
-                      : 'No lessons',
+                      ? l10n.paidOfTotal(
+                          state.paidThisMonth,
+                          state.totalThisMonth,
+                        )
+                      : l10n.commonNoLessons,
                 ),
               ],
             ),
@@ -166,7 +180,7 @@ class _Overview extends StatelessWidget {
         if (student.note.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xxl),
           Section(
-            title: 'Notes',
+            title: l10n.commonNotes,
             child: AppCard(
               child: Text(student.note, style: context.textTheme.bodyLarge),
             ),
@@ -225,7 +239,7 @@ class _ProfileCard extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     StatusBadge(
-                      label: student.pricing.toString(),
+                      label: student.pricing.label(context.l10n),
                       tone: StatusTone.accent,
                     ),
                     if (group != null)
@@ -280,6 +294,7 @@ class _StudentEditFormState extends State<_StudentEditForm> {
   Widget build(BuildContext context) {
     final draft = widget.draft;
     final groups = context.select((StudentsAndGroupsCubit c) => c.state.groups);
+    final l10n = context.l10n;
 
     return Form(
       key: widget.formKey,
@@ -300,16 +315,16 @@ class _StudentEditFormState extends State<_StudentEditForm> {
           const SizedBox(height: AppSpacing.xl),
           InputField(
             _name,
-            label: 'Name',
-            hint: 'E.g. Anna Kovalenko',
+            label: l10n.studentName,
+            hint: l10n.studentNameHint,
             icon: const Icon(Icons.person_outline_rounded),
             onChanged: (v) => _cubit.updateDraft((d) => d.copyWith(name: v)),
           ),
           const SizedBox(height: AppSpacing.lg),
           InputField(
             _contact,
-            label: 'Contact (optional)',
-            hint: 'Phone number or messenger handle',
+            label: l10n.studentContact,
+            hint: l10n.studentContactHint,
             icon: const Icon(Icons.phone_outlined),
             validator: (_) => null,
             onChanged: (v) => _cubit.updateDraft((d) => d.copyWith(contact: v)),
@@ -326,14 +341,16 @@ class _StudentEditFormState extends State<_StudentEditForm> {
           const SizedBox(height: AppSpacing.lg),
           DropdownButtonFormField<int?>(
             initialValue: draft.group?.id,
+            // Long group names ellipsize instead of overflowing.
+            isExpanded: true,
             // Dropdowns default to titleMedium, the display font here.
             style: context.textTheme.bodyLarge,
-            decoration: const InputDecoration(
-              labelText: 'Group',
-              prefixIcon: Icon(Icons.groups_outlined),
+            decoration: InputDecoration(
+              labelText: l10n.commonGroup,
+              prefixIcon: const Icon(Icons.groups_outlined),
             ),
             items: [
-              const DropdownMenuItem(value: null, child: Text('No group')),
+              DropdownMenuItem(value: null, child: Text(l10n.studentNoGroup)),
               for (final g in groups)
                 DropdownMenuItem(value: g.id, child: Text(g.name)),
             ],
@@ -346,7 +363,7 @@ class _StudentEditFormState extends State<_StudentEditForm> {
           const SizedBox(height: AppSpacing.lg),
           InputField(
             _note,
-            label: 'Notes (optional)',
+            label: l10n.commonNotesOptional,
             icon: const Icon(Icons.notes_outlined),
             maxLines: 4,
             validator: (_) => null,

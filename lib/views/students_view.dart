@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -54,14 +55,15 @@ class _StudentsPageState extends State<StudentsPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Students'),
+        title: Text(l10n.studentsTitle),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Students'),
-            Tab(text: 'Groups'),
+          tabs: [
+            Tab(text: l10n.commonStudents),
+            Tab(text: l10n.commonGroups),
           ],
         ),
       ),
@@ -83,13 +85,13 @@ class _StudentsPageState extends State<StudentsPage>
                   onChanged: cubit.setSearchQuery,
                   decoration: InputDecoration(
                     hintText: _onGroupsTab
-                        ? 'Search groups'
-                        : 'Search students',
+                        ? l10n.groupsSearch
+                        : l10n.studentsSearch,
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: state.searchQuery.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear_rounded),
-                            tooltip: 'Clear search',
+                            tooltip: l10n.clearSearch,
                             onPressed: () => _clearSearch(cubit),
                           )
                         : null,
@@ -122,7 +124,7 @@ class _StudentsPageState extends State<StudentsPage>
         icon: Icon(
           _onGroupsTab ? Icons.group_add_outlined : Icons.person_add_outlined,
         ),
-        label: Text(_onGroupsTab ? 'Group' : 'Student'),
+        label: Text(_onGroupsTab ? l10n.fabGroup : l10n.fabStudent),
       ),
     );
   }
@@ -133,14 +135,15 @@ class _StudentsPageState extends State<StudentsPage>
     required StudentsAndGroupsCubit cubit,
     required bool groups,
   }) {
+    final l10n = context.l10n;
     final filtering =
         state.searchQuery.isNotEmpty || state.filterGroupId != null;
     if (filtering) {
       return EmptyState(
         icon: Icons.search_off_rounded,
-        title: 'No matches',
-        message: 'Try a different name or filter.',
-        actionLabel: 'Clear filters',
+        title: l10n.commonNoMatches,
+        message: l10n.noMatchesMessage,
+        actionLabel: l10n.clearFilters,
         onAction: () {
           _clearSearch(cubit);
           cubit.setFilterGroup(null);
@@ -150,16 +153,16 @@ class _StudentsPageState extends State<StudentsPage>
     return groups
         ? EmptyState(
             icon: Icons.groups_outlined,
-            title: 'No groups yet',
-            message: 'Groups let you schedule several students at once.',
-            actionLabel: 'Create a group',
+            title: l10n.noGroupsTitle,
+            message: l10n.noGroupsMessage,
+            actionLabel: l10n.noGroupsAction,
             onAction: () => _showForm(context),
           )
         : EmptyState(
             icon: Icons.school_outlined,
-            title: 'No students yet',
-            message: 'Add the people you teach to start planning lessons.',
-            actionLabel: 'Add a student',
+            title: l10n.noStudentsTitle,
+            message: l10n.noStudentsMessage,
+            actionLabel: l10n.noStudentsAction,
             onAction: () => _showForm(context),
           );
   }
@@ -202,7 +205,7 @@ class _StudentsPageState extends State<StudentsPage>
               ),
               children: [
                 for (final (id, label) in [
-                  (null, 'All'),
+                  (null, context.l10n.filterAll),
                   for (final g in state.groups) (g.id, g.name),
                 ])
                   Padding(
@@ -253,10 +256,7 @@ class _StudentsPageState extends State<StudentsPage>
         for (final group in filtered)
           ParticipantCard(
             participant: group,
-            subtitle: switch (state.memberCount(group)) {
-              1 => '1 member',
-              final n => '$n members',
-            },
+            subtitle: context.l10n.memberCount(state.memberCount(group)),
             onTap: () => _thenRefresh(context.openGroup(group.id!)),
           ),
       ]),

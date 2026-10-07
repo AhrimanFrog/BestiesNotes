@@ -14,8 +14,8 @@ class PeriodNavigator extends StatelessWidget {
   const PeriodNavigator({
     super.key,
     required this.label,
-    this.previousTooltip = 'Previous',
-    this.nextTooltip = 'Next',
+    required this.previousTooltip,
+    required this.nextTooltip,
     this.onPrevious,
     this.onNext,
     this.onLabelTap,

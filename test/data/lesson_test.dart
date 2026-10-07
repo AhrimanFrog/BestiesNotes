@@ -1,5 +1,8 @@
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -29,18 +32,22 @@ void main() {
   });
 
   group('audienceLabel', () {
+    final en = lookupAppLocalizations(const Locale('en'));
+    final uk = lookupAppLocalizations(const Locale('uk'));
+
     test('names a lone group without counting its members', () {
       final l = lesson([member(1, via: club), member(2, via: club)]);
-      expect(l.audienceLabel(), 'Sat Conversation');
+      expect(l.audienceLabel(en), 'Sat Conversation');
     });
 
     test('counts other subjects', () {
       final l = lesson([member(1, via: club), member(2, via: club), member(3)]);
-      expect(l.audienceLabel(), 'Sat Conversation +1');
+      expect(l.audienceLabel(en), 'Sat Conversation +1');
     });
 
-    test('says so when nobody is assigned', () {
-      expect(lesson([]).audienceLabel(), 'No one assigned');
+    test('says so when nobody is assigned, in each language', () {
+      expect(lesson([]).audienceLabel(en), 'No one assigned');
+      expect(lesson([]).audienceLabel(uk), 'Нікого не призначено');
     });
   });
 }

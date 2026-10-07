@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,17 +39,16 @@ class InputField extends StatelessWidget {
       ),
       keyboardType: textInputType,
       maxLines: maxLines ?? 1,
-      validator: validator ?? validateNotEmpty,
+      validator:
+          validator ??
+          (value) => (value == null || value.trim().isEmpty)
+              ? context.l10n.fieldRequired
+              : null,
       inputFormatters: formatters,
       onChanged: onChanged,
       textCapitalization: textInputType == null
           ? TextCapitalization.sentences
           : TextCapitalization.none,
     );
-  }
-
-  String? validateNotEmpty(String? value) {
-    final notValid = value == null || value.trim().isEmpty;
-    return notValid ? 'Field cannot be empty' : null;
   }
 }

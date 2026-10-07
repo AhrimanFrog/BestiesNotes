@@ -1,6 +1,7 @@
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/cards/app_card.dart';
 import 'package:besties_notes/widgets/texts/status_badge.dart';
@@ -42,13 +43,13 @@ class CompactLessonTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${lesson.start.toDateFormat()} · ${lesson.start.formatTime(context)}',
+                  '${lesson.start.toMediumDateFormat()} · ${lesson.start.formatTime(context)}',
                   style: context.textTheme.labelMedium,
                 ),
               ],
             ),
           ),
-          StatusBadge(label: lesson.uiLabel, tone: tone),
+          StatusBadge(label: lesson.statusLabel(context.l10n), tone: tone),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/avatar/avatar_stack.dart';
 import 'package:besties_notes/widgets/cards/app_card.dart';
@@ -72,7 +73,7 @@ class LessonCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    ?_badge,
+                    ?_badge(context.l10n),
                   ],
                 ),
                 Row(
@@ -81,7 +82,7 @@ class LessonCard extends StatelessWidget {
                     if (subjects.isNotEmpty) AvatarStack(subjects: subjects),
                     Expanded(
                       child: Text(
-                        lesson.audienceLabel(),
+                        lesson.audienceLabel(context.l10n),
                         style: context.textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -103,12 +104,15 @@ class LessonCard extends StatelessWidget {
   }
 
   /// "Scheduled" is the default and would only add noise.
-  Widget? get _badge {
+  Widget? _badge(AppLocalizations l10n) {
     if (featured && !lesson.isNow) {
-      return const StatusBadge(label: 'Up next', tone: StatusTone.accent);
+      return StatusBadge(label: l10n.lessonUpNext, tone: StatusTone.accent);
     }
     if (lesson.statusTone == StatusTone.scheduled) return null;
-    return StatusBadge(label: lesson.uiLabel, tone: lesson.statusTone);
+    return StatusBadge(
+      label: lesson.statusLabel(l10n),
+      tone: lesson.statusTone,
+    );
   }
 
   bool get _showsTracking =>
@@ -137,7 +141,7 @@ class _TimeColumn extends StatelessWidget {
             ),
           ),
           Text(
-            '${lesson.duration.inMinutes} min',
+            context.l10n.durationMinutes(lesson.duration.inMinutes),
             style: context.textTheme.labelMedium,
           ),
         ],
@@ -170,14 +174,14 @@ class _Tracking extends StatelessWidget {
           children: [
             Icon(Icons.how_to_reg_outlined, size: 16, color: muted),
             Text(
-              '$present/${participants.length} present',
+              context.l10n.lessonPresentCount(present, participants.length),
               style: context.textTheme.labelMedium,
             ),
           ],
         ),
         if (unpaid > 0)
           StatusBadge(
-            label: '$unpaid unpaid',
+            label: context.l10n.lessonUnpaidCount(unpaid),
             tone: StatusTone.warning,
             icon: Icons.payments_outlined,
           ),

@@ -30,7 +30,7 @@ class StudentDraft extends Equatable {
   factory StudentDraft.fromStudent(Student s) => StudentDraft(
     name: s.name,
     contact: s.contact,
-    rateInput: formatAmount(s.pricing.rate),
+    rateInput: formatAmountForInput(s.pricing.rate),
     period: s.pricing.period,
     note: s.note,
     iconPath: s.iconPath,
@@ -102,7 +102,7 @@ class GroupDraft extends Equatable {
 
   factory GroupDraft.fromGroup(Group g) => GroupDraft(
     name: g.name,
-    rateInput: formatAmount(g.pricing.rate),
+    rateInput: formatAmountForInput(g.pricing.rate),
     period: g.pricing.period,
     iconPath: g.iconPath,
     members: g.students.toList(),

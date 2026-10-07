@@ -34,10 +34,15 @@ class NavigationChip extends StatelessWidget {
               spacing: AppSpacing.xs + 2,
               children: [
                 Icon(icon, size: 18, color: colors.fg),
-                Text(
-                  label,
-                  style: context.textTheme.labelLarge?.copyWith(
-                    color: colors.fg,
+                // Long names (e.g. a group) ellipsize within the space given.
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.labelLarge?.copyWith(
+                      color: colors.fg,
+                    ),
                   ),
                 ),
                 Icon(Icons.chevron_right_rounded, size: 18, color: colors.fg),

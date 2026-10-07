@@ -1,5 +1,7 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,7 @@ class PaymentsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return StateTransitionWidget(
       state: state,
       isEmpty: false,
@@ -52,35 +55,35 @@ class PaymentsOverview extends StatelessWidget {
                   tone: unpaidLessons.isEmpty
                       ? StatusTone.neutral
                       : StatusTone.warning,
-                  label: 'Unpaid lessons',
+                  label: l10n.paymentsUnpaidLessons,
                   value: '${unpaidLessons.length}',
                 ),
                 StatRow(
                   icon: Icons.account_balance_wallet_outlined,
                   tone: StatusTone.done,
-                  label: 'Amount owed',
-                  value: amountOwed > 0 ? amountOwed.toStringAsFixed(0) : '—',
+                  label: l10n.paymentsAmountOwed,
+                  value: amountOwed > 0 ? formatAmount(amountOwed) : '—',
                 ),
                 ...extraStats,
                 const Divider(),
                 StatRow(
                   icon: Icons.calendar_month_outlined,
                   tone: StatusTone.scheduled,
-                  label: 'This month',
+                  label: l10n.commonThisMonth,
                   value: totalThisMonth > 0
-                      ? '$paidThisMonth/$totalThisMonth paid'
-                      : 'No lessons',
+                      ? l10n.paidOfTotal(paidThisMonth, totalThisMonth)
+                      : l10n.commonNoLessons,
                 ),
               ],
             ),
           ),
           const SizedBox(height: AppSpacing.xxl),
           Section(
-            title: 'Unpaid lessons',
+            title: l10n.paymentsUnpaidLessons,
             child: unpaidLessons.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     icon: Icons.check_circle_outline_rounded,
-                    title: 'All paid up',
+                    title: l10n.paymentsAllPaidUp,
                     compact: true,
                   )
                 : Column(

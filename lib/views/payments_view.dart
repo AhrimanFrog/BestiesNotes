@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/payments/payments_cubit.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/widgets/sections/payments_overview.dart';
 import 'package:flutter/material.dart';
@@ -25,15 +26,14 @@ class _PaymentsViewState extends State<PaymentsView> {
     return BlocBuilder<PaymentsCubit, PaymentsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Payments')),
+          appBar: AppBar(title: Text(context.l10n.commonPayments)),
           body: PaymentsOverview(
             state: state,
             unpaidLessons: state.unpaidLessons,
             amountOwed: state.amountOwed,
             paidThisMonth: state.paidThisMonth,
             totalThisMonth: state.totalThisMonth,
-            onRetry: () =>
-                context.read<PaymentsCubit>().load(widget.studentId),
+            onRetry: () => context.read<PaymentsCubit>().load(widget.studentId),
             onLessonTap: (lesson) async {
               await context.openLesson(lesson.id!);
               if (context.mounted) {

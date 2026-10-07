@@ -1,5 +1,7 @@
 import 'package:besties_notes/data/calendar_period.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   const monday = DateTime.monday;
@@ -62,39 +64,41 @@ void main() {
   group('label', () {
     final now = DateTime(2025, 6, 1);
 
+    setUpAll(() => initializeDateFormatting('uk'));
+
+    String label(CalendarView view, DateTime anchor, {String locale = 'en'}) =>
+        Intl.withLocale(
+          locale,
+          () => CalendarPeriod.label(view, anchor, monday, now: now),
+        );
+
     test('weeks of the current year omit the year', () {
       expect(
-        CalendarPeriod.label(
-          CalendarView.week,
-          DateTime(2025, 1, 22),
-          monday,
-          now: now,
-        ),
-        '20 Jan – 26 Jan',
+        label(CalendarView.week, DateTime(2025, 1, 22)),
+        'Jan 20 – Jan 26',
       );
     });
 
     test('a week spanning two years shows both', () {
       expect(
-        CalendarPeriod.label(
-          CalendarView.week,
-          DateTime(2025, 12, 31),
-          monday,
-          now: now,
-        ),
-        '29 Dec 2025 – 4 Jan 2026',
+        label(CalendarView.week, DateTime(2025, 12, 31)),
+        'Dec 29, 2025 – Jan 4, 2026',
       );
     });
 
     test('months show name and year', () {
+      expect(label(CalendarView.month, DateTime(2025, 10, 9)), 'October 2025');
+    });
+
+    test('Ukrainian: day before month, standalone month name', () {
       expect(
-        CalendarPeriod.label(
-          CalendarView.month,
-          DateTime(2025, 10, 9),
-          monday,
-          now: now,
-        ),
-        'October 2025',
+        label(CalendarView.week, DateTime(2025, 1, 22), locale: 'uk'),
+        '20 січ. – 26 січ.',
+      );
+      expect(
+        label(CalendarView.month, DateTime(2025, 10, 9), locale: 'uk'),
+        // intl puts a narrow no-break space before "р." (рік, year).
+        'жовтень 2025 р.',
       );
     });
   });

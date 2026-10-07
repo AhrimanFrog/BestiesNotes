@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -86,27 +87,30 @@ Future<UnsavedChoice?> showUnsavedChangesSheet(BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpacing.sm,
           children: [
-            Text('Unsaved changes', style: context.textTheme.headlineSmall),
             Text(
-              'Save them before leaving?',
+              context.l10n.unsavedTitle,
+              style: context.textTheme.headlineSmall,
+            ),
+            Text(
+              context.l10n.unsavedMessage,
               style: context.textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.sm),
             FilledButton(
               onPressed: () => Navigator.pop(context, UnsavedChoice.save),
-              child: const Text('Save changes'),
+              child: Text(context.l10n.unsavedSave),
             ),
             OutlinedButton(
               onPressed: () => Navigator.pop(context, UnsavedChoice.discard),
               style: OutlinedButton.styleFrom(
                 foregroundColor: context.tokens.danger,
               ),
-              child: const Text('Discard'),
+              child: Text(context.l10n.commonDiscard),
             ),
             TextButton(
               onPressed: () =>
                   Navigator.pop(context, UnsavedChoice.keepEditing),
-              child: const Text('Keep editing'),
+              child: Text(context.l10n.unsavedKeepEditing),
             ),
           ],
         ),

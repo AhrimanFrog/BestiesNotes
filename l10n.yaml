@@ -1,0 +1,8 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# `AppLocalizations.of(context)` returns non-null; use `context.l10n`.
+nullable-getter: false
+# Lists keys missing from a translation (test/l10n checks they stay in sync).
+untranslated-messages-file: build/untranslated_messages.json

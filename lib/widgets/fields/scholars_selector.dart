@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/ui_models/teachable.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/avatar/user_avatar.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class ScholarsSelector extends StatelessWidget {
         ),
         child: selectedSubjects.isEmpty
             ? Text(
-                'Tap to select',
+                context.l10n.commonTapToSelect,
                 style: context.textTheme.bodyLarge?.copyWith(
                   color: context.tokens.textSubtle,
                 ),

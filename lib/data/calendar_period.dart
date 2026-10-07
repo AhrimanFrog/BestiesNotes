@@ -44,12 +44,13 @@ abstract final class CalendarPeriod {
     final currentYear = (now ?? DateTime.now()).year;
     switch (view) {
       case CalendarView.month:
-        return DateFormat('MMMM y').format(anchor);
+        // Standalone month name ("жовтень", not "жовтня") where it differs.
+        return DateFormat.yMMMM().format(anchor);
       case CalendarView.week:
         final (:from, :to) = range(view, anchor, weekStart);
         final last = to.addDays(-1);
         final withYear = from.year != last.year || from.year != currentYear;
-        final format = DateFormat(withYear ? 'd MMM y' : 'd MMM');
+        final format = withYear ? DateFormat.yMMMd() : DateFormat.MMMd();
         return '${format.format(from)} – ${format.format(last)}';
     }
   }

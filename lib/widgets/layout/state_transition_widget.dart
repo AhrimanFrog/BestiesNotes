@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/cubit_state.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/layout/empty_state.dart';
 import 'package:flutter/material.dart';
@@ -51,9 +52,11 @@ class StateTransitionWidget extends StatelessWidget {
               color: context.tokens.bg,
               child: EmptyState(
                 icon: Icons.error_outline_rounded,
-                title: 'Something went wrong',
+                title: context.l10n.stateErrorTitle,
                 message: state.error,
-                actionLabel: onRetry != null ? 'Try again' : null,
+                actionLabel: onRetry != null
+                    ? context.l10n.commonTryAgain
+                    : null,
                 onAction: onRetry,
               ),
             ),
@@ -62,9 +65,9 @@ class StateTransitionWidget extends StatelessWidget {
           Positioned.fill(
             child:
                 empty ??
-                const EmptyState(
+                EmptyState(
                   icon: Icons.inbox_outlined,
-                  title: 'Nothing here yet',
+                  title: context.l10n.stateEmptyTitle,
                   compact: true,
                 ),
           ),

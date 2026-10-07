@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ Future<bool> showConfirmDialog(
   required String title,
   String? message,
   required String confirmLabel,
-  String cancelLabel = 'Cancel',
+  String? cancelLabel,
   bool destructive = false,
 }) async {
   final confirmed = await showDialog<bool>(
@@ -28,7 +29,9 @@ class ConfirmDialog extends StatelessWidget {
   final String title;
   final String? message;
   final String confirmLabel;
-  final String cancelLabel;
+
+  /// Defaults to "Cancel".
+  final String? cancelLabel;
   final bool destructive;
 
   const ConfirmDialog({
@@ -36,7 +39,7 @@ class ConfirmDialog extends StatelessWidget {
     required this.title,
     this.message,
     required this.confirmLabel,
-    this.cancelLabel = 'Cancel',
+    this.cancelLabel,
     this.destructive = false,
   });
 
@@ -50,7 +53,7 @@ class ConfirmDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           style: TextButton.styleFrom(foregroundColor: tokens.textMuted),
-          child: Text(cancelLabel),
+          child: Text(cancelLabel ?? context.l10n.commonCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),

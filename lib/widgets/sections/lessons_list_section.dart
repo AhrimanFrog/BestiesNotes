@@ -1,5 +1,6 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/cards/schedule_section.dart';
 import 'package:besties_notes/widgets/layout/empty_state.dart';
@@ -26,9 +27,9 @@ class LessonsListSection extends StatelessWidget {
       state: state,
       empty:
           empty ??
-          const EmptyState(
+          EmptyState(
             icon: Icons.event_note_outlined,
-            title: 'No lessons yet',
+            title: context.l10n.noLessonsYet,
           ),
       child: ListView(
         // Leave room so the last card isn't hidden behind the FAB.

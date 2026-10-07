@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 
 class AvatarPickerField extends StatelessWidget {
@@ -53,7 +54,9 @@ class AvatarPickerField extends StatelessWidget {
     return Center(
       child: Semantics(
         button: true,
-        label: avatarPath != null ? 'Change photo' : 'Add photo',
+        label: avatarPath != null
+            ? context.l10n.photoChange
+            : context.l10n.photoAdd,
         child: GestureDetector(
           onTap: () => _pickAvatar(context),
           child: Stack(
@@ -108,18 +111,21 @@ class AvatarPickerField extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('Choose from gallery'),
+            title: Text(ctx.l10n.photoFromGallery),
             onTap: () => Navigator.pop(ctx, ImageSource.gallery),
           ),
           ListTile(
             leading: const Icon(Icons.photo_camera_outlined),
-            title: const Text('Take a photo'),
+            title: Text(ctx.l10n.photoTake),
             onTap: () => Navigator.pop(ctx, ImageSource.camera),
           ),
           if (avatarPath != null)
             ListTile(
               leading: Icon(Icons.delete_outline_rounded, color: danger),
-              title: Text('Remove photo', style: TextStyle(color: danger)),
+              title: Text(
+                ctx.l10n.photoRemove,
+                style: TextStyle(color: danger),
+              ),
               onTap: () {
                 onChanged(null);
                 Navigator.pop(ctx);

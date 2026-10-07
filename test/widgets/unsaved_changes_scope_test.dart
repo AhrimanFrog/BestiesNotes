@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/layout/unsaved_changes_scope.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: buildLightTheme(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).push(
@@ -55,7 +58,9 @@ void main() {
     expect(calls, isEmpty);
   });
 
-  testWidgets('clean edit: back exits edit mode without asking', (tester) async {
+  testWidgets('clean edit: back exits edit mode without asking', (
+    tester,
+  ) async {
     await pumpEditor(tester, isEditing: true, isDirty: false);
     await goBack(tester);
     expect(calls, ['discard']);

@@ -2,6 +2,8 @@ import 'package:besties_notes/cubits/group_details/group_details_cubit.dart';
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
 import 'package:besties_notes/data/money.dart';
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/extensions/rate_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -32,14 +34,14 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
   Future<bool> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return false;
     if (_cubit.state.draft?.members.isEmpty ?? true) {
-      showErrorSnackBar(context, 'Add at least one member');
+      showErrorSnackBar(context, context.l10n.groupNeedsMember);
       return false;
     }
     final wasNew = _cubit.state.isNew;
     final saved = await _cubit.save();
     if (!mounted) return saved;
     if (!saved) {
-      showErrorSnackBar(context, 'Could not save the group');
+      showErrorSnackBar(context, context.l10n.groupSaveFailed);
       return false;
     }
     context.read<StudentsAndGroupsCubit>().refresh();
@@ -56,12 +58,14 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
   }
 
   Future<void> _confirmDelete() async {
-    final name = _cubit.state.group?.name ?? 'this group';
+    final group = _cubit.state.group;
+    if (group == null) return;
+    final l10n = context.l10n;
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Delete $name?',
-      message: 'Members stay; they just leave the group.',
-      confirmLabel: 'Delete',
+      title: l10n.deleteNameTitle(group.name),
+      message: l10n.groupDeleteMessage,
+      confirmLabel: l10n.commonDelete,
       destructive: true,
     );
     if (confirmed) await _cubit.delete();
@@ -82,8 +86,14 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
         }
       },
       builder: (context, state) {
+        final l10n = context.l10n;
         return DetailScaffold(
-          noun: 'group',
+          texts: DetailTexts(
+            newTitle: l10n.groupNew,
+            editTitle: l10n.groupEdit,
+            createLabel: l10n.groupCreate,
+            notFound: l10n.groupNotFound,
+          ),
           isLoaded: state.group != null,
           loadFailed: state.error != null,
           isEditing: state.isEditing,
@@ -96,7 +106,7 @@ class _GroupDetailsViewState extends State<GroupDetailsView> {
           menuActions: [
             DetailMenuAction(
               icon: Icons.delete_outline_rounded,
-              label: 'Delete group',
+              label: l10n.groupDelete,
               destructive: true,
               onSelected: _confirmDelete,
             ),
@@ -125,6 +135,7 @@ class _Overview extends StatelessWidget {
     final members = group.students;
     final owed = state.amountOwed;
     final unpaid = state.unpaidLessons.length;
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -146,14 +157,12 @@ class _Overview extends StatelessWidget {
                   children: [
                     Text(group.name, style: context.textTheme.titleLarge),
                     Text(
-                      members.length == 1
-                          ? '1 member'
-                          : '${members.length} members',
+                      l10n.memberCount(members.length),
                       style: context.textTheme.bodySmall,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     StatusBadge(
-                      label: group.pricing.toString(),
+                      label: group.pricing.label(l10n),
                       tone: StatusTone.accent,
                     ),
                   ],
@@ -164,27 +173,27 @@ class _Overview extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxl),
         Section(
-          title: 'Balance',
-          actionLabel: 'Payments',
+          title: l10n.commonBalance,
+          actionLabel: l10n.commonPayments,
           onAction: () => thenReload(context.openGroupPayments(id)),
           child: AppCard(
             child: StatRow(
               icon: Icons.account_balance_wallet_outlined,
               tone: owed > 0 ? StatusTone.warning : StatusTone.done,
               label: owed > 0
-                  ? 'Owed for $unpaid ${unpaid == 1 ? 'lesson' : 'lessons'}'
-                  : 'Nothing owed',
+                  ? l10n.groupOwedFor(unpaid)
+                  : l10n.commonNothingOwed,
               value: owed > 0 ? formatAmount(owed) : '—',
             ),
           ),
         ),
         const SizedBox(height: AppSpacing.xxl),
         Section(
-          title: 'Members',
+          title: l10n.commonMembers,
           child: members.isEmpty
-              ? const EmptyState(
+              ? EmptyState(
                   icon: Icons.group_add_outlined,
-                  title: 'No members yet',
+                  title: l10n.groupNoMembersYet,
                   compact: true,
                 )
               : AppCard(
@@ -246,12 +255,12 @@ class _GroupEditFormState extends State<_GroupEditForm> {
   Future<void> _pickMembers() async {
     final students = context.read<StudentsAndGroupsCubit>().state.students;
     if (students.isEmpty) {
-      showInfoSnackBar(context, 'No students yet. Add some first.');
+      showInfoSnackBar(context, context.l10n.noStudentsAddFirst);
       return;
     }
     final selected = await showSubjectPicker(
       context,
-      title: 'Members',
+      title: context.l10n.commonMembers,
       available: students,
       selected: widget.draft.members,
     );
@@ -285,8 +294,8 @@ class _GroupEditFormState extends State<_GroupEditForm> {
           const SizedBox(height: AppSpacing.xl),
           InputField(
             _name,
-            label: 'Group name',
-            hint: 'E.g. Saturday conversation',
+            label: context.l10n.groupName,
+            hint: context.l10n.groupNameHint,
             icon: const Icon(Icons.groups_outlined),
             onChanged: (v) => _cubit.updateDraft((d) => d.copyWith(name: v)),
           ),
@@ -301,7 +310,7 @@ class _GroupEditFormState extends State<_GroupEditForm> {
           ),
           const SizedBox(height: AppSpacing.lg),
           ScholarsSelector(
-            label: 'Members',
+            label: context.l10n.commonMembers,
             selectedSubjects: draft.members,
             onTap: _pickMembers,
             onDeleted: (s) => _cubit.updateDraft(

@@ -1,9 +1,32 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/buttons/save_bar.dart';
 import 'package:besties_notes/widgets/layout/empty_state.dart';
 import 'package:besties_notes/widgets/layout/unsaved_changes_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+/// The entity-specific texts of a [DetailScaffold].
+class DetailTexts {
+  /// "New lesson".
+  final String newTitle;
+
+  /// "Edit lesson".
+  final String editTitle;
+
+  /// Save-button label when creating: "Create lesson".
+  final String createLabel;
+
+  /// "This lesson may have been deleted."
+  final String notFound;
+
+  const DetailTexts({
+    required this.newTitle,
+    required this.editTitle,
+    required this.createLabel,
+    required this.notFound,
+  });
+}
 
 /// An entry in a detail screen's overflow menu.
 class DetailMenuAction {
@@ -27,8 +50,9 @@ class DetailMenuAction {
 ///   Discard / Save bar, guarded against losing unsaved changes;
 /// - loading and not-found states.
 class DetailScaffold extends StatelessWidget {
-  /// Lowercase noun for titles: "New lesson", "Edit lesson".
-  final String noun;
+  /// Per-entity texts. Whole phrases rather than a noun to splice in:
+  /// languages inflect them differently ("Новий урок" / "Нова група").
+  final DetailTexts texts;
 
   /// The saved item is loaded (false while loading or when creating).
   final bool isLoaded;
@@ -48,7 +72,7 @@ class DetailScaffold extends StatelessWidget {
 
   const DetailScaffold({
     super.key,
-    required this.noun,
+    required this.texts,
     required this.isLoaded,
     required this.loadFailed,
     required this.isEditing,
@@ -71,9 +95,9 @@ class DetailScaffold extends StatelessWidget {
         body: loadFailed
             ? EmptyState(
                 icon: Icons.error_outline_rounded,
-                title: 'Not found',
-                message: 'This $noun may have been deleted.',
-                actionLabel: 'Back',
+                title: context.l10n.stateNotFoundTitle,
+                message: texts.notFound,
+                actionLabel: context.l10n.commonBack,
                 onAction: () => context.pop(),
               )
             : const Center(child: CircularProgressIndicator()),
@@ -96,7 +120,7 @@ class DetailScaffold extends StatelessWidget {
         actions: [
           if (menuActions.isNotEmpty)
             PopupMenuButton<DetailMenuAction>(
-              tooltip: 'More',
+              tooltip: context.l10n.commonMore,
               onSelected: (action) => action.onSelected(),
               itemBuilder: (_) => [
                 for (final action in menuActions)
@@ -124,7 +148,7 @@ class DetailScaffold extends StatelessWidget {
         heroTag: null,
         onPressed: onEdit,
         icon: const Icon(Icons.edit_outlined),
-        label: const Text('Edit'),
+        label: Text(context.l10n.commonEdit),
       ),
     );
   }
@@ -134,7 +158,7 @@ class DetailScaffold extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          tooltip: 'Close',
+          tooltip: context.l10n.commonClose,
           onPressed: () => UnsavedChangesScope.leaveEditing(
             context,
             isDirty: isDirty,
@@ -142,11 +166,11 @@ class DetailScaffold extends StatelessWidget {
             onDiscard: onDiscard,
           ),
         ),
-        title: Text(isNew ? 'New $noun' : 'Edit $noun'),
+        title: Text(isNew ? texts.newTitle : texts.editTitle),
       ),
       body: Builder(builder: editBuilder),
       bottomNavigationBar: SaveBar(
-        saveLabel: isNew ? 'Create $noun' : 'Save',
+        saveLabel: isNew ? texts.createLabel : context.l10n.commonSave,
         isSaving: isSaving,
         onSave: onSave,
         onDiscard: onDiscard,

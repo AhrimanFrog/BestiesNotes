@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cubit.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/db_client.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
@@ -36,8 +37,12 @@ class BestiesApp extends StatelessWidget {
           ..fetchStudents()
           ..fetchGroups(),
         child: MaterialApp.router(
-          title: 'Besties Notes',
+          onGenerateTitle: (context) => context.l10n.appTitle,
           theme: buildLightTheme(),
+          // Follows the system language; English when it isn't supported.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: syncIntlLocale,
           routerConfig: router,
         ),
       ),
@@ -49,8 +54,8 @@ class BestiesApp extends StatelessWidget {
 void _registerFontLicenses() {
   LicenseRegistry.addLicense(() async* {
     for (final (family, file) in [
-      ('Caprasimo', 'assets/fonts/OFL-Caprasimo.txt'),
-      ('Karla', 'assets/fonts/OFL-Karla.txt'),
+      ('Yeseva One', 'assets/fonts/OFL-YesevaOne.txt'),
+      ('Nunito', 'assets/fonts/OFL-Nunito.txt'),
     ]) {
       yield LicenseEntryWithLineBreaks([
         family,

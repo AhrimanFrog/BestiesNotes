@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:besties_notes/data/common.dart';
 import 'package:besties_notes/data/ui_models/rate.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/fields/input_field.dart';
 
@@ -21,6 +22,7 @@ class RatePeriodField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.md,
@@ -29,20 +31,21 @@ class RatePeriodField extends StatelessWidget {
           child: InputField(
             rateController,
             onChanged: onRateChanged,
-            label: 'Rate',
+            label: l10n.rate,
             hint: '420',
-            icon: const Icon(Icons.attach_money),
+            // Currency-neutral until the currency setting exists.
+            icon: const Icon(Icons.payments_outlined),
             textInputType: const TextInputType.numberWithOptions(decimal: true),
             formatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*')),
             ],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter a rate';
+                return l10n.rateRequired;
               }
               final rate = Rate.tryParseAmount(value);
               if (rate == null || rate <= 0) {
-                return 'Please enter a valid rate';
+                return l10n.rateInvalid;
               }
               return null;
             },
@@ -55,15 +58,15 @@ class RatePeriodField extends StatelessWidget {
             isExpanded: true,
             // Dropdowns default to titleMedium, the display font here.
             style: context.textTheme.bodyLarge,
-            decoration: const InputDecoration(labelText: 'Period'),
-            items: const [
+            decoration: InputDecoration(labelText: l10n.ratePeriod),
+            items: [
               DropdownMenuItem(
                 value: RatePeriod.perLesson,
-                child: Text('Per lesson'),
+                child: Text(l10n.ratePeriodPerLesson),
               ),
               DropdownMenuItem(
                 value: RatePeriod.monthly,
-                child: Text('Monthly'),
+                child: Text(l10n.ratePeriodMonthly),
               ),
             ],
             onChanged: (val) {

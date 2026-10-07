@@ -1,5 +1,6 @@
 import 'package:besties_notes/cubits/lessons/lessons_cubit.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -31,7 +32,7 @@ class SchedulePage extends StatelessWidget {
       initialDate: state.anchor,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
-      helpText: 'Go to date',
+      helpText: context.l10n.scheduleGoToDate,
     );
     if (picked != null) await cubit.jumpTo(picked);
   }
@@ -42,27 +43,28 @@ class SchedulePage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<LessonsCubit>();
         final isWeek = state.view == CalendarView.week;
+        final l10n = context.l10n;
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Schedule'),
+            title: Text(l10n.scheduleTitle),
             actions: [
               if (!state.showsToday)
                 TextButton(
                   onPressed: cubit.goToToday,
-                  child: const Text('Today'),
+                  child: Text(l10n.commonToday),
                 ),
               SegmentedButton<CalendarView>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: CalendarView.week,
-                    icon: Icon(Icons.view_agenda_outlined),
-                    tooltip: 'Week',
+                    icon: const Icon(Icons.view_agenda_outlined),
+                    tooltip: l10n.scheduleWeek,
                   ),
                   ButtonSegment(
                     value: CalendarView.month,
-                    icon: Icon(Icons.calendar_month_outlined),
-                    tooltip: 'Month',
+                    icon: const Icon(Icons.calendar_month_outlined),
+                    tooltip: l10n.scheduleMonth,
                   ),
                 ],
                 selected: {state.view},
@@ -82,9 +84,11 @@ class SchedulePage extends StatelessWidget {
                   PeriodNavigator(
                     label: state.periodLabel,
                     previousTooltip: isWeek
-                        ? 'Previous week'
-                        : 'Previous month',
-                    nextTooltip: isWeek ? 'Next week' : 'Next month',
+                        ? l10n.schedulePreviousWeek
+                        : l10n.schedulePreviousMonth,
+                    nextTooltip: isWeek
+                        ? l10n.scheduleNextWeek
+                        : l10n.scheduleNextMonth,
                     onPrevious: cubit.goToPrevious,
                     onNext: cubit.goToNext,
                     onLabelTap: () => _pickDate(context, state),
@@ -122,7 +126,7 @@ class SchedulePage extends StatelessWidget {
             heroTag: null,
             onPressed: () => _create(context, state.defaultNewLessonDay),
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Lesson'),
+            label: Text(l10n.scheduleNewLesson),
           ),
         );
       },
@@ -144,12 +148,12 @@ class _WeekView extends StatelessWidget {
       padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 96),
       children: [
         if (state.lessons.isEmpty && !state.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: EmptyState(
               icon: Icons.event_available_outlined,
-              title: 'A free week',
-              message: 'Tap + next to a day to plan a lesson.',
+              title: context.l10n.scheduleFreeWeekTitle,
+              message: context.l10n.scheduleFreeWeekMessage,
               compact: true,
             ),
           ),
@@ -203,7 +207,7 @@ class _MonthView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Text(
-              'Nothing planned for this day.',
+              context.l10n.scheduleNothingPlanned,
               style: context.textTheme.bodySmall,
             ),
           ),

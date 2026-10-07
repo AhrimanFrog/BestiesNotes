@@ -10,10 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^2.0.0
-  # Keep in lockstep with drift_dev, which bloc_lint's analyzer cap holds at
-  # 2.34.0; a newer runtime breaks `drift_dev make-migrations`.
   drift: 2.34.0
   drift_flutter: ^0.3.1
   path_provider: ^2.1.5
@@ -36,16 +36,19 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Generates AppLocalizations from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
 
   assets:
-    - assets/fonts/OFL-Caprasimo.txt
-    - assets/fonts/OFL-Karla.txt
+    - assets/fonts/OFL-YesevaOne.txt
+    - assets/fonts/OFL-Nunito.txt
 
   # Bundled rather than fetched at runtime: the app must work offline.
+  # Both cover Latin and Cyrillic (English and Ukrainian UI, any names).
   fonts:
-    - family: Caprasimo
+    - family: YesevaOne
       fonts:
-        - asset: assets/fonts/Caprasimo-Regular.ttf
-    - family: Karla
+        - asset: assets/fonts/YesevaOne-Regular.ttf
+    - family: Nunito
       fonts:
-        - asset: assets/fonts/Karla-Variable.ttf
+        - asset: assets/fonts/Nunito-Variable.ttf

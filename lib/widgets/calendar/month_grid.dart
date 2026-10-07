@@ -2,6 +2,7 @@ import 'package:besties_notes/data/calendar_period.dart';
 import 'package:besties_notes/data/ui_models/lesson.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -99,11 +100,10 @@ class _DayCell extends StatelessWidget {
         ? tokens.text
         : tokens.textSubtle;
 
-    final count = lessons.length;
     final semantics = [
       day.toLongDateFormat(),
-      if (isToday) 'today',
-      count == 0 ? 'no lessons' : (count == 1 ? '1 lesson' : '$count lessons'),
+      if (isToday) context.l10n.commonToday,
+      context.l10n.lessonCount(lessons.length),
     ].join(', ');
 
     return Semantics(
@@ -157,7 +157,7 @@ class _DayCell extends StatelessWidget {
                               .withValues(alpha: inMonth ? 1 : 0.4),
                         ),
                       ),
-                    if (count > _maxDots)
+                    if (lessons.length > _maxDots)
                       Icon(Icons.add, size: 6, color: tokens.textMuted),
                   ],
                 ),

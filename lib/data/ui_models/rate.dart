@@ -1,5 +1,4 @@
 import 'package:besties_notes/data/common.dart';
-import 'package:besties_notes/data/money.dart';
 import 'package:equatable/equatable.dart';
 
 class Rate extends Equatable {
@@ -21,13 +20,9 @@ class Rate extends Equatable {
     return rate * months.length;
   }
 
-  String get periodLabel => switch (period) {
-    .perLesson => 'lesson',
-    .monthly => 'month',
-  };
-
+  /// For debugging; the UI uses `RateUIExt.label`, which is translated.
   @override
-  String toString() => '${formatAmount(rate)} / $periodLabel';
+  String toString() => 'Rate($rate, ${period.name})';
 
   @override
   List<Object?> get props => [rate, period];

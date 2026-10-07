@@ -9,7 +9,7 @@ void main() {
   testWidgets('renders weekday and date', (tester) async {
     await tester.pumpThemed(DayTitle(date: DateTime(2025, 1, 13)));
     expect(find.text('MON'), findsOneWidget);
-    expect(find.text('13 Jan'), findsOneWidget);
+    expect(find.text('Jan 13'), findsOneWidget);
     expect(find.text('Today'), findsNothing);
   });
 

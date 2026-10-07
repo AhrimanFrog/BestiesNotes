@@ -1,4 +1,5 @@
 import 'package:besties_notes/cubits/payments/group_payments_cubit.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/rows/stat_row.dart';
@@ -27,7 +28,7 @@ class _GroupPaymentsViewState extends State<GroupPaymentsView> {
     return BlocBuilder<GroupPaymentsCubit, GroupPaymentsState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Group payments')),
+          appBar: AppBar(title: Text(context.l10n.groupPayments)),
           body: PaymentsOverview(
             state: state,
             unpaidLessons: state.unpaidLessons,
@@ -46,7 +47,7 @@ class _GroupPaymentsViewState extends State<GroupPaymentsView> {
               StatRow(
                 icon: Icons.group_outlined,
                 tone: StatusTone.scheduled,
-                label: 'Members',
+                label: context.l10n.commonMembers,
                 value: '${state.group.students.length}',
               ),
             ],

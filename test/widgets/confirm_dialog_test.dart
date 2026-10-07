@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/dialogs/confirm_dialog.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: buildLightTheme(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async => results.add(
@@ -52,7 +55,9 @@ void main() {
     expect(results, [false]);
   });
 
-  testWidgets('dismissing by tapping outside resolves to false', (tester) async {
+  testWidgets('dismissing by tapping outside resolves to false', (
+    tester,
+  ) async {
     final results = await open(tester);
     await tester.tapAt(const Offset(5, 5));
     await tester.pumpAndSettle();

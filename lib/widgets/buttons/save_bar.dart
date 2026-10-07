@@ -1,3 +1,4 @@
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/buttons/submit_button.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class SaveBar extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: context.tokens.textMuted,
                   ),
-                  child: const Text('Discard'),
+                  child: Text(context.l10n.commonDiscard),
                 ),
               ),
               Expanded(

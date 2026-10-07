@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Caprasimo carries the personality (screen titles, names, card titles);
-/// Karla keeps everything else calm and legible. Karla is a variable font —
-/// `fontWeight` drives its weight axis, so any weight works.
+/// Yeseva One carries the personality (screen titles, names, card titles);
+/// Nunito keeps everything else soft and legible. Both cover Latin and
+/// Cyrillic. Nunito is a variable font — `fontWeight` drives its weight axis,
+/// so any weight works.
 abstract final class AppFonts {
-  static const display = 'Caprasimo';
-  static const body = 'Karla';
+  static const display = 'YesevaOne';
+  static const body = 'Nunito';
 }
 
 /// Role guide:

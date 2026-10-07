@@ -1,4 +1,5 @@
 import 'package:besties_notes/extensions/datetime_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,7 @@ class DayTitle extends StatelessWidget {
                 borderRadius: AppRadius.pillAll,
               ),
               child: Text(
-                'Today',
+                context.l10n.commonToday,
                 style: context.textTheme.labelSmall?.copyWith(
                   color: tokens.tone(StatusTone.accent).fg,
                 ),
@@ -59,7 +60,9 @@ class DayTitle extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.add_rounded, size: 20),
               color: tokens.textMuted,
-              tooltip: 'Add lesson on ${date.toLongDateFormat()}',
+              tooltip: context.l10n.scheduleAddLessonOn(
+                date.toLongDateFormat(),
+              ),
               onPressed: onAdd,
             ),
         ],

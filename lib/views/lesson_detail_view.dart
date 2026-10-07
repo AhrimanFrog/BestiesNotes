@@ -3,6 +3,7 @@ import 'package:besties_notes/cubits/students_and_groups/students_and_groups_cub
 import 'package:besties_notes/data/ui_models/index.dart';
 import 'package:besties_notes/extensions/datetime_ext.dart';
 import 'package:besties_notes/extensions/lesson_ui_ext.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/router.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
@@ -29,14 +30,14 @@ class _LessonDetailViewState extends State<LessonDetailView> {
     final state = _cubit.state;
     if (!(_formKey.currentState?.validate() ?? false)) return false;
     if (state.draft?.subjects.isEmpty ?? true) {
-      showErrorSnackBar(context, 'Pick at least one student or group');
+      showErrorSnackBar(context, context.l10n.lessonPickSomeone);
       return false;
     }
     final wasNew = state.isNew;
     final saved = await _cubit.save();
     if (!mounted) return saved;
     if (!saved) {
-      showErrorSnackBar(context, 'Could not save the lesson');
+      showErrorSnackBar(context, context.l10n.lessonSaveFailed);
     } else if (wasNew) {
       context.pop();
     }
@@ -52,23 +53,25 @@ class _LessonDetailViewState extends State<LessonDetailView> {
   }
 
   Future<void> _confirmCancel() async {
+    final l10n = context.l10n;
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Cancel this lesson?',
-      message: 'It stays in the schedule, marked as cancelled.',
-      confirmLabel: 'Cancel lesson',
-      cancelLabel: 'Keep it',
+      title: l10n.lessonCancelConfirmTitle,
+      message: l10n.lessonCancelConfirmMessage,
+      confirmLabel: l10n.lessonCancel,
+      cancelLabel: l10n.lessonCancelKeep,
       destructive: true,
     );
     if (confirmed) await _cubit.setCancelled(true);
   }
 
   Future<void> _confirmDelete() async {
+    final l10n = context.l10n;
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Delete this lesson?',
-      message: 'Attendance and payment records for it are deleted too.',
-      confirmLabel: 'Delete',
+      title: l10n.lessonDeleteConfirmTitle,
+      message: l10n.lessonDeleteConfirmMessage,
+      confirmLabel: l10n.commonDelete,
       destructive: true,
     );
     if (confirmed) await _cubit.delete();
@@ -89,8 +92,14 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       },
       builder: (context, state) {
         final lesson = state.lesson;
+        final l10n = context.l10n;
         return DetailScaffold(
-          noun: 'lesson',
+          texts: DetailTexts(
+            newTitle: l10n.lessonNew,
+            editTitle: l10n.lessonEdit,
+            createLabel: l10n.lessonCreate,
+            notFound: l10n.lessonNotFound,
+          ),
           isLoaded: lesson != null,
           loadFailed: state.error != null,
           isEditing: state.isEditing,
@@ -104,18 +113,18 @@ class _LessonDetailViewState extends State<LessonDetailView> {
             if (lesson?.isCancelled ?? false)
               DetailMenuAction(
                 icon: Icons.restore_rounded,
-                label: 'Restore lesson',
+                label: l10n.lessonRestore,
                 onSelected: () => _cubit.setCancelled(false),
               )
             else
               DetailMenuAction(
                 icon: Icons.event_busy_outlined,
-                label: 'Cancel lesson',
+                label: l10n.lessonCancel,
                 onSelected: _confirmCancel,
               ),
             DetailMenuAction(
               icon: Icons.delete_outline_rounded,
-              label: 'Delete lesson',
+              label: l10n.lessonDelete,
               destructive: true,
               onSelected: _confirmDelete,
             ),
@@ -152,9 +161,12 @@ class _LessonOverview extends StatelessWidget {
         _ParticipantsSection(lesson: lesson),
         const SizedBox(height: AppSpacing.xxl),
         Section(
-          title: 'Notes',
+          title: context.l10n.commonNotes,
           child: lesson.note.isEmpty
-              ? Text('No notes yet.', style: context.textTheme.bodySmall)
+              ? Text(
+                  context.l10n.lessonNoNotes,
+                  style: context.textTheme.bodySmall,
+                )
               : AppCard(
                   child: Text(lesson.note, style: context.textTheme.bodyLarge),
                 ),
@@ -175,7 +187,7 @@ class _HeaderCard extends StatelessWidget {
     final cancelled = lesson.isCancelled;
     final timeRange =
         '${lesson.start.formatTime(context)} – ${lesson.end.formatTime(context)}'
-        ' · ${lesson.duration.inMinutes} min';
+        ' · ${context.l10n.durationMinutes(lesson.duration.inMinutes)}';
 
     Widget infoRow(IconData icon, String text) => Row(
       spacing: AppSpacing.sm,
@@ -191,7 +203,10 @@ class _HeaderCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.sm,
         children: [
-          StatusBadge(label: lesson.uiLabel, tone: lesson.statusTone),
+          StatusBadge(
+            label: lesson.statusLabel(context.l10n),
+            tone: lesson.statusTone,
+          ),
           Text(
             lesson.name,
             style: context.textTheme.headlineSmall?.copyWith(
@@ -223,43 +238,45 @@ class _ParticipantsSection extends StatelessWidget {
     final present = participants.where((p) => p.attended).length;
     final paid = participants.where((p) => p.isPaid).length;
     final total = participants.length;
+    final l10n = context.l10n;
 
     if (participants.isEmpty) {
-      return const Section(
-        title: 'Participants',
+      return Section(
+        title: l10n.lessonParticipants,
         child: EmptyState(
           icon: Icons.person_add_alt_outlined,
-          title: 'No one assigned',
-          message: 'Edit the lesson to add students or groups.',
+          title: l10n.lessonNoOneAssigned,
+          message: l10n.lessonAddParticipantsHint,
           compact: true,
         ),
       );
     }
 
     return Section(
-      title: 'Participants',
+      title: l10n.lessonParticipants,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.md,
         children: [
           Text(
-            '$present/$total present · $paid/$total paid',
+            l10n.lessonParticipantsSummary(present, paid, total),
             style: context.textTheme.labelMedium,
           ),
           if (enabled)
             Wrap(
               spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
                 ActionChip(
                   avatar: const Icon(Icons.how_to_reg_outlined, size: 18),
-                  label: const Text('All present'),
+                  label: Text(l10n.lessonAllPresent),
                   onPressed: present == total
                       ? null
                       : () => cubit.markAll(attended: true),
                 ),
                 ActionChip(
                   avatar: const Icon(Icons.payments_outlined, size: 18),
-                  label: const Text('All paid'),
+                  label: Text(l10n.lessonAllPaid),
                   onPressed: paid == total
                       ? null
                       : () => cubit.markAll(isPaid: true),
@@ -267,10 +284,7 @@ class _ParticipantsSection extends StatelessWidget {
               ],
             )
           else
-            Text(
-              'Restore the lesson to track attendance and payments.',
-              style: context.textTheme.bodySmall,
-            ),
+            Text(l10n.lessonRestoreToTrack, style: context.textTheme.bodySmall),
           AppCard(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
             child: Column(
@@ -395,7 +409,7 @@ class _ParticipantRow extends StatelessWidget {
             children: [
               _StatusToggle(
                 icon: Icons.how_to_reg_outlined,
-                label: 'Present',
+                label: context.l10n.lessonStatusPresent,
                 value: p.attended,
                 tone: StatusTone.scheduled,
                 onChanged: enabled
@@ -404,7 +418,7 @@ class _ParticipantRow extends StatelessWidget {
               ),
               _StatusToggle(
                 icon: Icons.payments_outlined,
-                label: 'Paid',
+                label: context.l10n.lessonStatusPaid,
                 value: p.isPaid,
                 tone: StatusTone.done,
                 onChanged: enabled
@@ -413,7 +427,7 @@ class _ParticipantRow extends StatelessWidget {
               ),
               _StatusToggle(
                 icon: Icons.assignment_turned_in_outlined,
-                label: 'Homework done',
+                label: context.l10n.lessonStatusHomework,
                 value: p.homeworkDone,
                 tone: StatusTone.warning,
                 onChanged: enabled
@@ -549,12 +563,12 @@ class _LessonEditFormState extends State<_LessonEditForm> {
     final available = context.read<StudentsAndGroupsCubit>().state;
     final all = <Teachable>[...available.groups, ...available.students];
     if (all.isEmpty) {
-      showInfoSnackBar(context, 'No students yet. Add some first.');
+      showInfoSnackBar(context, context.l10n.noStudentsAddFirst);
       return;
     }
     final selected = await showSubjectPicker(
       context,
-      title: 'Who is coming?',
+      title: context.l10n.lessonWhoIsComing,
       available: all,
       selected: widget.draft.subjects,
     );
@@ -564,6 +578,7 @@ class _LessonEditFormState extends State<_LessonEditForm> {
   @override
   Widget build(BuildContext context) {
     final draft = widget.draft;
+    final l10n = context.l10n;
 
     return Form(
       key: widget.formKey,
@@ -577,14 +592,14 @@ class _LessonEditFormState extends State<_LessonEditForm> {
         children: [
           InputField(
             _topic,
-            label: 'Topic',
-            hint: 'E.g. Present Simple',
+            label: l10n.lessonTopic,
+            hint: l10n.lessonTopicHint,
             icon: const Icon(Icons.menu_book_outlined),
             onChanged: (v) => _cubit.updateDraft(topic: v),
           ),
           const SizedBox(height: AppSpacing.lg),
           ScholarsSelector(
-            label: 'Students & groups',
+            label: l10n.lessonSubjects,
             selectedSubjects: draft.subjects,
             onTap: _pickSubjects,
             onDeleted: (s) =>
@@ -596,15 +611,15 @@ class _LessonEditFormState extends State<_LessonEditForm> {
             children: [
               Expanded(
                 child: InkWellSelector(
-                  title: 'Date',
-                  body: draft.start.toMediumDateFormat(),
+                  title: l10n.lessonDate,
+                  body: draft.start.toShortDateFormat(),
                   icon: Icons.calendar_today_outlined,
                   onTap: _pickDate,
                 ),
               ),
               Expanded(
                 child: InkWellSelector(
-                  title: 'Time',
+                  title: l10n.lessonTime,
                   body: draft.start.formatTime(context),
                   icon: Icons.schedule_outlined,
                   onTap: _pickTime,
@@ -615,7 +630,7 @@ class _LessonEditFormState extends State<_LessonEditForm> {
           const SizedBox(height: AppSpacing.lg),
           InputField(
             _duration,
-            label: 'Duration (minutes)',
+            label: l10n.lessonDuration,
             hint: '60',
             icon: const Icon(Icons.timer_outlined),
             textInputType: TextInputType.number,
@@ -625,7 +640,7 @@ class _LessonEditFormState extends State<_LessonEditForm> {
             validator: (value) {
               final minutes = int.tryParse(value ?? '');
               if (minutes == null || minutes <= 0) {
-                return 'Enter the length in minutes';
+                return l10n.lessonDurationError;
               }
               return null;
             },
@@ -633,7 +648,7 @@ class _LessonEditFormState extends State<_LessonEditForm> {
           const SizedBox(height: AppSpacing.lg),
           InputField(
             _note,
-            label: 'Notes (optional)',
+            label: l10n.commonNotesOptional,
             icon: const Icon(Icons.notes_outlined),
             maxLines: 4,
             validator: (_) => null,

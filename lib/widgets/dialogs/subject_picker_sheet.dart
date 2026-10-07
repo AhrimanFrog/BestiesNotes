@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/ui_models/index.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/avatar/user_avatar.dart';
 import 'package:besties_notes/widgets/layout/empty_state.dart';
@@ -99,7 +100,11 @@ class _SubjectPickerSheetState extends State<SubjectPickerSheet> {
                     horizontal: AppSpacing.lg,
                   ),
                 ),
-                child: Text(count == 0 ? 'Done' : 'Done ($count)'),
+                child: Text(
+                  count == 0
+                      ? context.l10n.commonDone
+                      : context.l10n.commonDoneCount(count),
+                ),
               ),
             ],
           ),
@@ -107,28 +112,28 @@ class _SubjectPickerSheetState extends State<SubjectPickerSheet> {
           TextField(
             autofocus: false,
             onChanged: (value) => setState(() => _query = value),
-            decoration: const InputDecoration(
-              hintText: 'Search',
-              prefixIcon: Icon(Icons.search_rounded),
+            decoration: InputDecoration(
+              hintText: context.l10n.commonSearch,
+              prefixIcon: const Icon(Icons.search_rounded),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Expanded(
             child: groups.isEmpty && students.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     icon: Icons.search_off_rounded,
-                    title: 'No matches',
+                    title: context.l10n.commonNoMatches,
                     compact: true,
                   )
                 : ListView(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
                     children: [
                       if (groups.isNotEmpty) ...[
-                        const _Header('Groups'),
+                        _Header(context.l10n.commonGroups),
                         for (final g in groups) _tile(g),
                       ],
                       if (students.isNotEmpty) ...[
-                        const _Header('Students'),
+                        _Header(context.l10n.commonStudents),
                         for (final s in students) _tile(s),
                       ],
                     ],
@@ -142,7 +147,7 @@ class _SubjectPickerSheetState extends State<SubjectPickerSheet> {
   Widget _tile(Teachable t) {
     final subtitle = switch (t) {
       Group(:final students) when students.isNotEmpty =>
-        students.length == 1 ? '1 member' : '${students.length} members',
+        context.l10n.memberCount(students.length),
       Student(:final group?) => group.name,
       Student(:final contact) when contact.isNotEmpty => contact,
       _ => null,

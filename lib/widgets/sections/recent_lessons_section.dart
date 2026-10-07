@@ -1,4 +1,5 @@
 import 'package:besties_notes/data/ui_models/lesson.dart';
+import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/theme/app_theme.dart';
 import 'package:besties_notes/widgets/index.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +18,15 @@ class RecentLessonsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Section(
-      title: 'Recent lessons',
-      actionLabel: lessons.length > 3 ? 'See all' : null,
+      title: l10n.recentLessons,
+      actionLabel: lessons.length > 3 ? l10n.commonSeeAll : null,
       onAction: onSeeAll,
       child: lessons.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.event_note_outlined,
-              title: 'No lessons yet',
+              title: l10n.noLessonsYet,
               compact: true,
             )
           : Column(
