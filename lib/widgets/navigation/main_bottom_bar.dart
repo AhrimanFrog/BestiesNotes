@@ -34,6 +34,11 @@ class MainBottomBar extends StatelessWidget {
             selectedIcon: const Icon(Icons.insights_rounded),
             label: context.l10n.navReports,
           ),
+          NavigationDestination(
+            icon: const Icon(Icons.sticky_note_2_outlined),
+            selectedIcon: const Icon(Icons.sticky_note_2_rounded),
+            label: context.l10n.navNotes,
+          ),
         ],
       ),
     );

@@ -518,9 +518,10 @@ void main() {
   // Migrations
   // ---------------------------------------------------------------------------
 
-  test('a pre-v6 database is wiped and recreated', () async {
+  test('a dev database from another schema is wiped and recreated', () async {
     await db.close();
-    // An old dev build: v5 with the since-removed `status` column.
+    // A dev build from before the schema reset: v8, with a since-removed
+    // `status` column.
     db = DbClient(
       NativeDatabase.memory(
         setup: (raw) {
@@ -529,7 +530,7 @@ void main() {
             'status TEXT NOT NULL)',
           );
           raw.execute("INSERT INTO db_lessons VALUES (1, 'scheduled')");
-          raw.userVersion = 5;
+          raw.userVersion = 8;
         },
       ),
     );
@@ -727,6 +728,68 @@ void main() {
         expect(p.attended, isTrue);
       },
     );
+  });
+
+  // ---------------------------------------------------------------------------
+  // Notes
+  // ---------------------------------------------------------------------------
+
+  group('notes', () {
+    test('saving inserts, then updates the same note', () async {
+      final id = await db.saveNote(const Note(title: 'Ideas', body: 'games'));
+      expect(await db.saveNote(Note(id: id, title: 'Ideas!', body: '')), id);
+      final notes = await db.getNotes();
+      expect(notes.single.title, 'Ideas!');
+      expect(notes.single.updatedAt, isNotNull);
+    });
+
+    test('linked notes carry the names to show', () async {
+      final studentId = await db.createOrUpdateStudent(makeStudent());
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      await db.saveNote(Note(title: 'S', studentId: studentId));
+      await db.saveNote(Note(title: 'L', lessonId: lessonId));
+
+      final byStudent = (await db.getNotes(studentId: studentId)).single;
+      expect(byStudent.studentName, 'Alice');
+      final byLesson = (await db.getNotes(lessonId: lessonId)).single;
+      expect(
+        (byLesson.lessonName, byLesson.lessonStart),
+        ('Math', DateTime(2025, 1, 15, 10)),
+      );
+    });
+
+    test('deleting the student or lesson keeps the note, unlinked', () async {
+      final studentId = await db.createOrUpdateStudent(makeStudent());
+      final lessonId = await db.createOrUpdateLesson(makeLesson());
+      final id = await db.saveNote(
+        Note(title: 'Both', studentId: studentId, lessonId: lessonId),
+      );
+
+      await db.deleteStudent(studentId);
+      await db.deleteLesson(lessonId);
+      final note = await db.getNote(id);
+      expect((note.studentId, note.lessonId), (null, null));
+    });
+
+    test('pinning does not count as an edit', () async {
+      final older = await db.saveNote(const Note(title: 'older'));
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await db.saveNote(const Note(title: 'newer'));
+
+      await db.setNotePinned(older, true);
+      final notes = await db.getNotes();
+      expect(notes.map((n) => n.title), ['newer', 'older']);
+      expect(notes.last.isPinned, isTrue);
+    });
+
+    test('deleteNote and clearAllRecords remove notes', () async {
+      final a = await db.saveNote(const Note(title: 'a'));
+      await db.saveNote(const Note(title: 'b'));
+      await db.deleteNote(a);
+      expect((await db.getNotes()).map((n) => n.title), ['b']);
+      await db.clearAllRecords();
+      expect(await db.getNotes(), isEmpty);
+    });
   });
 
   // ---------------------------------------------------------------------------

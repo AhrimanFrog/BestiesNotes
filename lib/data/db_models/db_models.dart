@@ -9,7 +9,6 @@ class DbStudents extends Table {
   TextColumn get avatarPath => text().nullable()();
   RealColumn get payRate => real()();
   TextColumn get period => textEnum<RatePeriod>()();
-  TextColumn get notes => text()();
   IntColumn get groupId => integer()
       .references(DbGroups, #id, onDelete: KeyAction.setNull)
       .nullable()();
@@ -33,8 +32,25 @@ class DbLessons extends Table {
   TextColumn get topic => text()();
   DateTimeColumn get start => dateTime()();
   IntColumn get durationInMinutes => integer()();
-  TextColumn get note => text().nullable()();
   BoolColumn get isCancelled => boolean()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+}
+
+/// Free-form notes in lightweight Markdown, optionally about a student or a
+/// lesson. Deleting the student or lesson keeps the note, unlinked: it's the
+/// teacher's writing.
+class DbNotes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  TextColumn get body => text()();
+  IntColumn get studentId => integer()
+      .references(DbStudents, #id, onDelete: KeyAction.setNull)
+      .nullable()();
+  IntColumn get lessonId => integer()
+      .references(DbLessons, #id, onDelete: KeyAction.setNull)
+      .nullable()();
+  BoolColumn get isPinned => boolean().withDefault(const Constant(false))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
 }

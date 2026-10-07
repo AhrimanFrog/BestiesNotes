@@ -1,10 +1,13 @@
 import 'package:besties_notes/cubits/index.dart';
 import 'package:besties_notes/data/app_settings.dart';
 import 'package:besties_notes/providers/data_provider.dart';
+import 'package:besties_notes/providers/notes_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/views/group_details_view.dart';
 import 'package:besties_notes/views/lesson_detail_view.dart';
 import 'package:besties_notes/views/lessons_history_view.dart';
+import 'package:besties_notes/views/note_editor_view.dart';
+import 'package:besties_notes/views/notes_view.dart';
 import 'package:besties_notes/views/payments_view.dart';
 import 'package:besties_notes/views/reports_view.dart';
 import 'package:besties_notes/views/schedule_view.dart';
@@ -43,6 +46,19 @@ extension AppNavigation on BuildContext {
   Future<void> openGroupHistory(int id) => push('/group/$id/history');
 
   Future<void> openSettings() => push('/settings');
+
+  Future<void> openNote(int id) => push('/note/$id');
+
+  /// A new note, linked to a student or lesson when given.
+  Future<void> createNote({int? studentId, int? lessonId}) => push(
+    Uri(
+      path: '/note/new',
+      queryParameters: {
+        'studentId': ?studentId?.toString(),
+        'lessonId': ?lessonId?.toString(),
+      },
+    ).toString(),
+  );
 }
 
 int _id(GoRouterState state) => int.parse(state.pathParameters['id']!);
@@ -168,6 +184,36 @@ final router = GoRouter(
       builder: (context, state) => const SettingsView(),
     ),
 
+    // ── Notes ────────────────────────────────────────────────────────────────
+    GoRoute(
+      path: '/note/new',
+      builder: (context, state) {
+        int? param(String name) =>
+            int.tryParse(state.uri.queryParameters[name] ?? '');
+        return BlocProvider(
+          create: (_) =>
+              NoteEditorCubit(
+                context.read<NotesProvider>(),
+                context.read<DataProvider>(),
+              )..startNew(
+                studentId: param('studentId'),
+                lessonId: param('lessonId'),
+              ),
+          child: const NoteEditorView(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/note/:id',
+      builder: (context, state) => BlocProvider(
+        create: (_) => NoteEditorCubit(
+          context.read<NotesProvider>(),
+          context.read<DataProvider>(),
+        )..load(_id(state)),
+        child: const NoteEditorView(),
+      ),
+    ),
+
     // ── Tabs ─────────────────────────────────────────────────────────────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
@@ -210,6 +256,18 @@ final router = GoRouter(
                 create: (_) =>
                     ReportsCubit(context.read<PaymentProvider>())..load(),
                 child: const ReportsPage(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/notes',
+              builder: (context, state) => BlocProvider(
+                create: (_) =>
+                    NotesCubit(context.read<NotesProvider>())..load(),
+                child: const NotesPage(),
               ),
             ),
           ],

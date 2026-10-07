@@ -32,15 +32,20 @@ Future<(T,)?> showChoiceSheet<T>(
               ),
               child: Text(title, style: context.textTheme.headlineSmall),
             ),
-            RadioGroup<T>(
-              groupValue: selected,
-              onChanged: (value) => Navigator.pop(context, (value as T,)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final (value, label) in options)
-                    RadioListTile<T>(value: value, title: Text(label)),
-                ],
+            // Long lists (e.g. every student) scroll inside the sheet.
+            Flexible(
+              child: RadioGroup<T>(
+                groupValue: selected,
+                onChanged: (value) => Navigator.pop(context, (value as T,)),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final (value, label) in options)
+                        RadioListTile<T>(value: value, title: Text(label)),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

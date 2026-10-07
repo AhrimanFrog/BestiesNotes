@@ -47,7 +47,6 @@ class LessonInfoCubit extends Cubit<LessonInfoState> {
     String? topic,
     DateTime? start,
     int? durationMinutes,
-    String? note,
     List<Teachable>? subjects,
   }) {
     final draft = state.draft;
@@ -58,7 +57,6 @@ class LessonInfoCubit extends Cubit<LessonInfoState> {
           topic: topic,
           start: start,
           durationMinutes: durationMinutes,
-          note: note,
           subjects: subjects,
         ),
       ),

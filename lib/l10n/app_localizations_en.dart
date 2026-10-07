@@ -59,9 +59,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNotes => 'Notes';
 
   @override
-  String get commonNotesOptional => 'Notes (optional)';
-
-  @override
   String get commonTapToSelect => 'Tap to select';
 
   @override
@@ -288,9 +285,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lessonAddParticipantsHint =>
       'Edit the lesson to add students or groups.';
-
-  @override
-  String get lessonNoNotes => 'No notes yet.';
 
   @override
   String get lessonStatusPresent => 'Present';
@@ -615,6 +609,92 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get navNotes => 'Notes';
+
+  @override
+  String get notesSearchHint => 'Search notes';
+
+  @override
+  String get notesFilterGeneral => 'General';
+
+  @override
+  String get notesFilterLessons => 'Lessons';
+
+  @override
+  String get notesEmptyTitle => 'No notes yet';
+
+  @override
+  String get notesEmptyMessage =>
+      'Lesson plans, homework checklists, ideas: keep them here.';
+
+  @override
+  String get notesNew => 'New note';
+
+  @override
+  String get notesNoneLinked => 'No notes yet';
+
+  @override
+  String get notesAdd => 'Add note';
+
+  @override
+  String get notePinned => 'Pinned';
+
+  @override
+  String get notePin => 'Pin';
+
+  @override
+  String get noteUnpin => 'Unpin';
+
+  @override
+  String get noteUntitled => 'Untitled';
+
+  @override
+  String get noteTitleHint => 'Title';
+
+  @override
+  String get noteBodyHint => 'Write something…';
+
+  @override
+  String get noteFormatHint =>
+      'Start a line with - for a list or - [ ] for a checklist.';
+
+  @override
+  String get noteDelete => 'Delete note';
+
+  @override
+  String get noteDeleteTitle => 'Delete this note?';
+
+  @override
+  String get noteDeleteMessage => 'This can\'t be undone.';
+
+  @override
+  String get noteLinkStudent => 'Link to a student';
+
+  @override
+  String get noteUnlink => 'Remove link';
+
+  @override
+  String get noteSaveFailed =>
+      'Couldn\'t save. Your text is still here; keep typing to try again.';
+
+  @override
+  String get noteBold => 'Bold';
+
+  @override
+  String get noteItalic => 'Italic';
+
+  @override
+  String get noteBulletList => 'List';
+
+  @override
+  String get noteChecklist => 'Checklist';
+
+  @override
+  String noteChecklistProgress(int done, int total) {
+    return '$done/$total done';
+  }
+
+  @override
   String get photoAdd => 'Add photo';
 
   @override
@@ -713,7 +793,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsClear => 'Clear all data';
 
   @override
-  String get settingsClearHint => 'Students, groups and lessons';
+  String get settingsClearHint => 'Students, groups, lessons and notes';
 
   @override
   String get settingsAbout => 'About';
@@ -754,7 +834,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreFailed => 'Could not restore the backup';
 
   @override
-  String get clearConfirmTitle => 'Delete all students, groups and lessons?';
+  String get clearConfirmTitle =>
+      'Delete all students, groups, lessons and notes?';
 
   @override
   String get clearConfirmMessage =>

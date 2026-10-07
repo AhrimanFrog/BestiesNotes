@@ -177,21 +177,14 @@ class _Overview extends StatelessWidget {
             ),
           ),
         ),
-        if (student.note.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xxl),
-          Section(
-            title: l10n.commonNotes,
-            child: AppCard(
-              child: Text(student.note, style: context.textTheme.bodyLarge),
-            ),
-          ),
-        ],
         const SizedBox(height: AppSpacing.xxl),
         RecentLessonsSection(
           lessons: state.lessons,
           onSeeAll: () => thenReload(context.openStudentHistory(id)),
           onLessonTap: (lesson) => thenReload(context.openLesson(lesson.id!)),
         ),
+        const SizedBox(height: AppSpacing.xxl),
+        LinkedNotesSection(studentId: id),
       ],
     );
   }
@@ -280,7 +273,6 @@ class _StudentEditFormState extends State<_StudentEditForm> {
   late final _name = TextEditingController(text: widget.draft.name);
   late final _contact = TextEditingController(text: widget.draft.contact);
   late final _rate = TextEditingController(text: widget.draft.rateInput);
-  late final _note = TextEditingController(text: widget.draft.note);
 
   StudentDetailsCubit get _cubit => context.read<StudentDetailsCubit>();
 
@@ -289,7 +281,6 @@ class _StudentEditFormState extends State<_StudentEditForm> {
     _name.dispose();
     _contact.dispose();
     _rate.dispose();
-    _note.dispose();
     super.dispose();
   }
 
@@ -362,15 +353,6 @@ class _StudentEditFormState extends State<_StudentEditForm> {
                 group: () => groups.where((g) => g.id == id).firstOrNull,
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          InputField(
-            _note,
-            label: l10n.commonNotesOptional,
-            icon: const Icon(Icons.notes_outlined),
-            maxLines: 4,
-            validator: (_) => null,
-            onChanged: (v) => _cubit.updateDraft((d) => d.copyWith(note: v)),
           ),
         ],
       ),

@@ -8,7 +8,6 @@ extension DbStudentExt on DbStudent {
       name: name,
       pricing: Rate(rate: payRate, period: period),
       contact: contact,
-      note: notes,
       iconPath: avatarPath,
       group: group,
     );

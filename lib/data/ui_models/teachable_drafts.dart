@@ -13,7 +13,6 @@ class StudentDraft extends Equatable {
   final String contact;
   final String rateInput;
   final RatePeriod period;
-  final String note;
   final String? iconPath;
   final Group? group;
 
@@ -22,7 +21,6 @@ class StudentDraft extends Equatable {
     this.contact = '',
     this.rateInput = '',
     this.period = RatePeriod.perLesson,
-    this.note = '',
     this.iconPath,
     this.group,
   });
@@ -32,7 +30,6 @@ class StudentDraft extends Equatable {
     contact: s.contact,
     rateInput: formatAmountForInput(s.pricing.rate),
     period: s.pricing.period,
-    note: s.note,
     iconPath: s.iconPath,
     group: s.group,
   );
@@ -46,7 +43,6 @@ class StudentDraft extends Equatable {
     name: name.trim(),
     contact: contact.trim(),
     pricing: Rate(rate: rate!, period: period),
-    note: note.trim(),
     iconPath: iconPath,
     group: group,
   );
@@ -57,7 +53,6 @@ class StudentDraft extends Equatable {
     String? contact,
     String? rateInput,
     RatePeriod? period,
-    String? note,
     String? Function()? iconPath,
     Group? Function()? group,
   }) {
@@ -66,7 +61,6 @@ class StudentDraft extends Equatable {
       contact: contact ?? this.contact,
       rateInput: rateInput ?? this.rateInput,
       period: period ?? this.period,
-      note: note ?? this.note,
       iconPath: iconPath != null ? iconPath() : this.iconPath,
       group: group != null ? group() : this.group,
     );
@@ -78,7 +72,6 @@ class StudentDraft extends Equatable {
     contact,
     rateInput,
     period,
-    note,
     iconPath,
     group?.id,
   ];
