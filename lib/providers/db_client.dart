@@ -7,6 +7,7 @@ import 'package:besties_notes/extensions/db_group_ext.dart';
 import 'package:besties_notes/extensions/db_lesson_details_ext.dart';
 import 'package:besties_notes/extensions/db_student_ext.dart';
 import 'package:besties_notes/providers/data_provider.dart';
+import 'package:besties_notes/providers/notes_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/providers/settings_provider.dart';
 import 'package:drift/drift.dart';
@@ -16,57 +17,36 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import 'db_client.steps.dart';
-
 part 'db_client.g.dart';
 
 @DriftDatabase(
-  tables: [DbLessons, DbStudents, DbGroups, DbLessonParticipants, DbSettings],
+  tables: [
+    DbLessons,
+    DbStudents,
+    DbGroups,
+    DbLessonParticipants,
+    DbSettings,
+    DbNotes,
+  ],
 )
 class DbClient extends _$DbClient
-    implements DataProvider, PaymentProvider, SettingsProvider {
+    implements DataProvider, PaymentProvider, SettingsProvider, NotesProvider {
   DbClient([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
-  /// v6 is the first tracked baseline: older dev builds had diverging schemas
-  /// under the same version number, so they are wiped on upgrade. Every change
-  /// since has a real step (`dart run drift_dev make-migrations`).
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
+    // TODO(release): pre-release only, there is no user data to keep. Before
+    // the first release, replace this with real steps and snapshot v1 with
+    // `dart run drift_dev make-migrations`.
     onUpgrade: (m, from, to) async {
-      if (from < 6) {
-        for (final table in allTables.toList().reversed) {
-          await m.deleteTable(table.actualTableName);
-        }
-        await m.createAll();
-        return;
+      for (final table in allTables.toList().reversed) {
+        await m.deleteTable(table.actualTableName);
       }
-      await m.runMigrationSteps(
-        from: from,
-        to: to,
-        steps: migrationSteps(
-          from6To7: (m, schema) => m.createTable(schema.dbSettings),
-          from7To8: (m, schema) async {
-            final participants = schema.dbLessonParticipants;
-            await m.addColumn(participants, participants.payRate);
-            await m.addColumn(participants, participants.period);
-            // Price existing lessons at today's rates: the group's for group
-            // members, the student's own otherwise.
-            for (final column in ['pay_rate', 'period']) {
-              await customStatement('''
-                UPDATE db_lesson_participants SET $column = COALESCE(
-                  (SELECT g.$column FROM db_groups g
-                    WHERE g.id = db_lesson_participants.group_id),
-                  (SELECT s.$column FROM db_students s
-                    WHERE s.id = db_lesson_participants.student_id))
-              ''');
-            }
-          },
-        ),
-      );
+      await m.createAll();
     },
     // SQLite ships with foreign keys off; without this the cascade and
     // set-null rules in db_models.dart never run.
@@ -118,15 +98,113 @@ class DbClient extends _$DbClient
     await customStatement('VACUUM INTO ?', [target.path]);
   }
 
-  /// Deletes all students, groups and lessons. Settings are kept.
+  /// Deletes all students, groups, lessons and notes. Settings are kept.
   Future<void> clearAllRecords() {
     return transaction(() async {
+      await delete(dbNotes).go();
       await delete(dbLessonParticipants).go();
       await delete(dbLessons).go();
       await delete(dbStudents).go();
       await delete(dbGroups).go();
     });
   }
+
+  // ---------------------------------------------------------------------------
+  // Notes
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<List<Note>> getNotes({int? studentId, int? lessonId}) {
+    return _notes((n) {
+      Expression<bool> filter = const Constant(true);
+      if (studentId != null) filter = filter & n.studentId.equals(studentId);
+      if (lessonId != null) filter = filter & n.lessonId.equals(lessonId);
+      return filter;
+    });
+  }
+
+  @override
+  Future<Note> getNote(int noteId) async =>
+      (await _notes((n) => n.id.equals(noteId))).single;
+
+  @override
+  Future<int> saveNote(Note note) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final companion = DbNotesCompanion.insert(
+      id: note.id != null ? Value(note.id!) : const Value.absent(),
+      title: note.title,
+      body: note.body,
+      studentId: Value(note.studentId),
+      lessonId: Value(note.lessonId),
+      isPinned: Value(note.isPinned),
+      createdAt: now,
+      updatedAt: now,
+    );
+    final insertedId = await into(dbNotes).insert(
+      companion,
+      onConflict: DoUpdate(
+        (_) => companion.copyWith(
+          createdAt: const Value.absent(),
+          updatedAt: Value(now),
+        ),
+      ),
+    );
+    // An upsert that updates doesn't set the last insert rowid reliably.
+    return note.id ?? insertedId;
+  }
+
+  @override
+  Future<void> setNotePinned(int noteId, bool isPinned) {
+    // Pinning isn't an edit: leave updatedAt alone.
+    return (update(dbNotes)..where((n) => n.id.equals(noteId))).write(
+      DbNotesCompanion(isPinned: Value(isPinned)),
+    );
+  }
+
+  @override
+  Future<void> deleteNote(int noteId) {
+    return (delete(dbNotes)..where((n) => n.id.equals(noteId))).go();
+  }
+
+  Future<List<Note>> _notes(
+    Expression<bool> Function($DbNotesTable n) filter,
+  ) async {
+    final query =
+        (select(dbNotes)
+              ..where(filter)
+              ..orderBy([(n) => OrderingTerm.desc(n.updatedAt)]))
+            .join([
+              leftOuterJoin(
+                dbStudents,
+                dbStudents.id.equalsExp(dbNotes.studentId),
+              ),
+              leftOuterJoin(
+                dbLessons,
+                dbLessons.id.equalsExp(dbNotes.lessonId),
+              ),
+            ]);
+    return [
+      for (final row in await query.get())
+        _noteFromRow(
+          row.readTable(dbNotes),
+          row.readTableOrNull(dbStudents),
+          row.readTableOrNull(dbLessons),
+        ),
+    ];
+  }
+
+  Note _noteFromRow(DbNote note, DbStudent? student, DbLesson? lesson) => Note(
+    id: note.id,
+    title: note.title,
+    body: note.body,
+    studentId: note.studentId,
+    lessonId: note.lessonId,
+    isPinned: note.isPinned,
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(note.updatedAt),
+    studentName: student?.name,
+    lessonName: lesson?.topic,
+    lessonStart: lesson?.start,
+  );
 
   // ---------------------------------------------------------------------------
   // Lessons
@@ -185,7 +263,6 @@ class DbClient extends _$DbClient
       topic: lesson.name,
       start: lesson.start,
       durationInMinutes: lesson.duration.inMinutes,
-      note: Value(lesson.note),
       isCancelled: lesson.isCancelled,
       createdAt: now,
       updatedAt: now,
@@ -363,7 +440,6 @@ class DbClient extends _$DbClient
       avatarPath: Value(student.iconPath),
       payRate: student.pricing.rate,
       period: student.pricing.period,
-      notes: student.note,
       groupId: Value(student.group?.id),
       createdAt: now,
       updatedAt: now,

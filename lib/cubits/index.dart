@@ -1,6 +1,8 @@
 export 'group_details/group_details_cubit.dart';
 export 'lessons/lesson_info_cubit.dart';
 export 'lessons/lessons_cubit.dart';
+export 'notes/note_editor_cubit.dart';
+export 'notes/notes_cubit.dart';
 export 'payments/payments_cubit.dart';
 export 'reports/reports_cubit.dart';
 export 'settings/settings_cubit.dart';

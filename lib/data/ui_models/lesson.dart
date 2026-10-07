@@ -7,7 +7,6 @@ class Lesson extends Equatable {
   final List<LessonParticipant> participants;
   final DateTime start;
   final Duration duration;
-  final String note;
   final bool isCancelled;
 
   const Lesson({
@@ -16,7 +15,6 @@ class Lesson extends Equatable {
     this.participants = const [],
     required this.start,
     required this.duration,
-    this.note = "",
     this.isCancelled = false,
   });
 
@@ -43,7 +41,6 @@ class Lesson extends Equatable {
     List<LessonParticipant>? participants,
     DateTime? start,
     Duration? duration,
-    String? note,
     bool? isCancelled,
   }) {
     return Lesson(
@@ -52,7 +49,6 @@ class Lesson extends Equatable {
       participants: participants ?? this.participants,
       start: start ?? this.start,
       duration: duration ?? this.duration,
-      note: note ?? this.note,
       isCancelled: isCancelled ?? this.isCancelled,
     );
   }
@@ -64,7 +60,6 @@ class Lesson extends Equatable {
     participants,
     start,
     duration,
-    note,
     isCancelled,
   ];
 }

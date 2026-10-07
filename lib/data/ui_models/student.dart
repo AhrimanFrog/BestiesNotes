@@ -5,7 +5,6 @@ import 'teachable.dart';
 class Student extends Teachable {
   final Group? group;
   final String contact;
-  final String note;
 
   const Student({
     super.id,
@@ -14,7 +13,6 @@ class Student extends Teachable {
     required this.contact,
     super.iconPath,
     this.group,
-    this.note = "",
   });
 
   Student copyWith({
@@ -24,7 +22,6 @@ class Student extends Teachable {
     String? contact,
     String? iconPath,
     Group? Function()? group,
-    String? note,
   }) {
     return Student(
       id: id ?? this.id,
@@ -33,18 +30,16 @@ class Student extends Teachable {
       contact: contact ?? this.contact,
       iconPath: iconPath ?? this.iconPath,
       group: group != null ? group() : this.group,
-      note: note ?? this.note,
     );
   }
 
   // Only the group id: comparing the whole group would pull its member set in.
   @override
-  List<Object?> get props => [...super.props, group?.id, contact, note];
+  List<Object?> get props => [...super.props, group?.id, contact];
 
   const Student.demo()
     : group = null,
       contact = "Loading...",
-      note = "",
       super(
         name: "Loading...",
         pricing: const Rate(rate: 0, period: .perLesson),

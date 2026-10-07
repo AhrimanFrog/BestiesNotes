@@ -194,12 +194,6 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get commonNotes;
 
-  /// No description provided for @commonNotesOptional.
-  ///
-  /// In en, this message translates to:
-  /// **'Notes (optional)'**
-  String get commonNotesOptional;
-
   /// No description provided for @commonTapToSelect.
   ///
   /// In en, this message translates to:
@@ -601,12 +595,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit the lesson to add students or groups.'**
   String get lessonAddParticipantsHint;
-
-  /// No description provided for @lessonNoNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'No notes yet.'**
-  String get lessonNoNotes;
 
   /// No description provided for @lessonStatusPresent.
   ///
@@ -1154,6 +1142,168 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 unpaid lesson} other{{count} unpaid lessons}}'**
   String unpaidLessonCount(int count);
 
+  /// No description provided for @navNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get navNotes;
+
+  /// No description provided for @notesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes'**
+  String get notesSearchHint;
+
+  /// No description provided for @notesFilterGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get notesFilterGeneral;
+
+  /// No description provided for @notesFilterLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get notesFilterLessons;
+
+  /// No description provided for @notesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get notesEmptyTitle;
+
+  /// No description provided for @notesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson plans, homework checklists, ideas: keep them here.'**
+  String get notesEmptyMessage;
+
+  /// No description provided for @notesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New note'**
+  String get notesNew;
+
+  /// No description provided for @notesNoneLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get notesNoneLinked;
+
+  /// No description provided for @notesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get notesAdd;
+
+  /// No description provided for @notePinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get notePinned;
+
+  /// No description provided for @notePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get notePin;
+
+  /// No description provided for @noteUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get noteUnpin;
+
+  /// No description provided for @noteUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get noteUntitled;
+
+  /// No description provided for @noteTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get noteTitleHint;
+
+  /// No description provided for @noteBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write something…'**
+  String get noteBodyHint;
+
+  /// No description provided for @noteFormatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a line with - for a list or - [ ] for a checklist.'**
+  String get noteFormatHint;
+
+  /// No description provided for @noteDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get noteDelete;
+
+  /// No description provided for @noteDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this note?'**
+  String get noteDeleteTitle;
+
+  /// No description provided for @noteDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get noteDeleteMessage;
+
+  /// No description provided for @noteLinkStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to a student'**
+  String get noteLinkStudent;
+
+  /// No description provided for @noteUnlink.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get noteUnlink;
+
+  /// No description provided for @noteSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Your text is still here; keep typing to try again.'**
+  String get noteSaveFailed;
+
+  /// No description provided for @noteBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get noteBold;
+
+  /// No description provided for @noteItalic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get noteItalic;
+
+  /// No description provided for @noteBulletList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get noteBulletList;
+
+  /// No description provided for @noteChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist'**
+  String get noteChecklist;
+
+  /// No description provided for @noteChecklistProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done}/{total} done'**
+  String noteChecklistProgress(int done, int total);
+
   /// No description provided for @photoAdd.
   ///
   /// In en, this message translates to:
@@ -1337,7 +1487,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsClearHint.
   ///
   /// In en, this message translates to:
-  /// **'Students, groups and lessons'**
+  /// **'Students, groups, lessons and notes'**
   String get settingsClearHint;
 
   /// No description provided for @settingsAbout.
@@ -1409,7 +1559,7 @@ abstract class AppLocalizations {
   /// No description provided for @clearConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delete all students, groups and lessons?'**
+  /// **'Delete all students, groups, lessons and notes?'**
   String get clearConfirmTitle;
 
   /// No description provided for @clearConfirmMessage.

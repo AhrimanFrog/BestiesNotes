@@ -6,6 +6,7 @@ import 'package:besties_notes/data/app_settings.dart';
 import 'package:besties_notes/l10n/l10n.dart';
 import 'package:besties_notes/providers/data_provider.dart';
 import 'package:besties_notes/providers/db_client.dart';
+import 'package:besties_notes/providers/notes_provider.dart';
 import 'package:besties_notes/providers/payment_provider.dart';
 import 'package:besties_notes/providers/settings_provider.dart';
 import 'package:besties_notes/router.dart';
@@ -107,6 +108,7 @@ class _BestiesAppState extends State<BestiesApp> implements AppSession {
           RepositoryProvider<DataProvider>.value(value: db),
           RepositoryProvider<PaymentProvider>.value(value: db),
           RepositoryProvider<SettingsProvider>.value(value: db),
+          RepositoryProvider<NotesProvider>.value(value: db),
         ],
         child: MultiBlocProvider(
           providers: [

@@ -160,17 +160,7 @@ class _LessonOverview extends StatelessWidget {
         const SizedBox(height: AppSpacing.xxl),
         _ParticipantsSection(lesson: lesson),
         const SizedBox(height: AppSpacing.xxl),
-        Section(
-          title: context.l10n.commonNotes,
-          child: lesson.note.isEmpty
-              ? Text(
-                  context.l10n.lessonNoNotes,
-                  style: context.textTheme.bodySmall,
-                )
-              : AppCard(
-                  child: Text(lesson.note, style: context.textTheme.bodyLarge),
-                ),
-        ),
+        LinkedNotesSection(lessonId: lesson.id),
       ],
     );
   }
@@ -509,7 +499,6 @@ class _LessonEditFormState extends State<_LessonEditForm> {
   late final _duration = TextEditingController(
     text: '${widget.draft.durationMinutes}',
   );
-  late final _note = TextEditingController(text: widget.draft.note);
 
   LessonInfoCubit get _cubit => context.read<LessonInfoCubit>();
 
@@ -517,7 +506,6 @@ class _LessonEditFormState extends State<_LessonEditForm> {
   void dispose() {
     _topic.dispose();
     _duration.dispose();
-    _note.dispose();
     super.dispose();
   }
 
@@ -644,15 +632,6 @@ class _LessonEditFormState extends State<_LessonEditForm> {
               }
               return null;
             },
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          InputField(
-            _note,
-            label: l10n.commonNotesOptional,
-            icon: const Icon(Icons.notes_outlined),
-            maxLines: 4,
-            validator: (_) => null,
-            onChanged: (v) => _cubit.updateDraft(note: v),
           ),
         ],
       ),

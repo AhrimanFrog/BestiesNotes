@@ -34,9 +34,11 @@ export 'layout/unsaved_changes_scope.dart';
 export 'navigation/main_bottom_bar.dart';
 export 'navigation/navigation_chip.dart';
 export 'navigation/period_navigator.dart';
+export 'navigation/refresh_on_show.dart';
 
 export 'rows/stat_row.dart';
 
+export 'sections/linked_notes_section.dart';
 export 'sections/recent_lessons_section.dart';
 export 'sections/lessons_list_section.dart';
 

@@ -67,6 +67,14 @@ void main() {
       await db.syncLessonMembership(lessonId, [
         const Group(id: 1, name: '', pricing: rate),
       ]);
+      await db.saveNote(
+        const Note(
+          title: 'Домашнє завдання на наступний тиждень',
+          body: '**Граматика**\n- [x] Вправа 4\n- [ ] Есе на 200 слів',
+          studentId: 1,
+          isPinned: true,
+        ),
+      );
       // A lesson that has surely happened, for the reports.
       final pastId = await db.createOrUpdateLesson(
         Lesson(
@@ -124,6 +132,19 @@ void main() {
       router.pop();
       await settle(tester);
     }
+
+    // Notes: the list, then the note read and edited.
+    await tester.tap(find.byIcon(Icons.sticky_note_2_outlined));
+    await settle(tester);
+    expect(find.textContaining('Виконано 1/2'), findsOneWidget);
+    await tester.tap(find.text('Домашнє завдання на наступний тиждень'));
+    await settle(tester);
+    expect(find.text('Есе на 200 слів'), findsOneWidget);
+    await tester.tap(find.byTooltip('Редагувати'));
+    await settle(tester);
+    expect(find.byTooltip('Чекліст'), findsOneWidget);
+    router.pop();
+    await settle(tester);
 
     // Settings, scrolled to the bottom.
     router.push('/settings');

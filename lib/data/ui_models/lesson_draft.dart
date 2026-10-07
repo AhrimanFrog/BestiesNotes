@@ -9,14 +9,12 @@ class LessonDraft extends Equatable {
   final String topic;
   final DateTime start;
   final int durationMinutes;
-  final String note;
   final List<Teachable> subjects;
 
   const LessonDraft({
     required this.topic,
     required this.start,
     required this.durationMinutes,
-    this.note = '',
     this.subjects = const [],
   });
 
@@ -24,7 +22,6 @@ class LessonDraft extends Equatable {
     topic: lesson.name,
     start: lesson.start,
     durationMinutes: lesson.duration.inMinutes,
-    note: lesson.note,
     subjects: lesson.subjects,
   );
 
@@ -52,7 +49,6 @@ class LessonDraft extends Equatable {
     name: topic.trim(),
     start: start,
     duration: Duration(minutes: durationMinutes),
-    note: note.trim(),
     isCancelled: base?.isCancelled ?? false,
   );
 
@@ -60,14 +56,12 @@ class LessonDraft extends Equatable {
     String? topic,
     DateTime? start,
     int? durationMinutes,
-    String? note,
     List<Teachable>? subjects,
   }) {
     return LessonDraft(
       topic: topic ?? this.topic,
       start: start ?? this.start,
       durationMinutes: durationMinutes ?? this.durationMinutes,
-      note: note ?? this.note,
       subjects: subjects ?? this.subjects,
     );
   }
@@ -77,7 +71,6 @@ class LessonDraft extends Equatable {
     topic,
     start,
     durationMinutes,
-    note,
     // Order of selection doesn't make a draft different.
     {...subjects},
   ];

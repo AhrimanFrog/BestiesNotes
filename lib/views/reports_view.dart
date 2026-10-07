@@ -12,43 +12,22 @@ import 'package:besties_notes/widgets/index.dart';
 import 'package:besties_notes/widgets/sections/earnings_summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-class ReportsPage extends StatefulWidget {
+class ReportsPage extends StatelessWidget {
   const ReportsPage({super.key});
-
-  @override
-  State<ReportsPage> createState() => _ReportsPageState();
-}
-
-class _ReportsPageState extends State<ReportsPage> {
-  late final GoRouter _router;
-
-  @override
-  void initState() {
-    super.initState();
-    // Lessons are marked paid elsewhere; refresh whenever the tab is shown
-    // again (switching tabs, or coming back from a pushed screen).
-    _router = GoRouter.of(context);
-    _router.routerDelegate.addListener(_onNavigation);
-  }
-
-  @override
-  void dispose() {
-    _router.routerDelegate.removeListener(_onNavigation);
-    super.dispose();
-  }
-
-  void _onNavigation() {
-    final location = _router.routerDelegate.currentConfiguration.uri.path;
-    if (location == '/reports' && mounted) {
-      context.read<ReportsCubit>().load(quiet: true);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // Lessons are marked paid elsewhere.
+    return RefreshOnShow(
+      location: '/reports',
+      onShown: () => context.read<ReportsCubit>().load(quiet: true),
+      child: _scaffold(context, l10n),
+    );
+  }
+
+  Widget _scaffold(BuildContext context, AppLocalizations l10n) {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.reportsTitle),

@@ -59,9 +59,6 @@ class AppLocalizationsUk extends AppLocalizations {
   String get commonNotes => 'Нотатки';
 
   @override
-  String get commonNotesOptional => 'Нотатки (необов’язково)';
-
-  @override
   String get commonTapToSelect => 'Натисніть, щоб вибрати';
 
   @override
@@ -291,9 +288,6 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get lessonAddParticipantsHint =>
       'Відредагуйте урок, щоб додати учнів або групи.';
-
-  @override
-  String get lessonNoNotes => 'Нотаток поки немає.';
 
   @override
   String get lessonStatusPresent => 'Присутній';
@@ -627,6 +621,92 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
+  String get navNotes => 'Нотатки';
+
+  @override
+  String get notesSearchHint => 'Пошук у нотатках';
+
+  @override
+  String get notesFilterGeneral => 'Загальні';
+
+  @override
+  String get notesFilterLessons => 'Уроки';
+
+  @override
+  String get notesEmptyTitle => 'Нотаток поки немає';
+
+  @override
+  String get notesEmptyMessage =>
+      'Плани уроків, списки домашніх завдань, ідеї — зберігайте їх тут.';
+
+  @override
+  String get notesNew => 'Нова нотатка';
+
+  @override
+  String get notesNoneLinked => 'Нотаток поки немає';
+
+  @override
+  String get notesAdd => 'Додати нотатку';
+
+  @override
+  String get notePinned => 'Закріплено';
+
+  @override
+  String get notePin => 'Закріпити';
+
+  @override
+  String get noteUnpin => 'Відкріпити';
+
+  @override
+  String get noteUntitled => 'Без назви';
+
+  @override
+  String get noteTitleHint => 'Назва';
+
+  @override
+  String get noteBodyHint => 'Напишіть щось…';
+
+  @override
+  String get noteFormatHint =>
+      'Почніть рядок з - для списку або з - [ ] для чекліста.';
+
+  @override
+  String get noteDelete => 'Видалити нотатку';
+
+  @override
+  String get noteDeleteTitle => 'Видалити цю нотатку?';
+
+  @override
+  String get noteDeleteMessage => 'Цю дію не можна скасувати.';
+
+  @override
+  String get noteLinkStudent => 'Прив’язати до учня';
+
+  @override
+  String get noteUnlink => 'Прибрати прив’язку';
+
+  @override
+  String get noteSaveFailed =>
+      'Не вдалося зберегти. Текст на місці — продовжуйте писати, щоб спробувати ще раз.';
+
+  @override
+  String get noteBold => 'Жирний';
+
+  @override
+  String get noteItalic => 'Курсив';
+
+  @override
+  String get noteBulletList => 'Список';
+
+  @override
+  String get noteChecklist => 'Чекліст';
+
+  @override
+  String noteChecklistProgress(int done, int total) {
+    return 'Виконано $done/$total';
+  }
+
+  @override
   String get photoAdd => 'Додати фото';
 
   @override
@@ -727,7 +807,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get settingsClear => 'Видалити всі дані';
 
   @override
-  String get settingsClearHint => 'Учні, групи й уроки';
+  String get settingsClearHint => 'Учні, групи, уроки й нотатки';
 
   @override
   String get settingsAbout => 'Про застосунок';
@@ -769,7 +849,8 @@ class AppLocalizationsUk extends AppLocalizations {
   String get restoreFailed => 'Не вдалося відновити копію';
 
   @override
-  String get clearConfirmTitle => 'Видалити всіх учнів, групи й уроки?';
+  String get clearConfirmTitle =>
+      'Видалити всіх учнів, групи, уроки й нотатки?';
 
   @override
   String get clearConfirmMessage =>
